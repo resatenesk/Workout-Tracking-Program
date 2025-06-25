@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,12 +12,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -25,25 +34,38 @@ public class AntrenmanEkleme {
 
     private static BorderPane root;
     private final Button geriButton;
-    private TableView tablo;
+    private TableView<KullaniciVeri> tablo;
     private String username;
-    private ObservableList liste;
+    private ObservableList<KullaniciVeri> liste;
     private Label antrenmanIDlabel;
     private Label kacinciGunLabel;
     private ComboBox<Integer> kacincıGunComboBox;
     private int gun_sayisi;
     private List<Integer> gun_listesi = new ArrayList<>();
     private VBox icerikSag;
+    private VBox icerikSol;
     private VBox hareketlerVbox;
+    private VBox textFieldVBox;
     List<Label> labeller = new ArrayList<>();
+    List<HBox> hareketSatirlari = new ArrayList<>();
+    private ImageView infoIcon;
+    private Image infoImage;
+    private Button ekleButton;
+    private int antrenman_id;
+    private int secilenGun = 0;
+    private DatePicker datePicker;
+    private LocalDate secilenTarih;
 
-    @SuppressWarnings("static-access")
+    @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
     public AntrenmanEkleme(String username) {
 
         antrenmanIDlabel = new Label("");
         this.username = username;
         root = new BorderPane();
         root.setPadding(new Insets(20));
+
+        datePicker = new DatePicker();
+        datePicker.setPromptText("Tarih Seçiniz");
 
         Label baslik = new Label("Antrenman Ekleme Ekranı");
         baslik.setStyle("-fx-font-size:20px");
@@ -58,11 +80,6 @@ public class AntrenmanEkleme {
         geriButton.setStyle("-fx-font-size: 14px;");
         geriButton.setOnAction(e -> {
             AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
-            try {
-
-            } catch (Exception ex) {
-
-            }
         });
 
         HBox footer = new HBox(geriButton);
@@ -70,8 +87,7 @@ public class AntrenmanEkleme {
         footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
         root.setBottom(footer);
 
-        VBox icerikSol = new VBox(2);
-
+        icerikSol = new VBox(2);
         icerikSol.setMargin(antrenmanIDlabel, Insets.EMPTY);
         icerikSol.setAlignment(Pos.CENTER);
         icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
@@ -82,49 +98,191 @@ public class AntrenmanEkleme {
             kacincıGunComboBox.getItems().clear();
             KullaniciVeri secilenVeri = (KullaniciVeri) tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri != null) {
-                antrenmanIDlabel.setText("Seçilen Antrenman'ın ID'si: " + secilenVeri.getAntrenmanID());
-                antrenmanIDlabel.setStyle("-fx-font-size:10px;");
-                antrenmanIDlabel.setMinHeight(50);
-                antrenmanIDlabel.setMaxHeight(50);
-                antrenmanIDlabel.setPrefHeight(50);
-                int gun_sayisi = secilenVeri.getGunSayisi();
+                gun_sayisi = secilenVeri.getGunSayisi();
+                antrenman_id = secilenVeri.getAntrenmanID();
+
                 for (int i = 1; i < gun_sayisi + 1; i++) {
                     gun_listesi.add(i);
                 }
                 kacincıGunComboBox.getItems().addAll(gun_listesi);
 
-            } else {
-                antrenmanIDlabel.setText("");
             }
+
         });
-        icerikSol.getChildren().addAll(tablo, antrenmanIDlabel);
+
+        ekleButton = new Button("EKLE");
+        ekleButton.setVisible(false);
+        ekleButton.setOnAction(e -> {
+            secilenTarih = datePicker.getValue();
+            if (secilenTarih != null) {
+                veritabaniVerileriAktar();
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Tarih Seçilmedi!");
+                alert.setHeaderText(null);
+                alert.setContentText("Lütfen Tarih Seçiniz.");
+
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+            }
+
+        });
+
+        icerikSol.getChildren().addAll(tablo, antrenmanIDlabel, datePicker);
 
         icerikSag = new VBox(30);
         icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
-        icerikSag.setPrefWidth(500);
-        icerikSag.setMaxWidth(500);
+        icerikSag.setPrefWidth(700);
+        icerikSag.setMaxWidth(700);
         icerikSag.setAlignment(Pos.TOP_CENTER);
+
+        infoImage = new Image(getClass().getResource("/ICONS/info.png").toExternalForm());
+        infoIcon = new ImageView(infoImage);
+        infoIcon.setStyle(
+                "-fx-text-fill: #007acc; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-cursor: hand;");
+        infoIcon.setFitHeight(20);
+        infoIcon.setFitWidth(20);
+        infoIcon.setPreserveRatio(true);
+        infoIcon.setStyle("-fx-cursor: hand;");
+        Tooltip passwordTooltip = new Tooltip(
+                "Lütfen ağrılıkları ve tekrar sayılarını aralarda virgül bırakarak giriniz.");
+        Tooltip.install(infoIcon, passwordTooltip);
 
         HBox kacinciGunHBox = new HBox(10);
         kacinciGunHBox.setAlignment(Pos.CENTER);
+        kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
 
         kacinciGunLabel = new Label("Kaçıncı Güne Hareket Ekleyeceksiniz ?");
         kacinciGunLabel.setStyle("-fx-font-size:15px;");
 
+        textFieldVBox = new VBox(5);
+        textFieldVBox.setAlignment(Pos.CENTER);
+
         kacincıGunComboBox = new ComboBox<>();
         kacincıGunComboBox.setOnAction(e -> {
-            Integer secilenGun = kacincıGunComboBox.getValue();
-            if (secilenGun != null) {
+            secilenGun = kacincıGunComboBox.getValue();
+            if (secilenGun != 0) {
                 hareketleriOlustur();
+                if (!icerikSag.getChildren().contains(textFieldVBox)) {
+                    icerikSag.getChildren().add(textFieldVBox);
+                }
             }
         });
-        hareketlerVbox = new VBox(10);
-        hareketlerVbox.setAlignment(Pos.CENTER_LEFT);
-
-        kacinciGunHBox.getChildren().addAll(kacinciGunLabel, kacincıGunComboBox);
-        icerikSag.getChildren().addAll(kacinciGunHBox, hareketlerVbox);
+        icerikSag.getChildren().addAll(kacinciGunHBox);
+        kacinciGunHBox.getChildren().addAll(kacinciGunLabel, kacincıGunComboBox, infoIcon);
         root.setLeft(icerikSol);
         root.setRight(icerikSag);
+
+    }
+
+    public void veritabaniVerileriAktar() {
+        System.out.println("Toplam hareket satırı sayısı: " + hareketSatirlari.size());
+        if (secilenGun == 0) {
+            System.out.println("HATA: Lütfen bir gün seçin!");
+            return;
+        }
+
+        // === TÜM SATIRLARDA BOŞLUK KONTROLÜ ===
+        boolean bosVeriVarMi = false;
+        for (HBox veri : hareketSatirlari) {
+            if (veri.getChildren().size() < 3)
+                continue;
+
+            VBox column2 = (VBox) veri.getChildren().get(1);
+            VBox column3 = (VBox) veri.getChildren().get(2);
+
+            if (column2.getChildren().isEmpty() || column3.getChildren().isEmpty())
+                continue;
+
+            TextField agirlikTextField = (TextField) column2.getChildren().get(0);
+            TextField tekrarTextField = (TextField) column3.getChildren().get(0);
+
+            if (agirlikTextField.getText().isBlank() || tekrarTextField.getText().isBlank()) {
+                bosVeriVarMi = true;
+                break; // Bir tane bile boş varsa çık
+            }
+        }
+
+        if (bosVeriVarMi) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Veri Eksik!");
+            alert.setHeaderText(null);
+            alert.setContentText("Lütfen tüm ağırlık ve tekrar bilgilerini doldurun.");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+            alert.showAndWait();
+            return; // Boş veri varsa kayıt yapma
+        }
+
+        // === VERİTABANINA KAYIT KISMI ===
+        try (Connection con = Database.connect()) {
+            String sorgu = "INSERT INTO kayitlar (username, antrenman_id, gun_no, hareket_adi, set_no, agirlik, tekrar, tarih) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+
+            for (HBox veri : hareketSatirlari) {
+                if (veri.getChildren().size() < 3)
+                    continue;
+
+                VBox column1 = (VBox) veri.getChildren().get(0);
+                VBox column2 = (VBox) veri.getChildren().get(1);
+                VBox column3 = (VBox) veri.getChildren().get(2);
+
+                if (column1.getChildren().isEmpty() || column2.getChildren().isEmpty()
+                        || column3.getChildren().isEmpty())
+                    continue;
+
+                Label hareketLabel = (Label) column1.getChildren().get(0);
+                TextField agirlikTextField = (TextField) column2.getChildren().get(0);
+                TextField tekrarTextField = (TextField) column3.getChildren().get(0);
+
+                String hareket_adi = hareketLabel.getText();
+                String agirliklar = agirlikTextField.getText();
+                String tekrarlar = tekrarTextField.getText();
+
+                String[] kgArray = agirliklar.split(",");
+                String[] tekrarArray = tekrarlar.split(",");
+
+                if (kgArray.length != tekrarArray.length) {
+                    System.out.println("HATA: " + hareket_adi + " için set ve tekrar sayısı eşleşmiyor!");
+                    continue;
+                }
+
+                LocalDate secilenTarih = datePicker.getValue();
+
+                for (int i = 0; i < kgArray.length; i++) {
+                    try {
+                        double kg = Double.parseDouble(kgArray[i].trim());
+                        int tekrar = Integer.parseInt(tekrarArray[i].trim());
+
+                        ps.setString(1, username);
+                        ps.setInt(2, antrenman_id);
+                        ps.setInt(3, secilenGun);
+                        ps.setString(4, hareket_adi);
+                        ps.setInt(5, i + 1);
+                        ps.setDouble(6, kg);
+                        ps.setInt(7, tekrar);
+                        ps.setDate(8, java.sql.Date.valueOf(secilenTarih));
+
+                        int result = ps.executeUpdate();
+                        if (result > 0) {
+                            System.out.println("Kayıt başarılı: " + hareket_adi + " Set " + (i + 1));
+                        } else {
+                            System.out.println("Kayıt başarısız: " + hareket_adi + " Set " + (i + 1));
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        System.out.println("HATA: Sayı parse edilemedi! (" + hareket_adi + ", Set " + (i + 1) + ")");
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void hareketleriOlustur() {
@@ -137,8 +295,9 @@ public class AntrenmanEkleme {
         if (secilenGun == null)
             return;
 
-        labeller.clear(); 
-        hareketlerVbox.getChildren().clear(); 
+        labeller.clear();
+        hareketSatirlari.clear();
+        textFieldVBox.getChildren().clear();
 
         String sorgu = "SELECT hareket_adi FROM eklenen_antrenman_programlari WHERE antrenman_id = ? AND gun_no = ?";
 
@@ -152,10 +311,33 @@ public class AntrenmanEkleme {
 
             while (rs.next()) {
                 String hareket_adi = rs.getString("hareket_adi");
+
                 Label label = new Label(hareket_adi);
                 label.setStyle("-fx-font-size: 14px; -fx-padding: 5 0 5 10;");
-                labeller.add(label);
-                hareketlerVbox.getChildren().add(label);
+
+                TextField textFieldSol = new TextField();
+                textFieldSol.setPromptText("Kg");
+
+                TextField textFieldSag = new TextField();
+                textFieldSag.setPromptText("Tekrar");
+
+                HBox satir = new HBox(20);
+
+                VBox column1 = new VBox(label);
+                VBox column2 = new VBox(textFieldSol);
+                VBox column3 = new VBox(textFieldSag);
+                satir.getChildren().addAll(column1, column2, column3);
+
+                hareketSatirlari.add(satir);
+                textFieldVBox.getChildren().addAll(satir);
+                ekleButton.setVisible(true);
+                if (!icerikSag.getChildren().contains(textFieldVBox)) {
+                    icerikSag.getChildren().add(textFieldVBox);
+                }
+                if (!icerikSag.getChildren().contains(ekleButton)) {
+                    icerikSag.getChildren().add(ekleButton);
+                }
+
             }
 
         } catch (SQLException e) {
@@ -207,7 +389,7 @@ public class AntrenmanEkleme {
 
     }
 
-    public ObservableList veritabaniVerileriCek(String username) {
+    public ObservableList<KullaniciVeri> veritabaniVerileriCek(String username) {
         liste = FXCollections.observableArrayList();
 
         int antrenman_id2;

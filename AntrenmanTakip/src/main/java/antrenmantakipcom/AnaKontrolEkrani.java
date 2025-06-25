@@ -23,7 +23,7 @@ public class AnaKontrolEkrani extends Application {
         BorderPane baslangicRoot = Main.getRoot();  // Ana ekran ilk açılacak ekran
 
         rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
-        mainScene = new Scene(rootStack, 1000, 1000); // Scene'e StackPane'i ver
+        mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver
 
         mainScene.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
         primaryStage.setScene(mainScene);

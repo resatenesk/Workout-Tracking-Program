@@ -179,3 +179,24 @@
     -fx-font-size: 20px;
 
 }
+.text-field {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 1;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+.text-field:focused {
+    -fx-border-color: #4A90E2;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, #4A90E2, 5, 0.5, 0, 0);
+    -fx-background-color: white;
+}
+
+.text-field:hover {
+    -fx-background-color: #eaeaea;
+    -fx-border-color: #4A90E2;
+}
