@@ -64,6 +64,10 @@ public class AnaEkran {
 
         antrenman_grafikleri = new Button("Antrenman Grafikleri");
         antrenman_grafikleri.setMinWidth(120);
+        antrenman_grafikleri.setOnAction(e -> {
+            AntrenmanGrafikleriGoster antGra = new AntrenmanGrafikleriGoster(username);
+            AnaKontrolEkrani.setRoot(antGra.getRoot());
+        });
         gunluk_besin_ekle = new Button("Günlük Kalori ve Makro Ekle");
         gunluk_besin_ekle.setMinWidth(120);
         besin_grafikleri = new Button("Besin Grafikleri Görüntüle");

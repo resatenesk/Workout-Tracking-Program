@@ -3,6 +3,13 @@
   "configurations": [
     {
         "type": "java",
+        "name": "GrafikOrnek",
+        "request": "launch",
+        "mainClass": "antrenmantakipcom.GrafikOrnek",
+        "projectName": "AntrenmanTakip"
+    },
+    {
+        "type": "java",
         "name": "AntrenmanTurVeGunBelirlemeEkrani",
         "request": "launch",
         "mainClass": "antrenmantakipcom.AntrenmanTurVeGunBelirlemeEkrani",

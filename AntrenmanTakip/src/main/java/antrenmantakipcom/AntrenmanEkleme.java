@@ -270,6 +270,16 @@ public class AntrenmanEkleme {
                         int result = ps.executeUpdate();
                         if (result > 0) {
                             System.out.println("Kayıt başarılı: " + hareket_adi + " Set " + (i + 1));
+                            Alert alert = new Alert(AlertType.ERROR);
+                            alert.setTitle("Veriler Başarıyla Kaydedildi !");
+                            alert.setHeaderText(null);
+                            alert.setContentText(
+                                    "Antrenman Gelişiminizi \"Antrenman Grafikleri\" Bölümünden Takip Edebilirsiniz.");
+                            DialogPane dialogPane = alert.getDialogPane();
+                            dialogPane.getStylesheets()
+                                    .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                            alert.showAndWait();
+                            break;
                         } else {
                             System.out.println("Kayıt başarısız: " + hareket_adi + " Set " + (i + 1));
                         }
