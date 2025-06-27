@@ -179,6 +179,7 @@
     -fx-font-size: 20px;
 
 }
+
 .text-field {
     -fx-background-color: #f0f0f0;
     -fx-background-radius: 10;
@@ -189,6 +190,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: #333;
 }
+
 .text-field:focused {
     -fx-border-color: #4A90E2;
     -fx-border-width: 2;
@@ -199,4 +201,54 @@
 .text-field:hover {
     -fx-background-color: #eaeaea;
     -fx-border-color: #4A90E2;
+}
+
+
+
+.chart-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.chart-legend-item {
+    -fx-font-size: 10px;
+    -fx-text-fill: rgb(17, 16, 16);
+}
+
+.chart-plot-background {
+    -fx-background-color: #63b7d1;
+    /* Grafik arka plan */
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: #04ee5e;
+    /* Ağırlık serisi - Kırmızı çizgi */
+    -fx-stroke-width: 3px;
+}
+
+.default-color1.chart-series-line {
+    -fx-stroke: #ee9d08;
+    /* Tekrar serisi - Mavi çizgi */
+    -fx-stroke-width: 3px;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+
+.axis-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.number-axis .tick-label {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
 }

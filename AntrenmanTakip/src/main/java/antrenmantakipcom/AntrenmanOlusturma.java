@@ -268,16 +268,15 @@ public class AntrenmanOlusturma {
         solIcerik.setAlignment(Pos.TOP_LEFT);
         solIcerik.setMaxHeight(620);
         solIcerik.maxWidth(450);
-        solIcerik.getChildren().addAll(label1, tablo, hareketleriGostermeKutusu, tablodanSilButton);
+        solIcerik.getChildren().addAll(label1, tablo, hareketleriGostermeKutusu);
         // solIcerik.setStyle("-fx-border-width:2px;-fx-border-color:Blue");
         solIcerik.getStylesheets()
                 .add(AntrenmanOlusturma.class.getResource("/static/style.css").toExternalForm());
 
         HBox buttonYerlesimi = new HBox(15);
-        buttonYerlesimi.getChildren().add(ekleButton);
-        buttonYerlesimi.getChildren().add(onaylaButton);
-        buttonYerlesimi.getChildren().add(cikis_yap);
         buttonYerlesimi.setAlignment(Pos.BOTTOM_RIGHT);
+        buttonYerlesimi.getChildren().addAll(tablodanSilButton, ekleButton, onaylaButton, cikis_yap);
+
         // buttonYerlesimi.setStyle("-fx-border-width:2px;-fx-border-color:Blue");
         buttonYerlesimi.setPadding(new Insets(0, 220, 70, 0));
         buttonYerlesimi.setPrefHeight(40);

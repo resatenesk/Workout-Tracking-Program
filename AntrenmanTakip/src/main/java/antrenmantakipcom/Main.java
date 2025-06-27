@@ -119,7 +119,12 @@ public class Main {
                         "- En az 1 özel karakter (@, #, !, vs.)");
         Tooltip.install(infoIcon, passwordTooltip);
 
-        LoginButton = new Button("Giriş Yap");
+        Image image = new Image(Main.class.getResourceAsStream("/ICONS/ikon1.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(20);
+        imageView.setFitHeight(20);
+
+        LoginButton = new Button("Giriş Yap", imageView);
         LoginButton.setOnAction(e -> {
             try {
 
@@ -132,7 +137,12 @@ public class Main {
         });
         LoginButton.setMinWidth(120);
 
-        RegisterButton = new Button("Yeni Kullanıcı Oluştur");
+        Image image2 = new Image(Main.class.getResourceAsStream("/ICONS/ekle.png"));
+        ImageView imageView2 = new ImageView(image2);
+        imageView2.setFitWidth(20);
+        imageView2.setFitHeight(20);
+
+        RegisterButton = new Button("Yeni Kullanıcı Oluştur", imageView2);
         RegisterButton.setOnAction(e -> {
 
             try {

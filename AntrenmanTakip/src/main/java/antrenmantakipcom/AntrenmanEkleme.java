@@ -73,7 +73,7 @@ public class AntrenmanEkleme {
         HBox header = new HBox(baslik);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(10));
-        header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
+        //header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
         root.setTop(header);
 
         geriButton = new Button("← Geri Dön");
@@ -84,13 +84,13 @@ public class AntrenmanEkleme {
 
         HBox footer = new HBox(geriButton);
         footer.setAlignment(Pos.CENTER_RIGHT);
-        footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
+        //footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
         root.setBottom(footer);
 
         icerikSol = new VBox(2);
         icerikSol.setMargin(antrenmanIDlabel, Insets.EMPTY);
         icerikSol.setAlignment(Pos.CENTER);
-        icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        //icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
         icerikSol.setPadding(new Insets(0, 0, 300, 0));
         tablo = tabloyuGetir();
         tablo.setOnMouseClicked(e -> {
@@ -113,6 +113,7 @@ public class AntrenmanEkleme {
         ekleButton = new Button("EKLE");
         ekleButton.setVisible(false);
         ekleButton.setOnAction(e -> {
+
             secilenTarih = datePicker.getValue();
             if (secilenTarih != null) {
                 veritabaniVerileriAktar();
@@ -126,13 +127,14 @@ public class AntrenmanEkleme {
                 dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
                 alert.showAndWait();
             }
+            secilenTarih = null;
 
         });
 
         icerikSol.getChildren().addAll(tablo, antrenmanIDlabel, datePicker);
 
         icerikSag = new VBox(30);
-        icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        //icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
         icerikSag.setPrefWidth(700);
         icerikSag.setMaxWidth(700);
         icerikSag.setAlignment(Pos.TOP_CENTER);
@@ -154,7 +156,7 @@ public class AntrenmanEkleme {
 
         HBox kacinciGunHBox = new HBox(10);
         kacinciGunHBox.setAlignment(Pos.CENTER);
-        kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        //kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
 
         kacinciGunLabel = new Label("Kaçıncı Güne Hareket Ekleyeceksiniz ?");
         kacinciGunLabel.setStyle("-fx-font-size:15px;");
@@ -268,21 +270,6 @@ public class AntrenmanEkleme {
                         ps.setDate(8, java.sql.Date.valueOf(secilenTarih));
 
                         int result = ps.executeUpdate();
-                        if (result > 0) {
-                            System.out.println("Kayıt başarılı: " + hareket_adi + " Set " + (i + 1));
-                            Alert alert = new Alert(AlertType.ERROR);
-                            alert.setTitle("Veriler Başarıyla Kaydedildi !");
-                            alert.setHeaderText(null);
-                            alert.setContentText(
-                                    "Antrenman Gelişiminizi \"Antrenman Grafikleri\" Bölümünden Takip Edebilirsiniz.");
-                            DialogPane dialogPane = alert.getDialogPane();
-                            dialogPane.getStylesheets()
-                                    .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                            alert.showAndWait();
-                            break;
-                        } else {
-                            System.out.println("Kayıt başarısız: " + hareket_adi + " Set " + (i + 1));
-                        }
 
                     } catch (NumberFormatException ex) {
                         System.out.println("HATA: Sayı parse edilemedi! (" + hareket_adi + ", Set " + (i + 1) + ")");
@@ -293,6 +280,15 @@ public class AntrenmanEkleme {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Veriler Başarıyla Kaydedildi !");
+        alert.setHeaderText(null);
+        alert.setContentText(
+                "Antrenman Gelişiminizi \"Antrenman Grafikleri\" Bölümünden Takip Edebilirsiniz.");
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets()
+                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+        alert.showAndWait();
     }
 
     public void hareketleriOlustur() {

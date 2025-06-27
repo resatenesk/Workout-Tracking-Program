@@ -123,14 +123,14 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
 
         HBox enGenelKutu = new HBox(20);
         enGenelKutu.setAlignment(Pos.CENTER);
-        enGenelKutu.setPadding(new Insets(0, 50, 0, 0));
+        enGenelKutu.setPadding(new Insets(30, 230, 0, 0));
 
         VBox genelKutu = new VBox(25);
         genelKutu.setAlignment(Pos.CENTER);
-        genelKutu.setPadding(new Insets(140, 30, 0, 0));
+        genelKutu.setPadding(new Insets(150, 50, 0, 0));
 
-        VBox labeller = new VBox(10);
-        labeller.setPadding(new Insets(0, 0, 0, 50));
+        VBox labeller = new VBox(20);
+        labeller.setPadding(new Insets(0, 0, 30, 370));
         labeller.getChildren().addAll(label1, label2);
         labeller.setAlignment(Pos.CENTER_LEFT);
 

@@ -10,6 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -154,6 +158,7 @@ public class AntrenmanGrafikleriGoster {
         hareket_combobox.setOnAction(e -> {
             secilen_hareket = (String) hareket_combobox.getValue();
             System.out.println(secilen_hareket);
+            grafikOlustur();
         });
 
         antrenman_id_combobox.setItems(antrenmanIDleri);
@@ -180,23 +185,71 @@ public class AntrenmanGrafikleriGoster {
         veriIstemeKutusu = new VBox(10);
         veriIstemeKutusu.setPrefHeight(200);
         veriIstemeKutusu.setMaxHeight(200);
-        veriIstemeKutusu.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        //veriIstemeKutusu.setStyle("-fx-border-width:2px;-fx-border-color:green");
         veriIstemeKutusu.getChildren().addAll(labellerHbox, combolarHBox, uyariHBox);
 
         grafikKutusu = new HBox();
-        grafikKutusu.setStyle("-fx-border-width:2px;-fx-border-color:red");
+        grafikKutusu.setAlignment(Pos.CENTER);
+        //grafikKutusu.setStyle("-fx-border-width:2px;-fx-border-color:red");
         grafikKutusu.setPrefHeight(600);
         grafikKutusu.setMaxHeight(600);
 
         genelKutu = new VBox(20);
         genelKutu.setAlignment(Pos.CENTER);
         genelKutu.getChildren().addAll(veriIstemeKutusu, grafikKutusu);
-        genelKutu.setStyle("-fx-border-width:2px;-fx-border-color:blue");
+        //genelKutu.setStyle("-fx-border-width:2px;-fx-border-color:blue");
 
         root.setCenter(genelKutu);
         root.setTop(header);
         root.setBottom(geriDon);
 
+    }
+
+    public void grafikOlustur() {
+        double agirlik_ortalamasi = 0;
+        double tekrar_ortalamasi = 0;
+        String tarih = null;
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT tarih, AVG(agirlik) AS ort_agirlik, AVG(tekrar) AS ort_tekrar FROM kayitlar WHERE hareket_adi = ? GROUP BY tarih ORDER BY tarih";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, secilen_hareket);
+            ResultSet rs = ps.executeQuery();
+
+            CategoryAxis xEkseni = new CategoryAxis();
+            xEkseni.setLabel("Zaman(Soldan Sağa Artan)");
+            xEkseni.setTickLabelsVisible(false);
+
+            NumberAxis yEkseni = new NumberAxis();
+            yEkseni.setLabel("KG/Tekrar");
+            yEkseni.setAutoRanging(false);
+            yEkseni.setLowerBound(0);
+            yEkseni.setUpperBound(120);
+            yEkseni.setTickUnit(10);
+
+            LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
+            lineChart.setTitle(secilen_hareket + " İlerleme Grafiği");
+
+            XYChart.Series<String, Number> agirliklar = new XYChart.Series<>();
+            agirliklar.setName("Ağırlıklar");
+            XYChart.Series<String, Number> tekrarlar = new XYChart.Series<>();
+            tekrarlar.setName("Tekrarlar");
+
+            while (rs.next()) {
+
+                tarih = rs.getString("tarih");
+                agirlik_ortalamasi = rs.getDouble("ort_agirlik");
+                tekrar_ortalamasi = rs.getDouble("ort_tekrar");
+                agirliklar.getData().add(new XYChart.Data<>(tarih, agirlik_ortalamasi));
+                tekrarlar.getData().add(new XYChart.Data<>(tarih, tekrar_ortalamasi));
+
+            }
+            grafikKutusu.getChildren().clear();
+            lineChart.getData().addAll(agirliklar, tekrarlar);
+            lineChart.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
+            grafikKutusu.getChildren().addAll(lineChart);
+
+        } catch (SQLException ex) {
+        }
     }
 
     public void hareketleriAl() {

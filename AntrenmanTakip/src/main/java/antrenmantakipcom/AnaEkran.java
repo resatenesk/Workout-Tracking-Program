@@ -5,6 +5,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -41,7 +43,12 @@ public class AnaEkran {
             isimLabel.setMinWidth(120);
         }
 
-        antrenman_olustur = new Button("Antrenman Oluştur");
+        Image image2 = new Image(Main.class.getResourceAsStream("/ICONS/olustur.png"));
+        ImageView imageView2 = new ImageView(image2);
+        imageView2.setFitWidth(20);
+        imageView2.setFitHeight(20);
+
+        antrenman_olustur = new Button("Antrenman Oluştur", imageView2);
         antrenman_olustur.setMinWidth(120);
         antrenman_olustur.setOnAction(e -> {
             try {
@@ -54,15 +61,24 @@ public class AnaEkran {
         });
         Label label = new Label("Antrenman Oluşturuldu...");
         label.setVisible(false);
+        Image image1 = new Image(Main.class.getResourceAsStream("/ICONS/ekle.png"));
+        ImageView imageView1 = new ImageView(image1);
+        imageView1.setFitWidth(20);
+        imageView1.setFitHeight(20);
 
-        antrenman_ekle = new Button("Antrenmanlar Ekle");
+        antrenman_ekle = new Button("Antrenmanlar Ekle", imageView1);
         antrenman_ekle.setMinWidth(120);
         antrenman_ekle.setOnAction(e -> {
             AntrenmanEkleme ant = new AntrenmanEkleme(username);
             AnaKontrolEkrani.setRoot(ant.getRoot());
         });
 
-        antrenman_grafikleri = new Button("Antrenman Grafikleri");
+        Image image3 = new Image(Main.class.getResourceAsStream("/ICONS/ikon3.png"));
+        ImageView imageView3 = new ImageView(image3);
+        imageView3.setFitWidth(20);
+        imageView3.setFitHeight(20);
+
+        antrenman_grafikleri = new Button("Antrenman Grafikleri", imageView3);
         antrenman_grafikleri.setMinWidth(120);
         antrenman_grafikleri.setOnAction(e -> {
             AntrenmanGrafikleriGoster antGra = new AntrenmanGrafikleriGoster(username);
