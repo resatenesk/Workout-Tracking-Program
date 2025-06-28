@@ -17,6 +17,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -79,7 +81,13 @@ public class AntrenmanGrafikleriGoster {
 
         root = new BorderPane();
 
+        Image image = new Image(Main.class.getResourceAsStream("/ICONS/go-back-icon.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(20);
+        imageView.setFitHeight(20);
+
         geriDon = new Button("Geri Dön");
+        geriDon.setId("cikis_butonlari");
         geriDon.setMinWidth(120);
         geriDon.setOnAction(e -> {
             AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
@@ -90,7 +98,6 @@ public class AntrenmanGrafikleriGoster {
         HBox header = new HBox(baslik);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(10));
-        header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
 
         antrenman_id_combobox = new ComboBox<>();
         antrenman_id_combobox.setPrefWidth(120);
@@ -185,19 +192,19 @@ public class AntrenmanGrafikleriGoster {
         veriIstemeKutusu = new VBox(10);
         veriIstemeKutusu.setPrefHeight(200);
         veriIstemeKutusu.setMaxHeight(200);
-        //veriIstemeKutusu.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        // veriIstemeKutusu.setStyle("-fx-border-width:2px;-fx-border-color:green");
         veriIstemeKutusu.getChildren().addAll(labellerHbox, combolarHBox, uyariHBox);
 
         grafikKutusu = new HBox();
         grafikKutusu.setAlignment(Pos.CENTER);
-        //grafikKutusu.setStyle("-fx-border-width:2px;-fx-border-color:red");
+        // grafikKutusu.setStyle("-fx-border-width:2px;-fx-border-color:red");
         grafikKutusu.setPrefHeight(600);
         grafikKutusu.setMaxHeight(600);
 
         genelKutu = new VBox(20);
         genelKutu.setAlignment(Pos.CENTER);
         genelKutu.getChildren().addAll(veriIstemeKutusu, grafikKutusu);
-        //genelKutu.setStyle("-fx-border-width:2px;-fx-border-color:blue");
+        // genelKutu.setStyle("-fx-border-width:2px;-fx-border-color:blue");
 
         root.setCenter(genelKutu);
         root.setTop(header);
@@ -222,9 +229,37 @@ public class AntrenmanGrafikleriGoster {
             NumberAxis yEkseni = new NumberAxis();
             yEkseni.setLabel("KG/Tekrar");
             yEkseni.setAutoRanging(false);
-            yEkseni.setLowerBound(0);
-            yEkseni.setUpperBound(120);
-            yEkseni.setTickUnit(10);
+
+            if (secilen_hareket.equals("Bench Press")) {
+                yEkseni.setLowerBound(60);
+                yEkseni.setUpperBound(100);
+                yEkseni.setTickUnit(5);
+            }
+            if (secilen_hareket.equals("Incline Dumbell Press")) {
+                yEkseni.setLowerBound(20);
+                yEkseni.setUpperBound(50);
+                yEkseni.setTickUnit(2.5);
+            }
+            if (secilen_hareket.equals("High Cable Crossover")) {
+                yEkseni.setLowerBound(15);
+                yEkseni.setUpperBound(40);
+                yEkseni.setTickUnit(5);
+            }
+            if (secilen_hareket.equals("Dumbell Shoulder Press")) {
+                yEkseni.setLowerBound(15);
+                yEkseni.setUpperBound(40);
+                yEkseni.setTickUnit(2.5);
+            }
+            if (secilen_hareket.equals("Triceps Dips")) {
+                yEkseni.setLowerBound(0);
+                yEkseni.setUpperBound(15);
+                yEkseni.setTickUnit(1);
+            }
+            if (secilen_hareket.equals("Lateral Raise")) {
+                yEkseni.setLowerBound(0);
+                yEkseni.setUpperBound(20);
+                yEkseni.setTickUnit(2.5);
+            }
 
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
             lineChart.setTitle(secilen_hareket + " İlerleme Grafiği");

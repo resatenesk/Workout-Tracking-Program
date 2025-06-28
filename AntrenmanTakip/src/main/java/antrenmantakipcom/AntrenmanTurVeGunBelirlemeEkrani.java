@@ -14,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -49,7 +51,13 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
     }
 
     public void bilesenler() {
-        cikis_yap = new Button("Geri Dön");
+
+        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+        cikis_yap = new Button("Geri Dön", imageViewC);
+        cikis_yap.setId("cikis_butonlari");
         cikis_yap.setOnAction(e -> {
             try {
                 AnaKontrolEkrani.setRoot(AnaEkran.getRoot());

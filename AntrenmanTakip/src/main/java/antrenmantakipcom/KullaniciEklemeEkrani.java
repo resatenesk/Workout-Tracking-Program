@@ -18,10 +18,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class KullaniciEklemeEkrani {
+    StackPane pane;
     BorderPane root = new BorderPane();
     Label nameLabel;
     Label passwordLabel;
@@ -35,8 +37,13 @@ public class KullaniciEklemeEkrani {
     ImageView infoIcon;
     Image infoImage;
 
-    public BorderPane getRoot() {
-        root = new BorderPane();
+    public StackPane getRoot() {
+        pane = new StackPane();
+        pane.setId("rootGenel");
+        pane.getStylesheets().add(Main.class.getResource("/static/style.css").toExternalForm());
+        bilesenler();
+
+        root.setId("kullaniciEklemeRoot");
         bilesenler();
         try {
             ayarlamalar();
@@ -44,14 +51,16 @@ public class KullaniciEklemeEkrani {
 
             e.printStackTrace();
         }
-        return root;
+        return pane;
     }
 
     public void ayarlamalar() throws Exception {
         HBox genellayout = new HBox();
         genellayout.setAlignment(Pos.CENTER);
+        genellayout.setPadding(new Insets(400, 0, 0, 0));
 
         VBox layout = new VBox(15);
+        // layout.setPadding(new Insets(0,0,100,0));
         layout.setAlignment(Pos.CENTER);
 
         VBox layout2 = new VBox(15);
@@ -71,31 +80,32 @@ public class KullaniciEklemeEkrani {
 
         HBox buttonsRow = new HBox(10);
         buttonsRow.setAlignment(Pos.CENTER);
-        buttonsRow.setPadding(new Insets(-250, 0, 200, 0));
+        buttonsRow.setPadding(new Insets(0, 0, 400, 0));
         buttonsRow.getChildren().addAll(KullaniciEkle, GeriDonButton);
 
         layout.getChildren().addAll(Column1);
         layout2.getChildren().addAll(Column2, passwordHBox);
 
         genellayout.getChildren().addAll(layout, layout2, buttonsRow);
-        root.setCenter(genellayout);
-        root.setBottom(buttonsRow);
+        root.setTop(genellayout);
+        root.setCenter(buttonsRow);
+        pane.getChildren().add(root);
     }
 
     public void bilesenler() {
-
-        nameLabel = new Label("Kullanıcı Adınızı Giriniz  : ");
-        passwordLabel = new Label("Parolanızı Giriniz : ");
+        root = new BorderPane();
+        nameLabel = new Label("Enter your username: ");
+        passwordLabel = new Label("Enter your password: ");
         nameLabel.setMinWidth(120);
         passwordLabel.setMinWidth(120);
 
         nameField = new TextField();
-        nameField.setPromptText("Adınızı girin");
+        nameField.setPromptText("Username");
         nameField.setMinWidth(120);
         nameField.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
 
         passwordField = new PasswordField();
-        passwordField.setPromptText("Parolanızı Giriniz");
+        passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
         infoImage = new Image(getClass().getResource("/ICONS/info.png").toExternalForm());
@@ -117,7 +127,12 @@ public class KullaniciEklemeEkrani {
                         "- En az 1 özel karakter (@, #, !, vs.)");
         Tooltip.install(infoIcon, passwordTooltip);
 
-        GeriDonButton = new Button("Geri Dön");
+        Image image = new Image(Main.class.getResourceAsStream("/ICONS/go-back-icon.png"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(20);
+        imageView.setFitHeight(20);
+
+        GeriDonButton = new Button("Geri Dön",imageView);
         GeriDonButton.setOnAction(e -> {
             try {
                 AnaKontrolEkrani.setRoot(Main.getRoot());
@@ -129,7 +144,12 @@ public class KullaniciEklemeEkrani {
         });
         GeriDonButton.setMinWidth(120);
 
-        KullaniciEkle = new Button("Kullanıcı Ekle");
+        Image image2 = new Image(Main.class.getResourceAsStream("/ICONS/ekle.png"));
+        ImageView imageView2 = new ImageView(image2);
+        imageView2.setFitWidth(20);
+        imageView2.setFitHeight(20);
+
+        KullaniciEkle = new Button("Kullanıcı Ekle",imageView2);
         KullaniciEkle.setOnAction(e -> {
             try {
                 kullaniciEkle();

@@ -88,7 +88,14 @@ public class AnaEkran {
         gunluk_besin_ekle.setMinWidth(120);
         besin_grafikleri = new Button("Besin Grafikleri Görüntüle");
         besin_grafikleri.setMinWidth(120);
-        cikis_yap = new Button("Çıkış Yap");
+
+        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+        cikis_yap = new Button("Çıkış Yap",imageViewC);
+        cikis_yap.setId("cikis_butonlari");
+
         cikis_yap.setMinWidth(120);
         cikis_yap.setOnAction(e -> {
             try {

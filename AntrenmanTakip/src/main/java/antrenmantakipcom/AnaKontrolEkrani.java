@@ -3,7 +3,6 @@ package antrenmantakipcom;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -20,7 +19,7 @@ public class AnaKontrolEkrani extends Application {
         primaryStage = stage;
 
         // İlk ekran
-        BorderPane baslangicRoot = Main.getRoot();  // Ana ekran ilk açılacak ekran
+        StackPane baslangicRoot = Main.getRoot();  // Ana ekran ilk açılacak ekran
 
         rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
         mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver

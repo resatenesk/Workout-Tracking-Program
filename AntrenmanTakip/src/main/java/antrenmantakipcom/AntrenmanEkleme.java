@@ -73,10 +73,16 @@ public class AntrenmanEkleme {
         HBox header = new HBox(baslik);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(10));
-        //header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
+        // header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
         root.setTop(header);
 
+        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+
         geriButton = new Button("← Geri Dön");
+        geriButton.setId("cikis_butonlari");
         geriButton.setStyle("-fx-font-size: 14px;");
         geriButton.setOnAction(e -> {
             AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
@@ -84,13 +90,13 @@ public class AntrenmanEkleme {
 
         HBox footer = new HBox(geriButton);
         footer.setAlignment(Pos.CENTER_RIGHT);
-        //footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
+        // footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
         root.setBottom(footer);
 
         icerikSol = new VBox(2);
         icerikSol.setMargin(antrenmanIDlabel, Insets.EMPTY);
         icerikSol.setAlignment(Pos.CENTER);
-        //icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        // icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
         icerikSol.setPadding(new Insets(0, 0, 300, 0));
         tablo = tabloyuGetir();
         tablo.setOnMouseClicked(e -> {
@@ -134,7 +140,7 @@ public class AntrenmanEkleme {
         icerikSol.getChildren().addAll(tablo, antrenmanIDlabel, datePicker);
 
         icerikSag = new VBox(30);
-        //icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        // icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
         icerikSag.setPrefWidth(700);
         icerikSag.setMaxWidth(700);
         icerikSag.setAlignment(Pos.TOP_CENTER);
@@ -156,7 +162,7 @@ public class AntrenmanEkleme {
 
         HBox kacinciGunHBox = new HBox(10);
         kacinciGunHBox.setAlignment(Pos.CENTER);
-        //kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        // kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
 
         kacinciGunLabel = new Label("Kaçıncı Güne Hareket Ekleyeceksiniz ?");
         kacinciGunLabel.setStyle("-fx-font-size:15px;");

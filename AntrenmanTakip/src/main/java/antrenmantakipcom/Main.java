@@ -20,9 +20,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class Main {
+    static StackPane rootGenel;
     static BorderPane root;
     static Label nameLabel;
     static Label passwordLabel;
@@ -36,68 +38,82 @@ public class Main {
     static ImageView infoIcon;
     static Image infoImage;
 
-    public static BorderPane getRoot() {
-        root = new BorderPane();
+    public static StackPane getRoot() {
+
+        rootGenel = new StackPane();
+        rootGenel.setId("rootGenel");
+        rootGenel.getStylesheets().add(Main.class.getResource("/static/style.css").toExternalForm());
         bilesenler();
         try {
             ayarlamalar();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return root;
+        return rootGenel;
     }
 
     public static void ayarlamalar() throws Exception {
 
         HBox genellayout = new HBox();
         genellayout.setAlignment(Pos.CENTER);
+        
 
         VBox layout = new VBox(15);
         layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(350, 0, 0, 0));
+       
 
         VBox layout2 = new VBox(15);
         layout2.setAlignment(Pos.CENTER);
+        layout2.setPadding(new Insets(350, 0, 0, 0));
+        
 
         VBox Column1 = new VBox(10);
         Column1.setAlignment(Pos.CENTER);
         Column1.getChildren().addAll(nameLabel, passwordLabel);
+        //Column1.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox passwordHBox = new HBox(10);
         passwordHBox.setAlignment(Pos.CENTER);
         passwordHBox.getChildren().addAll(passwordField, infoIcon);
+        //passwordHBox.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         VBox Column2 = new VBox(10);
         Column2.setAlignment(Pos.CENTER);
         Column2.getChildren().addAll(nameField);
+        //Column2.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox buttonsRow = new HBox(10);
         buttonsRow.setAlignment(Pos.CENTER);
-        buttonsRow.setPadding(new Insets(-250, 0, 200, 0));
+        buttonsRow.setPadding(new Insets(0, 0, 400, 0));
         buttonsRow.getChildren().addAll(LoginButton, RegisterButton);
+        //buttonsRow.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         layout.getChildren().addAll(Column1);
         layout2.getChildren().addAll(Column2, passwordHBox);
 
-        genellayout.getChildren().addAll(layout, layout2, buttonsRow);
+        genellayout.getChildren().addAll(layout, layout2);
 
         root.setCenter(genellayout);
         root.setBottom(buttonsRow);
+
+        rootGenel.getChildren().add(root);
     }
 
     public static void bilesenler() {
-
-        nameLabel = new Label("Kullanıcı Adınızı Giriniz  : ");
-        passwordLabel = new Label("Parolanızı Giriniz : ");
+        root = new BorderPane();
+        nameLabel = new Label("Enter your username:");
+        passwordLabel = new Label("Enter your password:");
         nameLabel.setMinWidth(120);
         passwordLabel.setMinWidth(120);
 
         nameField = new TextField();
-        nameField.setPromptText("Adınızı girin");
+        nameField.setPromptText("Username");
         nameField.setMinWidth(120);
         nameField.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
 
         passwordField = new PasswordField();
-        passwordField.setPromptText("Parolanızı Giriniz");
+        passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
         infoImage = new Image(Main.class.getResource("/ICONS/info.png").toExternalForm());

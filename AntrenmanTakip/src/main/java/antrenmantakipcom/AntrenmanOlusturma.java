@@ -26,6 +26,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -98,7 +100,12 @@ public class AntrenmanOlusturma {
         tablodanSilButton.setOnAction(e -> {
             tablodanVeriSil();
         });
+        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
         cikis_yap = new Button("Çıkış Yap");
+        cikis_yap.setId("cikis_butonlari");
         cikis_yap.setOnAction(e -> {
             try {
                 AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
