@@ -14,8 +14,11 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -144,6 +147,9 @@ public class AntrenmanGrafikleriGoster {
             hareketlerListesi.clear();
             hareketleriAl();
             hareket_combobox.setItems(hareketlerListesi);
+            secilen_hareket = null;
+            hareket_combobox.getSelectionModel().clearSelection();
+            grafikKutusu.getChildren().clear();
         });
         hareket_combobox = new ComboBox<>();
         hareket_combobox.setPrefWidth(120);
@@ -213,6 +219,26 @@ public class AntrenmanGrafikleriGoster {
     }
 
     public void grafikOlustur() {
+
+        if (!hareketAntrenmandaVarMi(secilen_hareket, secilen_id)) {
+            if (secilen_hareket == null || secilen_hareket.isEmpty()) {
+                // Hareket seçilmediyse grafik oluşturma, sadece grafik kutusunu temizle
+                grafikKutusu.getChildren().clear();
+                return;
+            }
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Hareket Yok!");
+            alert.setHeaderText(null);
+            alert.setContentText("Bu antrenman şablonunda " + secilen_hareket
+                    + " hareketi için hiç veri yok. Grafik oluşturulamadı.");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+            alert.showAndWait();
+            grafikKutusu.getChildren().clear(); // Önceki grafiği temizle
+            hareket_combobox.getSelectionModel().clearSelection(); // Hareket seçimini sıfırla
+            secilen_hareket = null;
+            return;
+        }
         double agirlik_ortalamasi = 0;
         double tekrar_ortalamasi = 0;
         String tarih = null;
@@ -260,9 +286,15 @@ public class AntrenmanGrafikleriGoster {
                 yEkseni.setUpperBound(20);
                 yEkseni.setTickUnit(2.5);
             }
+            if (secilen_hareket.equals("Dumbell Skull Crusher")) {
+                yEkseni.setLowerBound(0);
+                yEkseni.setUpperBound(20);
+                yEkseni.setTickUnit(2.5);
+            }
 
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
             lineChart.setTitle(secilen_hareket + " İlerleme Grafiği");
+            lineChart.setAnimated(true);
 
             XYChart.Series<String, Number> agirliklar = new XYChart.Series<>();
             agirliklar.setName("Ağırlıklar");
@@ -301,6 +333,23 @@ public class AntrenmanGrafikleriGoster {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean hareketAntrenmandaVarMi(String hareketAdi, int antrenmanId) {
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT COUNT(*) FROM kayitlar WHERE hareket_adi = ? AND antrenman_id = ?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, hareketAdi);
+            ps.setInt(2, antrenmanId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int sayi = rs.getInt(1);
+                return sayi > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public String antrenmanTipiniAl() {

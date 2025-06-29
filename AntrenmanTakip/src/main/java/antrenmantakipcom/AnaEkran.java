@@ -28,6 +28,7 @@ public class AnaEkran {
     }
 
     public static BorderPane getRoot() {
+
         root = new BorderPane();
         bilesenler();
         ayarlamalar();
@@ -35,11 +36,13 @@ public class AnaEkran {
     }
 
     public static void bilesenler() {
+
         if (AnaEkran.username == null) {
-            isimLabel = new Label("Hoşgeldiniz");
+            isimLabel = new Label("Welcome");
             isimLabel.setMinWidth(120);
         } else {
-            isimLabel = new Label("Hoşgeldin " + AnaEkran.username + " !");
+            isimLabel = new Label("Welcome " + AnaEkran.username.substring(0, 1).toUpperCase()
+                    + AnaEkran.username.substring(1, username.length()) + " !");
             isimLabel.setMinWidth(120);
         }
 
@@ -48,7 +51,7 @@ public class AnaEkran {
         imageView2.setFitWidth(20);
         imageView2.setFitHeight(20);
 
-        antrenman_olustur = new Button("Antrenman Oluştur", imageView2);
+        antrenman_olustur = new Button("Create Workout Program", imageView2);
         antrenman_olustur.setMinWidth(120);
         antrenman_olustur.setOnAction(e -> {
             try {
@@ -66,7 +69,7 @@ public class AnaEkran {
         imageView1.setFitWidth(20);
         imageView1.setFitHeight(20);
 
-        antrenman_ekle = new Button("Antrenmanlar Ekle", imageView1);
+        antrenman_ekle = new Button("Add Workout", imageView1);
         antrenman_ekle.setMinWidth(120);
         antrenman_ekle.setOnAction(e -> {
             AntrenmanEkleme ant = new AntrenmanEkleme(username);
@@ -78,22 +81,27 @@ public class AnaEkran {
         imageView3.setFitWidth(20);
         imageView3.setFitHeight(20);
 
-        antrenman_grafikleri = new Button("Antrenman Grafikleri", imageView3);
+        antrenman_grafikleri = new Button("Workout Graphics", imageView3);
         antrenman_grafikleri.setMinWidth(120);
         antrenman_grafikleri.setOnAction(e -> {
             AntrenmanGrafikleriGoster antGra = new AntrenmanGrafikleriGoster(username);
             AnaKontrolEkrani.setRoot(antGra.getRoot());
         });
-        gunluk_besin_ekle = new Button("Günlük Kalori ve Makro Ekle");
+        gunluk_besin_ekle = new Button("Add Daily Food Values / Create Special Food");
+        gunluk_besin_ekle.setOnAction(e -> {
+            DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen();
+            AnaKontrolEkrani.setRoot(daily.getPane());
+        });
         gunluk_besin_ekle.setMinWidth(120);
-        besin_grafikleri = new Button("Besin Grafikleri Görüntüle");
+
+        besin_grafikleri = new Button("Show Food Graphics");
         besin_grafikleri.setMinWidth(120);
 
         Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
-        cikis_yap = new Button("Çıkış Yap",imageViewC);
+        cikis_yap = new Button("Exit", imageViewC);
         cikis_yap.setId("cikis_butonlari");
 
         cikis_yap.setMinWidth(120);

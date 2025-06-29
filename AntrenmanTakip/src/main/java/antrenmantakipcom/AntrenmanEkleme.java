@@ -187,6 +187,8 @@ public class AntrenmanEkleme {
 
     }
 
+   
+
     public void veritabaniVerileriAktar() {
         System.out.println("Toplam hareket satırı sayısı: " + hareketSatirlari.size());
         if (secilenGun == 0) {

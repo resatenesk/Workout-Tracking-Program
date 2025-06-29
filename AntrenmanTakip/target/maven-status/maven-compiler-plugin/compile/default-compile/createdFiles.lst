@@ -1,9 +1,12 @@
-antrenmantakipcom\AntrenmanEkleme.class
+antrenmantakipcom\AntrenmanGrafikleriGoster.class
 antrenmantakipcom\Database.class
 antrenmantakipcom\KullaniciVeri.class
 antrenmantakipcom\AnaKontrolEkrani.class
 antrenmantakipcom\Main.class
-antrenmantakipcom\AntrenmanTurVeGunBelirlemeEkrani.class
 antrenmantakipcom\AntrenmanOlusturma.class
-antrenmantakipcom\AnaEkran.class
+antrenmantakipcom\DailyMacroAndFoodValuesScreen.class
 antrenmantakipcom\KullaniciEklemeEkrani.class
+antrenmantakipcom\AntrenmanEkleme.class
+antrenmantakipcom\AntrenmanTurVeGunBelirlemeEkrani.class
+antrenmantakipcom\DailyMacroAndFoodValuesScreen$Food.class
+antrenmantakipcom\AnaEkran.class

@@ -64,7 +64,6 @@ public class AntrenmanOlusturma {
     private ScrollPane scrollableCheckboxArea;
     private static VBox hareketleriGostermeKutusu;
     private int gun_no;
-    private static Button cikis_yap;
     private static Button tablodanSilButton;
     ObservableList<KullaniciVeri> liste;
 
@@ -104,15 +103,7 @@ public class AntrenmanOlusturma {
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
-        cikis_yap = new Button("Çıkış Yap");
-        cikis_yap.setId("cikis_butonlari");
-        cikis_yap.setOnAction(e -> {
-            try {
-                AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
-
-            } catch (Exception ex) {
-            }
-        });
+       
         label1 = new Label(username.substring(0, 1).toUpperCase() + username.substring(1, username.length())
                 + " adlı kişinin eklediği antrenman şablonları:");
         label1.setStyle("-fx-font-size:15px;-fx-alignment:center;-fx-font-style:italic");
@@ -282,7 +273,7 @@ public class AntrenmanOlusturma {
 
         HBox buttonYerlesimi = new HBox(15);
         buttonYerlesimi.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonYerlesimi.getChildren().addAll(tablodanSilButton, ekleButton, onaylaButton, cikis_yap);
+        buttonYerlesimi.getChildren().addAll(tablodanSilButton, ekleButton, onaylaButton);
 
         // buttonYerlesimi.setStyle("-fx-border-width:2px;-fx-border-color:Blue");
         buttonYerlesimi.setPadding(new Insets(0, 220, 70, 0));
