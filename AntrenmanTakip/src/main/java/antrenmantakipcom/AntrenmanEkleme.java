@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +16,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
@@ -55,9 +57,14 @@ public class AntrenmanEkleme {
     private int secilenGun = 0;
     private DatePicker datePicker;
     private LocalDate secilenTarih;
+    private Button antrenmanSil;
+    private VBox sagdanGelecekPanel;
+    private Button ozelYiyecekListeGoruntule;
 
     @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
     public AntrenmanEkleme(String username) {
+
+        
 
         antrenmanIDlabel = new Label("");
         this.username = username;
@@ -85,7 +92,8 @@ public class AntrenmanEkleme {
         geriButton.setId("cikis_butonlari");
         geriButton.setStyle("-fx-font-size: 14px;");
         geriButton.setOnAction(e -> {
-            AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+            AnaEkran anaEkran = new AnaEkran();
+            AnaKontrolEkrani.setRoot(anaEkran.getRoot());
         });
 
         HBox footer = new HBox(geriButton);
@@ -116,6 +124,12 @@ public class AntrenmanEkleme {
 
         });
 
+        antrenmanSil = new Button("Delete Selected Workout");
+        antrenmanSil.setOnAction(e -> {
+            tablodanVeriSil();
+
+        });
+
         ekleButton = new Button("EKLE");
         ekleButton.setVisible(false);
         ekleButton.setOnAction(e -> {
@@ -137,7 +151,7 @@ public class AntrenmanEkleme {
 
         });
 
-        icerikSol.getChildren().addAll(tablo, antrenmanIDlabel, datePicker);
+        icerikSol.getChildren().addAll(tablo, antrenmanIDlabel, datePicker, antrenmanSil);
 
         icerikSag = new VBox(30);
         // icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
@@ -184,10 +198,44 @@ public class AntrenmanEkleme {
         kacinciGunHBox.getChildren().addAll(kacinciGunLabel, kacincıGunComboBox, infoIcon);
         root.setLeft(icerikSol);
         root.setRight(icerikSag);
+        root.setBottom(geriButton);
 
     }
 
-   
+    public void tablodanVeriSil() {
+        KullaniciVeri secilenVeri = (KullaniciVeri) tablo.getSelectionModel().getSelectedItem();
+        if (secilenVeri != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Onay");
+            alert.setHeaderText(null);
+            alert.setContentText("Onaylıyor musunuz?");
+            Optional<ButtonType> result1 = alert.showAndWait();
+
+            if (result1.isPresent() && result1.get() == ButtonType.OK) {
+                int id = secilenVeri.getAntrenmanID();
+                try (Connection con = Database.connect()) {
+                    String sorgu = "DELETE FROM eklenen_antrenman_sablonlari WHERE id= ?";
+                    PreparedStatement ps = con.prepareStatement(sorgu);
+                    ps.setInt(1, id);
+                    int result = ps.executeUpdate();
+                    if (result > 0) {
+                        KullaniciVeri veri = tablo.getSelectionModel().getSelectedItem();
+                        liste.remove(veri);
+                    }
+                } catch (SQLException e) {
+                }
+            }
+        } else {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Hareket Yok!");
+            alert.setHeaderText(null);
+            alert.setContentText("Şablon seçilmedi !");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+            alert.showAndWait();
+
+        }
+    }
 
     public void veritabaniVerileriAktar() {
         System.out.println("Toplam hareket satırı sayısı: " + hareketSatirlari.size());

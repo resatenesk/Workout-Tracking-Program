@@ -285,3 +285,6 @@
 .axis .tick-label {
     -fx-text-fill: white;
 }
+#translatedList{
+     -fx-background-color: #63b7d1;
+}

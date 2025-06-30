@@ -46,7 +46,7 @@ public class AnaEkran {
             isimLabel.setMinWidth(120);
         }
 
-        Image image2 = new Image(Main.class.getResourceAsStream("/ICONS/olustur.png"));
+        Image image2 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/olustur.png"));
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(20);
         imageView2.setFitHeight(20);
@@ -64,7 +64,7 @@ public class AnaEkran {
         });
         Label label = new Label("Antrenman Oluşturuldu...");
         label.setVisible(false);
-        Image image1 = new Image(Main.class.getResourceAsStream("/ICONS/ekle.png"));
+        Image image1 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ekle.png"));
         ImageView imageView1 = new ImageView(image1);
         imageView1.setFitWidth(20);
         imageView1.setFitHeight(20);
@@ -76,7 +76,7 @@ public class AnaEkran {
             AnaKontrolEkrani.setRoot(ant.getRoot());
         });
 
-        Image image3 = new Image(Main.class.getResourceAsStream("/ICONS/ikon3.png"));
+        Image image3 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ikon3.png"));
         ImageView imageView3 = new ImageView(image3);
         imageView3.setFitWidth(20);
         imageView3.setFitHeight(20);
@@ -107,7 +107,7 @@ public class AnaEkran {
         cikis_yap.setMinWidth(120);
         cikis_yap.setOnAction(e -> {
             try {
-                AnaKontrolEkrani.setRoot(Main.getRoot());
+                AnaKontrolEkrani.setRoot(KullaniciGirisEkrani.getRoot());
             } catch (Exception ex) {
             }
         });

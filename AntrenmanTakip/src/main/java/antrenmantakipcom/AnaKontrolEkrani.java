@@ -19,7 +19,7 @@ public class AnaKontrolEkrani extends Application {
         primaryStage = stage;
 
         // İlk ekran
-        StackPane baslangicRoot = Main.getRoot();  // Ana ekran ilk açılacak ekran
+        StackPane baslangicRoot = KullaniciGirisEkrani.getRoot();  // Ana ekran ilk açılacak ekran
 
         rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
         mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver
@@ -31,7 +31,7 @@ public class AnaKontrolEkrani extends Application {
         primaryStage.show();
     }
 
-    public static void setRoot(Pane newRoot) {
+    public static void setRoot(javafx.scene.Node newRoot) {
         double width = mainScene.getWidth();
 
         newRoot.setTranslateX(width); // yeni root sağdan başlasın

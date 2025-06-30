@@ -84,7 +84,7 @@ public class AntrenmanGrafikleriGoster {
 
         root = new BorderPane();
 
-        Image image = new Image(Main.class.getResourceAsStream("/ICONS/go-back-icon.png"));
+        Image image = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/go-back-icon.png"));
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
