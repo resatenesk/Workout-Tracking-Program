@@ -22,6 +22,7 @@ public class AnaEkran {
     static Button cikis_yap;
     static String username;
     static BorderPane root;
+    static Button createMealButton;
 
     public static void setUsername(String username) {
         AnaEkran.username = username;
@@ -87,12 +88,18 @@ public class AnaEkran {
             AntrenmanGrafikleriGoster antGra = new AntrenmanGrafikleriGoster(username);
             AnaKontrolEkrani.setRoot(antGra.getRoot());
         });
-        gunluk_besin_ekle = new Button("Add Daily Food Values / Create Special Food");
+        gunluk_besin_ekle = new Button("Add Daily Food Values");
         gunluk_besin_ekle.setOnAction(e -> {
             DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen();
             AnaKontrolEkrani.setRoot(daily.getPane());
         });
         gunluk_besin_ekle.setMinWidth(120);
+
+        createMealButton = new Button("Create Special Meals/Create Special Foods");
+        createMealButton.setOnAction(e -> {
+            CreateSpecialMeal meal = new CreateSpecialMeal();
+            AnaKontrolEkrani.setRoot(meal.getPane());
+        });
 
         besin_grafikleri = new Button("Show Food Graphics");
         besin_grafikleri.setMinWidth(120);
@@ -156,11 +163,12 @@ public class AnaEkran {
 
         HBox besin_butonlari_kutusu = new HBox(20);
         besin_butonlari_kutusu.setAlignment(Pos.CENTER);
-        besin_butonlari_kutusu.getChildren().addAll(gunluk_besin_ekle, besin_grafikleri, cikis_yap);
+        besin_butonlari_kutusu.getChildren().addAll(gunluk_besin_ekle, createMealButton,besin_grafikleri);
 
         genelKutu.getChildren().addAll(isim_goruntuleme_kutusu, antrenman_butonlari_kutusu, besin_butonlari_kutusu);
 
         root.setCenter(genelKutu);
+        root.setBottom(cikis_yap);
     }
 
 }

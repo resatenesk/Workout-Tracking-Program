@@ -72,7 +72,7 @@
 
 .combo-box {
     -fx-background-color: #ffffff;
-    -fx-border-radius: 13;
+    -fx-border-radius: 16;
     -fx-background-radius: 13;
     -fx-padding: 5 10 5 10;
     -fx-font-size: 14px;
@@ -83,8 +83,7 @@
 }
 
 .combo-box .text {
-    -fx-fill: #000000;
-    -fx-font-weight: bold;
+    -fx-prompt-text-fill: rgba(80, 77, 77, 0.1);
     -fx-font-size: 14px;
     -fx-alignment: center;
 }
@@ -285,6 +284,7 @@
 .axis .tick-label {
     -fx-text-fill: white;
 }
-#translatedList{
-     -fx-background-color: #63b7d1;
+
+#translatedList {
+    -fx-background-color: #63b7d1;
 }

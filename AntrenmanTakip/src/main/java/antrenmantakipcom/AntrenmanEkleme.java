@@ -64,8 +64,6 @@ public class AntrenmanEkleme {
     @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
     public AntrenmanEkleme(String username) {
 
-        
-
         antrenmanIDlabel = new Label("");
         this.username = username;
         root = new BorderPane();
@@ -371,6 +369,8 @@ public class AntrenmanEkleme {
 
             ResultSet rs = ps.executeQuery();
 
+            int satirIndex = 0; // satır indeksi takip için
+
             while (rs.next()) {
                 String hareket_adi = rs.getString("hareket_adi");
 
@@ -400,6 +400,28 @@ public class AntrenmanEkleme {
                     icerikSag.getChildren().add(ekleButton);
                 }
 
+                // Enter eventlerini ekleyelim
+
+                final int currentIndex = satirIndex; // final değişken
+
+                textFieldSol.setOnAction(e -> {
+                    textFieldSag.requestFocus();
+                });
+
+                textFieldSag.setOnAction(e -> {
+                    // Sonraki satır varsa oradaki sol textfield'a geç
+                    int nextIndex = currentIndex + 1;
+                    if (nextIndex < hareketSatirlari.size()) {
+                        HBox nextSatir = hareketSatirlari.get(nextIndex);
+                        VBox nextColumn2 = (VBox) nextSatir.getChildren().get(1);
+                        if (!nextColumn2.getChildren().isEmpty()) {
+                            TextField nextTextFieldSol = (TextField) nextColumn2.getChildren().get(0);
+                            nextTextFieldSol.requestFocus();
+                        }
+                    }
+                });
+
+                satirIndex++;
             }
 
         } catch (SQLException e) {
