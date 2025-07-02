@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.controlsfx.control.CheckComboBox;
 
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
@@ -13,7 +16,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -48,7 +50,7 @@ public class CreateSpecialMeal {
     private TextField foodProtField;
     private ObservableList<Food> food_list;
     private Button showFoodList;
-    private boolean panelAcikMi = false;
+    private boolean foodPanelAcikMi = false;
     private VBox translatedListPanel;
     private StackPane centerStackPane;
     private TableView<Food> table;
@@ -64,23 +66,56 @@ public class CreateSpecialMeal {
     private Button addPrivateMealBoxSaveButton;
     private Button showMealList;
     private TextField mealNameField;
-    private ComboBox<Food> foodComboBox;
+    private boolean mealPanelAcikMi = false;
+    private CheckComboBox<Food> foodComboBox;
     private ObservableList<Meal> meal_list;
     private VBox translatedListPanelMeal;
     private StackPane centerStackPane2;
     private TableView<Food> table2;
+    private TextField searchField;
+    private TableView<Meal> meal_table;
+    private Button close_meal_listButton;
+    private String username;
+    private VBox selectedFoodBoxesContainer = new VBox(5);
 
     public class Meal {
         private String meal_name;
-        private Food food;
-        private float total_calorie;
+        private float total_cal;
         private float total_fat;
         private float total_carb;
         private float total_prot;
+        private ArrayList<Food> foods = new ArrayList<>();
 
-        public Meal(String meal_name) {
+        public Meal(String meal_name, float total_calorie, float total_fat, float total_carb, float total_prot,
+                ArrayList<Food> foods) {
             this.meal_name = meal_name;
+            this.total_cal = total_calorie;
+            this.total_fat = total_fat;
+            this.total_carb = total_carb;
+            this.total_prot = total_prot;
+            this.foods = foods;
         }
+
+        public String getMealName() {
+            return meal_name;
+        }
+
+        public float getTotalCal() {
+            return total_cal;
+        }
+
+        public float getTotalFat() {
+            return total_fat;
+        }
+
+        public float getTotalCarb() {
+            return total_carb;
+        }
+
+        public float getTotalProt() {
+            return total_prot;
+        }
+
     }
 
     public class Food {
@@ -100,8 +135,8 @@ public class CreateSpecialMeal {
 
         @Override
         public String toString() {
-            return "Food name: " + foodName + " Calorie: " + calorie + " Fat: " + fat + " Carb: " + carb + " Prot: "
-                    + prot;
+            return String.format("%s (cal: %.2f, fat: %.2f, carb: %.2f, prot: %.2f)",
+                    foodName, calorie, fat, carb, prot);
         }
 
         public String getFoodName() {
@@ -123,14 +158,29 @@ public class CreateSpecialMeal {
         public float getProt() {
             return prot;
         }
+
     }
 
-    public CreateSpecialMeal() {
+    public CreateSpecialMeal(String username) {
+        this.username = username;
         pane = new BorderPane();
         food_list = FXCollections.observableArrayList();
+        meal_list = FXCollections.observableArrayList();
         exitButton = new Button("Exit");
+        exitButton.setId("cikis_butonlari");
         exitButton.setOnAction(e -> {
             AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+        });
+        close_meal_listButton = new Button("Close");
+        close_meal_listButton.setId("cikis_butonlari");
+        close_meal_listButton.setOnAction(e -> {
+            if (mealPanelAcikMi) {
+                TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
+                transition.setToX(1200);
+                transition.setOnFinished(event -> translatedListPanelMeal.setVisible(false));
+                transition.play();
+                mealPanelAcikMi = false;
+            }
         });
 
         translatedListPanel = new VBox(10);
@@ -144,6 +194,28 @@ public class CreateSpecialMeal {
         translatedListPanel.setTranslateX(-500);
         translatedListPanel.setVisible(false);
 
+        searchField = new TextField();
+        searchField.setPromptText("Ara...");
+
+        searchField.textProperty().addListener((obs, oldText, newText) -> {
+            ObservableList<Food> filtered = FXCollections.observableArrayList();
+
+            for (Food food : food_list) {
+                if (food.getFoodName().toLowerCase().contains(newText.toLowerCase())) {
+                    filtered.add(food);
+                }
+            }
+
+            if (filtered.isEmpty()) {
+                foodComboBox.hide(); // hiç sonuç yoksa popup'ı kapat
+            } else {
+                foodComboBox.getItems().setAll(filtered);
+                foodComboBox.show(); // popup açılır
+            }
+
+            foodComboBox.getItems().setAll(filtered);
+        });
+
         translatedListPanelMeal = new VBox(10);
         translatedListPanelMeal.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
         translatedListPanelMeal.setId("translatedList");
@@ -152,11 +224,11 @@ public class CreateSpecialMeal {
         translatedListPanelMeal.setMaxHeight(900);
         translatedListPanelMeal.setMaxWidth(500);
         translatedListPanelMeal.setAlignment(Pos.CENTER);
-        translatedListPanelMeal.setTranslateX(-500);
+        translatedListPanelMeal.setTranslateX(1200);
         translatedListPanelMeal.setVisible(false);
 
         addPrivateMealBox = new VBox(10);
-        addPrivateMealBox.setPadding(new Insets(50, 50, 0, 0));
+        addPrivateMealBox.setPadding(new Insets(150, 150, 0, 0));
         addPrivateBoxLabelBox = new VBox(30);
         addPrivateMealBoxFieldBox = new VBox(30);
         addPrivateMealBoxButtonsBox = new HBox(10);
@@ -165,29 +237,38 @@ public class CreateSpecialMeal {
         addPrivateMealBoxHeaderLabel = new Label("Add your special meals ");
         addPrivateMealBoxHeaderLabel.setStyle("-fx-font-size:30px;-fx-font-style:italic");
 
-        addPrivateMealNameLabel = new Label("Food Name : ");
+        addPrivateMealNameLabel = new Label("Meal Name : ");
         addPrivateMealNameLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
         chooseFoodLabel = new Label("Food Name : ");
         chooseFoodLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
         mealNameField = new TextField();
-        mealNameField.setPrefSize(200,50);
+        mealNameField.setPrefSize(200, 50);
         mealNameField.setOnAction(e -> foodComboBox.requestFocus());
         mealNameField.setPromptText("Enter your meal name here");
 
-        foodComboBox = new ComboBox<>();
-        foodComboBox.setPrefSize(200, 50);
-        foodComboBox.setPromptText("Enter your foods");
+        foodComboBox = new CheckComboBox<>();
+        foodComboBox.setPrefSize(400, 50);
+        foodComboBox.setMaxSize(400, 50);
 
-        addPrivateMealBoxSaveButton = new Button("Add");
-        showMealList = new Button("Show Meal List");
         
-        addPrivateMealBoxButtonsBox.getChildren().addAll(addPrivateMealBoxSaveButton,showMealList);
-        addPrivateMealBoxFieldBox.getChildren().addAll(mealNameField,foodComboBox);
+        addPrivateMealBoxSaveButton = new Button("Add");
+        addPrivateMealBoxSaveButton.setOnAction(e -> {
+            saveMeal();
+
+        });
+        showMealList = new Button("Show Meal List");
+
+     
+        selectedFoodBoxesContainer.setMaxSize(40,40); 
+        selectedFoodBoxesContainer.setPrefSize(40,40);
+        addPrivateMealBoxButtonsBox.getChildren().addAll(addPrivateMealBoxSaveButton, showMealList);
+        addPrivateMealBoxFieldBox.getChildren().addAll(mealNameField, foodComboBox);
         addPrivateBoxLabelBox.getChildren().addAll(addPrivateMealNameLabel, chooseFoodLabel);
         addPrivateMealBoxElementsBox.getChildren().addAll(addPrivateBoxLabelBox, addPrivateMealBoxFieldBox);
-        addPrivateMealBox.getChildren().addAll(addPrivateMealBoxHeaderLabel, addPrivateMealBoxElementsBox,addPrivateMealBoxButtonsBox);
+        addPrivateMealBox.getChildren().addAll(addPrivateMealBoxHeaderLabel, searchField, addPrivateMealBoxElementsBox,
+                addPrivateMealBoxButtonsBox);
 
         addPrivateFoodBox = new VBox(10);
         addPrivateFoodBox.setPadding(new Insets(50, 0, 0, 50));
@@ -283,15 +364,75 @@ public class CreateSpecialMeal {
 
         table.getColumns().addAll(nameCol, calorieCol, fatCol, carbCol, protCol);
         table.setItems(food_list);
+
+        meal_table = new TableView<>();
+        meal_table.setPrefHeight(600);
+        meal_table.setPrefWidth(600);
+        meal_table.setMaxWidth(600);
+        meal_table.setId("Meal List");
+
+        TableColumn<Meal, String> meal_name_clmn = new TableColumn<>("meal_name");
+        meal_name_clmn.setCellValueFactory(new PropertyValueFactory<>("mealName"));
+        meal_name_clmn.setPrefWidth(100);
+
+        TableColumn<Meal, Float> meal_total_cal_clmn = new TableColumn<>("total_cal");
+        meal_total_cal_clmn.setCellValueFactory(new PropertyValueFactory<>("totalCal"));
+        meal_total_cal_clmn.setPrefWidth(90);
+
+        TableColumn<Meal, Float> meal_total_fat_clmn = new TableColumn<>("fat");
+        meal_total_fat_clmn.setCellValueFactory(new PropertyValueFactory<>("totalFat"));
+        meal_total_fat_clmn.setPrefWidth(90);
+
+        TableColumn<Meal, Float> meal_total_carb_clmn = new TableColumn<>("carb");
+        meal_total_carb_clmn.setCellValueFactory(new PropertyValueFactory<>("totalCarb"));
+        meal_total_carb_clmn.setPrefWidth(90);
+
+        TableColumn<Meal, Float> meal_total_prot_clmn = new TableColumn<>("prot");
+        meal_total_prot_clmn.setCellValueFactory(new PropertyValueFactory<>("totalProt"));
+        meal_total_prot_clmn.setPrefWidth(80);
+
+        meal_name_clmn.setStyle("-fx-alignment: CENTER;");
+        meal_total_cal_clmn.setStyle("-fx-alignment: CENTER;");
+        meal_total_fat_clmn.setStyle("-fx-alignment: CENTER;");
+        meal_total_carb_clmn.setStyle("-fx-alignment: CENTER;");
+        meal_total_prot_clmn.setStyle("-fx-alignment: CENTER;");
+
+        Label labelveriyok2 = new Label("İçeride veri yok :( ");
+        labelveriyok2.setStyle("-fx-text-fill:black;-fx-font-style:italic");
+        meal_table.setPlaceholder(labelveriyok2);
+
+        meal_table.getColumns().addAll(meal_name_clmn, meal_total_cal_clmn, meal_total_fat_clmn, meal_total_carb_clmn,
+                meal_total_prot_clmn);
+
+        meal_table.setItems(meal_list);
+
+        translatedListPanelMeal.getChildren().addAll(meal_table, close_meal_listButton);
+        showMealList.setOnAction(e -> {
+            showMealList();
+            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
+
+            if (mealPanelAcikMi) {
+                transition.setToX(1200);
+                transition.setOnFinished(event -> translatedListPanelMeal.setVisible(false));
+                mealPanelAcikMi = false;
+            } else {
+                translatedListPanelMeal.setVisible(true);
+                transition.setToX(100);
+                mealPanelAcikMi = true;
+            }
+
+            transition.play();
+        });
+
         Button closeButton = new Button("Close");
         closeButton.setId("cikis_butonlari");
         closeButton.setOnAction(e -> {
-            if (panelAcikMi) {
+            if (foodPanelAcikMi) {
                 TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
                 transition.setToX(-500);
                 transition.setOnFinished(event -> translatedListPanel.setVisible(false));
                 transition.play();
-                panelAcikMi = false;
+                foodPanelAcikMi = false;
             }
         });
 
@@ -301,14 +442,14 @@ public class CreateSpecialMeal {
             verileriCek();
             TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
 
-            if (panelAcikMi) {
+            if (foodPanelAcikMi) {
                 transition.setToX(-500);
                 transition.setOnFinished(event -> translatedListPanel.setVisible(false));
-                panelAcikMi = false;
+                foodPanelAcikMi = false;
             } else {
                 translatedListPanel.setVisible(true);
                 transition.setToX(0);
-                panelAcikMi = true;
+                foodPanelAcikMi = true;
             }
 
             transition.play();
@@ -324,10 +465,45 @@ public class CreateSpecialMeal {
         StackPane leftStackPane = new StackPane();
         leftStackPane.getChildren().add(addPrivateFoodBox);
         leftStackPane.getChildren().add(translatedListPanel);
+        StackPane rightStackPane = new StackPane();
+        rightStackPane.getChildren().add(addPrivateMealBox);
+        rightStackPane.getChildren().add(translatedListPanelMeal);
+
         pane.setLeft(leftStackPane);
-        pane.setRight(addPrivateMealBox);
+        pane.setRight(rightStackPane);
         pane.setBottom(exitButton);
-        
+        verileriCek();
+        foodComboBox.getItems().setAll(food_list);
+
+    }
+
+    public void CheckComboBoxAyarlama() {
+        int meal_id;
+        String food_name;
+        float calorie;
+        float fat;
+        float carb;
+        float prot;
+        ArrayList<Food> yemekler = new ArrayList<>();
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT * FROM saved_special_foods";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                meal_id = rs.getInt("id");
+                food_name = rs.getString("food_name");
+                calorie = rs.getFloat("calorie");
+                fat = rs.getFloat("fat");
+                carb = rs.getFloat("carb");
+                prot = rs.getFloat("prot");
+                Food food = new Food(food_name, calorie, fat, carb, prot);
+                yemekler.add(food);
+            }
+            food_list = FXCollections.observableArrayList(yemekler);
+            foodComboBox.getItems().setAll(food_list);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public BorderPane getPane() {
@@ -340,6 +516,7 @@ public class CreateSpecialMeal {
         String fatText = foodFatField.getText().trim();
         String carbText = foodCarbField.getText().trim();
         String protText = foodProtField.getText().trim();
+        int user_id = 0;
 
         if (foodName.isEmpty() || calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty()
                 || protText.isEmpty()) {
@@ -352,6 +529,18 @@ public class CreateSpecialMeal {
             alert.showAndWait();
             return;
         }
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
         try {
             float calorie = Float.parseFloat(calorieText);
             float fat = Float.parseFloat(fatText);
@@ -359,13 +548,14 @@ public class CreateSpecialMeal {
             float prot = Float.parseFloat(protText);
 
             try (Connection con = Database.connect()) {
-                String sorgu = "INSERT INTO saved_special_foods (food_name,calorie,fat,carb,prot) VALUES (?,?,?,?,?)";
+                String sorgu = "INSERT INTO saved_special_foods (food_name,user_id,calorie,fat,carb,prot) VALUES (?,?,?,?,?,?)";
                 PreparedStatement ps = con.prepareStatement(sorgu);
                 ps.setString(1, foodName);
-                ps.setFloat(2, calorie);
-                ps.setFloat(3, fat);
-                ps.setFloat(4, carb);
-                ps.setFloat(5, prot);
+                ps.setInt(2, user_id);
+                ps.setFloat(3, calorie);
+                ps.setFloat(4, fat);
+                ps.setFloat(5, carb);
+                ps.setFloat(6, prot);
 
                 int sonuc = ps.executeUpdate();
                 if (sonuc > 0) {
@@ -378,6 +568,7 @@ public class CreateSpecialMeal {
                     dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
                     alert.showAndWait();
                     food_list.add(food);
+
                 } else {
                     Alert alert = new Alert(AlertType.ERROR);
                     alert.setTitle("Başarısız!");
@@ -403,16 +594,143 @@ public class CreateSpecialMeal {
 
     }
 
+    public void saveMeal() {
+        int user_id = 0;
+        String meal_name = mealNameField.getText().trim();
+        float totalCal = 0;
+        float totalFat = 0;
+        float totalCarb = 0;
+        float totalProt = 0;
+        ArrayList<Food> secilenFoodList = new ArrayList<>(foodComboBox.getCheckModel().getCheckedItems());
+
+        for (Food food : secilenFoodList) {
+            float cal = food.calorie;
+            float fat = food.fat;
+            float carb = food.carb;
+            float prot = food.prot;
+            totalCal += cal;
+            totalFat += fat;
+            totalCarb += carb;
+            totalProt += prot;
+        }
+        Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt, secilenFoodList);
+        meal_list.add(meal);
+
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        try (Connection con = Database.connect()) {
+            String sorgu = "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?,?) ";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, meal_name);
+            ps.setInt(2, user_id);
+            ps.setFloat(3, totalCal);
+            ps.setFloat(4, totalFat);
+            ps.setFloat(5, totalCarb);
+            ps.setFloat(6, totalProt);
+
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                searchField.setText("");
+                mealNameField.setText("");
+                foodComboBox.getCheckModel().clearChecks();
+                Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
+                hataAlert.setTitle("Meal is added");
+                hataAlert.setHeaderText(null);
+                hataAlert.setContentText("You can show the list of meals with pressing show button");
+                hataAlert.showAndWait();
+
+            } else {
+                Alert hataAlert = new Alert(Alert.AlertType.ERROR);
+                hataAlert.setTitle("Error!");
+                hataAlert.setHeaderText(null);
+                hataAlert.setContentText("The meal could not be added");
+                hataAlert.showAndWait();
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void showMealList() {
+        meal_list.clear();
+        int user_id = 0;
+        String meal_name = null;
+        float total_cal = 0;
+        float total_fat = 0;
+        float total_carb = 0;
+        float total_prot = 0;
+
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT * FROM saved_meals WHERE user_id =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setInt(1, user_id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                meal_name = rs.getString("meal_name");
+                total_cal = rs.getFloat("total_cal");
+                total_fat = rs.getFloat("total_fat");
+                total_carb = rs.getFloat("total_carb");
+                total_prot = rs.getFloat("total_prot");
+                ArrayList<Food> foods = new ArrayList<>();
+
+                Meal meal = new Meal(meal_name, total_cal, total_fat, total_carb, total_prot, foods);
+                meal_list.add(meal);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void verileriCek() {
         String ad = null;
         float cal = 0;
         float fat = 0;
         float carb = 0;
         float prot = 0;
+        int user_id = 0;
 
         try (Connection con = Database.connect()) {
-            String sorgu = "SELECT * FROM saved_special_foods";
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
             PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT * FROM saved_special_foods WHERE user_id =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setInt(1, user_id);
             ResultSet rs = ps.executeQuery();
             food_list.clear();
             while (rs.next()) {
@@ -423,6 +741,7 @@ public class CreateSpecialMeal {
                 prot = rs.getFloat("prot");
                 Food food = new Food(ad, cal, fat, carb, prot);
                 food_list.add(food);
+
             }
 
         } catch (SQLException e) {

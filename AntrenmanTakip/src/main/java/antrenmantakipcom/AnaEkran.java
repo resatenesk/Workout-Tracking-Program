@@ -90,14 +90,14 @@ public class AnaEkran {
         });
         gunluk_besin_ekle = new Button("Add Daily Food Values");
         gunluk_besin_ekle.setOnAction(e -> {
-            DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen();
+            DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen(username);
             AnaKontrolEkrani.setRoot(daily.getPane());
         });
         gunluk_besin_ekle.setMinWidth(120);
 
         createMealButton = new Button("Create Special Meals/Create Special Foods");
         createMealButton.setOnAction(e -> {
-            CreateSpecialMeal meal = new CreateSpecialMeal();
+            CreateSpecialMeal meal = new CreateSpecialMeal(username);
             AnaKontrolEkrani.setRoot(meal.getPane());
         });
 

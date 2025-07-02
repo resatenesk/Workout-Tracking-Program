@@ -2,6 +2,7 @@ package antrenmantakipcom;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
@@ -38,9 +39,7 @@ public class DailyMacroAndFoodValuesScreen {
     private Button saveButton;
     private DatePicker datePicker;
     private Button geriDonButton;
-
-   
-   
+    private String username;
 
     public class Food {
         private String foodName;
@@ -84,8 +83,8 @@ public class DailyMacroAndFoodValuesScreen {
         }
     }
 
-    public DailyMacroAndFoodValuesScreen() {
-
+    public DailyMacroAndFoodValuesScreen(String username) {
+        this.username = username;
         root = new BorderPane();
 
         DailyFoodBox = new VBox(10);
@@ -166,13 +165,12 @@ public class DailyMacroAndFoodValuesScreen {
         root.setCenter(centerStackPane);
     }
 
-   
-
     public BorderPane getPane() {
         return root;
     }
 
     public void SaveDailyCalorie() {
+        int user_id = 0;
         String calorieText = calorieTextField.getText().trim();
         String fatText = fatTextField.getText().trim();
         String carbText = carbTextField.getText().trim();
@@ -190,6 +188,18 @@ public class DailyMacroAndFoodValuesScreen {
             return;
         }
 
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
         try {
             float calorie = Float.parseFloat(calorieText);
             float fat = Float.parseFloat(fatText);
@@ -197,13 +207,14 @@ public class DailyMacroAndFoodValuesScreen {
             float prot = Float.parseFloat(protText);
 
             try (Connection con = Database.connect()) {
-                String sorgu = "INSERT INTO daily_food_values (calorie,fat,carb,prot,date) VALUES (?,?,?,?,?)";
+                String sorgu = "INSERT INTO daily_food_values (calorie,fat,carb,prot,date) VALUES (?,?,?,?,?) WHERE user_id=?";
                 PreparedStatement ps = con.prepareStatement(sorgu);
                 ps.setFloat(1, calorie);
                 ps.setFloat(2, fat);
                 ps.setFloat(3, carb);
                 ps.setFloat(4, prot);
                 ps.setDate(5, java.sql.Date.valueOf(date));
+                ps.setInt(6, user_id);
                 int sonuc = ps.executeUpdate();
                 if (sonuc > 0) {
                     Alert alert = new Alert(AlertType.INFORMATION);
