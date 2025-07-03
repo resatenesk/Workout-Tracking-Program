@@ -97,7 +97,7 @@ public class AnaEkran {
 
         createMealButton = new Button("Create Special Meals/Create Special Foods");
         createMealButton.setOnAction(e -> {
-            CreateSpecialMeal meal = new CreateSpecialMeal(username);
+            CreateSpecialMealCreateSpecialFood meal = new CreateSpecialMealCreateSpecialFood(username);
             AnaKontrolEkrani.setRoot(meal.getPane());
         });
 

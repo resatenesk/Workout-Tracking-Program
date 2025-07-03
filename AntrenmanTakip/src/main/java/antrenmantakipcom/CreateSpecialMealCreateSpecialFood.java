@@ -5,17 +5,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.controlsfx.control.CheckComboBox;
 
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -28,7 +32,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class CreateSpecialMeal {
+public class CreateSpecialMealCreateSpecialFood {
     private BorderPane pane;
     private Button exitButton;
     private VBox addPrivateFoodBox;
@@ -43,6 +47,7 @@ public class CreateSpecialMeal {
     private Label addPrivateBoxCarbLabel;
     private Label addPrivateBoxProtLabel;
     private Button addPrivateFoodBoxSaveButton;
+    private Button addPrivateFoodBoxDeleteButton;
     private TextField foodNameField;
     private TextField foodCalorieField;
     private TextField foodFatField;
@@ -64,6 +69,7 @@ public class CreateSpecialMeal {
     private Label addPrivateMealNameLabel;
     private Label chooseFoodLabel;
     private Button addPrivateMealBoxSaveButton;
+    private Button addPrivateMealBoxDeleteButton;
     private Button showMealList;
     private TextField mealNameField;
     private boolean mealPanelAcikMi = false;
@@ -76,7 +82,11 @@ public class CreateSpecialMeal {
     private TableView<Meal> meal_table;
     private Button close_meal_listButton;
     private String username;
-    private VBox selectedFoodBoxesContainer = new VBox(5);
+    private HBox selectedFoodBoxesContainerLabel = new HBox(15);
+    private HBox selectedFoodBoxesContainer = new HBox(35);
+    private ComboBox<Integer> amountComboBox;
+    private Map<Food, ComboBox<Integer>> foodAmountMap = new HashMap<>();
+    private TextField gramsField;
 
     public class Meal {
         private String meal_name;
@@ -161,7 +171,7 @@ public class CreateSpecialMeal {
 
     }
 
-    public CreateSpecialMeal(String username) {
+    public CreateSpecialMealCreateSpecialFood(String username) {
         this.username = username;
         pane = new BorderPane();
         food_list = FXCollections.observableArrayList();
@@ -207,10 +217,10 @@ public class CreateSpecialMeal {
             }
 
             if (filtered.isEmpty()) {
-                foodComboBox.hide(); // hiç sonuç yoksa popup'ı kapat
+                foodComboBox.hide();
             } else {
                 foodComboBox.getItems().setAll(filtered);
-                foodComboBox.show(); // popup açılır
+                foodComboBox.show();
             }
 
             foodComboBox.getItems().setAll(filtered);
@@ -226,6 +236,106 @@ public class CreateSpecialMeal {
         translatedListPanelMeal.setAlignment(Pos.CENTER);
         translatedListPanelMeal.setTranslateX(1200);
         translatedListPanelMeal.setVisible(false);
+
+        addPrivateFoodBoxDeleteButton = new Button("Delete");
+        addPrivateFoodBoxDeleteButton.setOnAction(e -> {
+            int selectedIndex = table.getSelectionModel().getSelectedIndex();
+            int food_id = 0;
+            if (selectedIndex >= 0) {
+                try (Connection con = Database.connect()) {
+                    String id_sorgu = "SELECT id FROM saved_special_foods WHERE food_name = ?";
+                    PreparedStatement ps = con.prepareStatement(id_sorgu);
+                    ps.setString(1, table.getSelectionModel().getSelectedItem().foodName);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        food_id = rs.getInt("id");
+                    }
+                    String sorgu = "DELETE FROM saved_special_foods WHERE id = ? ";
+                    PreparedStatement ps2 = con.prepareStatement(sorgu);
+                    ps2.setInt(1, food_id);
+                    int sonuc = ps2.executeUpdate();
+                    if (sonuc > 0) {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("DELETED");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Food has deleted succesfully");
+                        DialogPane dialogPane = alert.getDialogPane();
+                        dialogPane.getStylesheets()
+                                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                        alert.showAndWait();
+                        Food selectedFood = table.getSelectionModel().getSelectedItem();
+                        if (selectedFood != null) {
+                            food_list.remove(selectedFood);
+                            table.getSelectionModel().clearSelection();
+                        }
+
+                    } else {
+
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("NOT SELECTED");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a food correctly");
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets()
+                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+            }
+
+        });
+        addPrivateMealBoxDeleteButton = new Button("Delete");
+        addPrivateMealBoxDeleteButton.setOnAction(e -> {
+            int selectedIndex = meal_table.getSelectionModel().getSelectedIndex();
+            int food_id = 0;
+            if (selectedIndex >= 0) {
+                try (Connection con = Database.connect()) {
+                    String id_sorgu = "SELECT id FROM saved_meals WHERE meal_name = ?";
+                    PreparedStatement ps = con.prepareStatement(id_sorgu);
+                    ps.setString(1, meal_table.getSelectionModel().getSelectedItem().meal_name);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        food_id = rs.getInt("id");
+                    }
+                    String sorgu = "DELETE FROM saved_meals WHERE id = ? ";
+                    PreparedStatement ps2 = con.prepareStatement(sorgu);
+                    ps2.setInt(1, food_id);
+                    int sonuc = ps2.executeUpdate();
+                    if (sonuc > 0) {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("DELETED");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Meal has deleted succesfully");
+                        DialogPane dialogPane = alert.getDialogPane();
+                        dialogPane.getStylesheets()
+                                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                        alert.showAndWait();
+                        Meal selectedMeal = meal_table.getSelectionModel().getSelectedItem();
+                        if (selectedMeal != null) {
+                            meal_list.remove(selectedMeal);
+                            table.getSelectionModel().clearSelection();
+                        }
+                    } else {
+
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("NOT SELECTED");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a meal correctly");
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets()
+                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+            }
+
+        });
 
         addPrivateMealBox = new VBox(10);
         addPrivateMealBox.setPadding(new Insets(150, 150, 0, 0));
@@ -243,6 +353,9 @@ public class CreateSpecialMeal {
         chooseFoodLabel = new Label("Food Name : ");
         chooseFoodLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
+        Label howMuchAddLabel = new Label("How Much: ");
+        howMuchAddLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
+
         mealNameField = new TextField();
         mealNameField.setPrefSize(200, 50);
         mealNameField.setOnAction(e -> foodComboBox.requestFocus());
@@ -252,20 +365,42 @@ public class CreateSpecialMeal {
         foodComboBox.setPrefSize(400, 50);
         foodComboBox.setMaxSize(400, 50);
 
-        
+        foodComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Food>) change -> {
+            selectedFoodBoxesContainer.getChildren().clear();
+            selectedFoodBoxesContainerLabel.getChildren().clear();
+            foodAmountMap.clear();
+            for (Food selectedFood : foodComboBox.getCheckModel().getCheckedItems()) {
+                amountComboBox = new ComboBox<>();
+                amountComboBox.setPrefSize(30, 120);
+                amountComboBox.setMaxSize(30, 120);
+                amountComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+                amountComboBox.setValue(1);
+                foodAmountMap.put(selectedFood, amountComboBox);
+                Label label = new Label(selectedFood.foodName);
+                label.setPadding(new Insets(50, 0, 0, 0));
+                label.setStyle("-fx-font-size:10px;-fx-font-style:italic;");
+                HBox hBox = new HBox(20, amountComboBox);
+                hBox.setAlignment(Pos.CENTER);
+                HBox hBox2 = new HBox(15, label);
+                selectedFoodBoxesContainerLabel.getChildren().add(hBox2);
+                selectedFoodBoxesContainer.getChildren().add(hBox);
+            }
+        });
+
         addPrivateMealBoxSaveButton = new Button("Add");
         addPrivateMealBoxSaveButton.setOnAction(e -> {
             saveMeal();
+            amountComboBox.setValue(1);
 
         });
         showMealList = new Button("Show Meal List");
 
-     
-        selectedFoodBoxesContainer.setMaxSize(40,40); 
-        selectedFoodBoxesContainer.setPrefSize(40,40);
+        selectedFoodBoxesContainer.setMaxSize(40, 40);
+        selectedFoodBoxesContainer.setPrefSize(40, 40);
         addPrivateMealBoxButtonsBox.getChildren().addAll(addPrivateMealBoxSaveButton, showMealList);
-        addPrivateMealBoxFieldBox.getChildren().addAll(mealNameField, foodComboBox);
-        addPrivateBoxLabelBox.getChildren().addAll(addPrivateMealNameLabel, chooseFoodLabel);
+        addPrivateMealBoxFieldBox.getChildren().addAll(mealNameField, foodComboBox, selectedFoodBoxesContainerLabel,
+                selectedFoodBoxesContainer);
+        addPrivateBoxLabelBox.getChildren().addAll(addPrivateMealNameLabel, chooseFoodLabel, howMuchAddLabel);
         addPrivateMealBoxElementsBox.getChildren().addAll(addPrivateBoxLabelBox, addPrivateMealBoxFieldBox);
         addPrivateMealBox.getChildren().addAll(addPrivateMealBoxHeaderLabel, searchField, addPrivateMealBoxElementsBox,
                 addPrivateMealBoxButtonsBox);
@@ -290,6 +425,8 @@ public class CreateSpecialMeal {
         addPrivateBoxCarbLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
         addPrivateBoxProtLabel = new Label("Food Prot : ");
         addPrivateBoxProtLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
+        Label gramsLabel = new Label("Grams: ");
+        gramsLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
         foodNameField = new TextField();
         foodNameField.setOnAction(e -> foodCalorieField.requestFocus());
@@ -310,11 +447,14 @@ public class CreateSpecialMeal {
         foodProtField = new TextField();
         foodProtField.setPrefSize(300, 80);
         foodProtField.setPromptText("Enter prot(grams) of the food here(kcal)");
+        gramsField = new TextField();
+        gramsField.setPrefSize(300, 80);
+        gramsField.setPromptText("Enter that how much you want to add(grams)");
 
         addPrivateBoxLabelBox.getChildren().addAll(addPrivateBoxFoodNameLabel, addPrivateBoxCalorieLabel,
-                addPrivateBoxFatLabel, addPrivateBoxCarbLabel, addPrivateBoxProtLabel);
+                addPrivateBoxFatLabel, addPrivateBoxCarbLabel, addPrivateBoxProtLabel, gramsLabel);
         addPrivateBoxTextFieldBox.getChildren().addAll(foodNameField, foodCalorieField, foodFatField, foodCarbField,
-                foodProtField);
+                foodProtField, gramsField);
 
         addPrivateFoodBoxSaveButton = new Button("Save");
         addPrivateFoodBoxSaveButton.setOnAction(e -> {
@@ -406,7 +546,7 @@ public class CreateSpecialMeal {
 
         meal_table.setItems(meal_list);
 
-        translatedListPanelMeal.getChildren().addAll(meal_table, close_meal_listButton);
+        translatedListPanelMeal.getChildren().addAll(meal_table, close_meal_listButton, addPrivateMealBoxDeleteButton);
         showMealList.setOnAction(e -> {
             showMealList();
             TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
@@ -436,7 +576,7 @@ public class CreateSpecialMeal {
             }
         });
 
-        translatedListPanel.getChildren().addAll(table, closeButton);
+        translatedListPanel.getChildren().addAll(table, closeButton, addPrivateFoodBoxDeleteButton);
         showFoodList = new Button("Show Food List");
         showFoodList.setOnAction(e -> {
             verileriCek();
@@ -516,6 +656,7 @@ public class CreateSpecialMeal {
         String fatText = foodFatField.getText().trim();
         String carbText = foodCarbField.getText().trim();
         String protText = foodProtField.getText().trim();
+        String grams = gramsField.getText().trim();
         int user_id = 0;
 
         if (foodName.isEmpty() || calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty()
@@ -542,6 +683,7 @@ public class CreateSpecialMeal {
         }
 
         try {
+            foodName = foodName + "(" + grams + " gr)";
             float calorie = Float.parseFloat(calorieText);
             float fat = Float.parseFloat(fatText);
             float carb = Float.parseFloat(carbText);
@@ -602,65 +744,78 @@ public class CreateSpecialMeal {
         float totalCarb = 0;
         float totalProt = 0;
         ArrayList<Food> secilenFoodList = new ArrayList<>(foodComboBox.getCheckModel().getCheckedItems());
-
         for (Food food : secilenFoodList) {
+            int miktar = 1;
+            if (foodAmountMap.containsKey(food)) {
+                miktar = foodAmountMap.get(food).getValue();
+            }
+
             float cal = food.calorie;
             float fat = food.fat;
             float carb = food.carb;
             float prot = food.prot;
-            totalCal += cal;
-            totalFat += fat;
-            totalCarb += carb;
-            totalProt += prot;
+
+            totalCal += cal * miktar;
+            totalFat += fat * miktar;
+            totalCarb += carb * miktar;
+            totalProt += prot * miktar;
         }
         Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt, secilenFoodList);
         meal_list.add(meal);
+        if (mealNameField.getText().isEmpty() || foodComboBox.getCheckModel().getCheckedItems().isEmpty()) {
+            Alert hataAlert = new Alert(Alert.AlertType.WARNING);
+            hataAlert.setTitle("EMPTY AREA!");
+            hataAlert.setHeaderText(null);
+            hataAlert.setContentText("Please make sure you writed a name and choosed a food");
+            hataAlert.showAndWait();
+        } else {
 
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
+            try (Connection con = Database.connect()) {
+                String sorgu = "SELECT user_id FROM users WHERE username =?";
+                PreparedStatement ps = con.prepareStatement(sorgu);
+                ps.setString(1, username);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    user_id = rs.getInt("user_id");
+                }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
             }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
-        }
-        try (Connection con = Database.connect()) {
-            String sorgu = "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?,?) ";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, meal_name);
-            ps.setInt(2, user_id);
-            ps.setFloat(3, totalCal);
-            ps.setFloat(4, totalFat);
-            ps.setFloat(5, totalCarb);
-            ps.setFloat(6, totalProt);
+            try (Connection con = Database.connect()) {
+                String sorgu = "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?,?) ";
+                PreparedStatement ps = con.prepareStatement(sorgu);
+                ps.setString(1, meal_name);
+                ps.setInt(2, user_id);
+                ps.setFloat(3, totalCal);
+                ps.setFloat(4, totalFat);
+                ps.setFloat(5, totalCarb);
+                ps.setFloat(6, totalProt);
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                searchField.setText("");
-                mealNameField.setText("");
-                foodComboBox.getCheckModel().clearChecks();
-                Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
-                hataAlert.setTitle("Meal is added");
-                hataAlert.setHeaderText(null);
-                hataAlert.setContentText("You can show the list of meals with pressing show button");
-                hataAlert.showAndWait();
+                int result = ps.executeUpdate();
+                if (result > 0) {
+                    searchField.setText("");
+                    mealNameField.setText("");
+                    foodComboBox.getCheckModel().clearChecks();
+                    Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
+                    hataAlert.setTitle("Meal is added");
+                    hataAlert.setHeaderText(null);
+                    hataAlert.setContentText("You can show the list of meals with pressing show button");
+                    hataAlert.showAndWait();
 
-            } else {
-                Alert hataAlert = new Alert(Alert.AlertType.ERROR);
-                hataAlert.setTitle("Error!");
-                hataAlert.setHeaderText(null);
-                hataAlert.setContentText("The meal could not be added");
-                hataAlert.showAndWait();
+                } else {
+                    Alert hataAlert = new Alert(Alert.AlertType.ERROR);
+                    hataAlert.setTitle("Error!");
+                    hataAlert.setHeaderText(null);
+                    hataAlert.setContentText("The meal could not be added");
+                    hataAlert.showAndWait();
 
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
     }
 
     public void showMealList() {
