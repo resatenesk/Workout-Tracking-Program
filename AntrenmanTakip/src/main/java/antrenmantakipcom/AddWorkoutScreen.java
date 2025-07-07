@@ -32,13 +32,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class AntrenmanEkleme {
+public class AddWorkoutScreen {
 
     private static BorderPane root;
     private final Button geriButton;
-    private TableView<KullaniciVeri> tablo;
+    private TableView<User> tablo;
     private String username;
-    private ObservableList<KullaniciVeri> liste;
+    private ObservableList<User> liste;
     private Label antrenmanIDlabel;
     private Label kacinciGunLabel;
     private ComboBox<Integer> kacincıGunComboBox;
@@ -62,7 +62,7 @@ public class AntrenmanEkleme {
     private Button ozelYiyecekListeGoruntule;
 
     @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
-    public AntrenmanEkleme(String username) {
+    public AddWorkoutScreen(String username) {
 
         antrenmanIDlabel = new Label("");
         this.username = username;
@@ -81,7 +81,7 @@ public class AntrenmanEkleme {
         // header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
         root.setTop(header);
 
-        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
@@ -90,8 +90,8 @@ public class AntrenmanEkleme {
         geriButton.setId("cikis_butonlari");
         geriButton.setStyle("-fx-font-size: 14px;");
         geriButton.setOnAction(e -> {
-            AnaEkran anaEkran = new AnaEkran();
-            AnaKontrolEkrani.setRoot(anaEkran.getRoot());
+            MainScreen anaEkran = new MainScreen();
+            Main.setRoot(anaEkran.getRoot());
         });
 
         HBox footer = new HBox(geriButton);
@@ -108,7 +108,7 @@ public class AntrenmanEkleme {
         tablo.setOnMouseClicked(e -> {
             gun_listesi.clear();
             kacincıGunComboBox.getItems().clear();
-            KullaniciVeri secilenVeri = (KullaniciVeri) tablo.getSelectionModel().getSelectedItem();
+            User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri != null) {
                 gun_sayisi = secilenVeri.getGunSayisi();
                 antrenman_id = secilenVeri.getAntrenmanID();
@@ -201,7 +201,7 @@ public class AntrenmanEkleme {
     }
 
     public void tablodanVeriSil() {
-        KullaniciVeri secilenVeri = (KullaniciVeri) tablo.getSelectionModel().getSelectedItem();
+        User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
         if (secilenVeri != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Onay");
@@ -217,7 +217,7 @@ public class AntrenmanEkleme {
                     ps.setInt(1, id);
                     int result = ps.executeUpdate();
                     if (result > 0) {
-                        KullaniciVeri veri = tablo.getSelectionModel().getSelectedItem();
+                        User veri = tablo.getSelectionModel().getSelectedItem();
                         liste.remove(veri);
                     }
                 } catch (SQLException e) {
@@ -346,7 +346,7 @@ public class AntrenmanEkleme {
     }
 
     public void hareketleriOlustur() {
-        KullaniciVeri secilenVeri = (KullaniciVeri) tablo.getSelectionModel().getSelectedItem();
+        User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
         if (secilenVeri == null)
             return;
 
@@ -438,27 +438,27 @@ public class AntrenmanEkleme {
         tablo.setMaxWidth(450);
 
         tablo.setId("antrenmanTablo");
-        TableColumn<KullaniciVeri, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<User, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<User, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<User, String> usernameCol = new TableColumn<>("İsim");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<KullaniciVeri, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<User, String> tipCol = new TableColumn<>("Antrenman Tipi");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<User, Integer> gunCol = new TableColumn<>("Gün Sayısı");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
@@ -473,7 +473,7 @@ public class AntrenmanEkleme {
 
     }
 
-    public ObservableList<KullaniciVeri> veritabaniVerileriCek(String username) {
+    public ObservableList<User> veritabaniVerileriCek(String username) {
         liste = FXCollections.observableArrayList();
 
         int antrenman_id2;
@@ -493,7 +493,7 @@ public class AntrenmanEkleme {
                 username2 = rs.getString("username");
                 antrenman_tipi2 = rs.getString("antrenman_tipi");
                 gun_sayisi2 = rs.getInt("gun_sayisi");
-                KullaniciVeri veriler = new KullaniciVeri(antrenman_id2, user_id2, username2, antrenman_tipi2,
+                User veriler = new User(antrenman_id2, user_id2, username2, antrenman_tipi2,
                         gun_sayisi2);
                 liste.add(veriler);
 

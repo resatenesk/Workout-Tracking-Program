@@ -27,7 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class AntrenmanGrafikleriGoster {
+public class ShowWorkoutGraphsScreen {
     private BorderPane root;
     private String username;
     private Button geriDon;
@@ -58,7 +58,7 @@ public class AntrenmanGrafikleriGoster {
     private ObservableList<String> hareketlerListesi = FXCollections.observableArrayList();
     private String secilen_hareket;
 
-    public AntrenmanGrafikleriGoster(String username) {
+    public ShowWorkoutGraphsScreen(String username) {
 
         this.username = username;
         antrenmanIDsiniAl();
@@ -84,7 +84,7 @@ public class AntrenmanGrafikleriGoster {
 
         root = new BorderPane();
 
-        Image image = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/go-back-icon.png"));
+        Image image = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/go-back-icon.png"));
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
@@ -93,7 +93,7 @@ public class AntrenmanGrafikleriGoster {
         geriDon.setId("cikis_butonlari");
         geriDon.setMinWidth(120);
         geriDon.setOnAction(e -> {
-            AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+            Main.setRoot(MainScreen.getRoot());
 
         });
 

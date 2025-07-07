@@ -12,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class AnaEkran {
+public class MainScreen {
     static Label isimLabel;
     static Button antrenman_olustur;
     static Button antrenman_ekle;
@@ -25,7 +25,7 @@ public class AnaEkran {
     static Button createMealButton;
 
     public static void setUsername(String username) {
-        AnaEkran.username = username;
+        MainScreen.username = username;
     }
 
     public static BorderPane getRoot() {
@@ -38,16 +38,16 @@ public class AnaEkran {
 
     public static void bilesenler() {
 
-        if (AnaEkran.username == null) {
+        if (MainScreen.username == null) {
             isimLabel = new Label("Welcome");
             isimLabel.setMinWidth(120);
         } else {
-            isimLabel = new Label("Welcome " + AnaEkran.username.substring(0, 1).toUpperCase()
-                    + AnaEkran.username.substring(1, username.length()) + " !");
+            isimLabel = new Label("Welcome " + MainScreen.username.substring(0, 1).toUpperCase()
+                    + MainScreen.username.substring(1, username.length()) + " !");
             isimLabel.setMinWidth(120);
         }
 
-        Image image2 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/olustur.png"));
+        Image image2 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/olustur.png"));
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(20);
         imageView2.setFitHeight(20);
@@ -56,16 +56,16 @@ public class AnaEkran {
         antrenman_olustur.setMinWidth(120);
         antrenman_olustur.setOnAction(e -> {
             try {
-                AntrenmanTurVeGunBelirlemeEkrani ekran = new AntrenmanTurVeGunBelirlemeEkrani();
+                WorkoutStyleAndDaySelectionScreen ekran = new WorkoutStyleAndDaySelectionScreen();
                 ekran.setUsername(username);
-                AnaKontrolEkrani.setRoot(ekran.getRoot());
+                Main.setRoot(ekran.getRoot());
             } catch (Exception e1) {
             }
 
         });
         Label label = new Label("Antrenman Oluşturuldu...");
         label.setVisible(false);
-        Image image1 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ekle.png"));
+        Image image1 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
         ImageView imageView1 = new ImageView(image1);
         imageView1.setFitWidth(20);
         imageView1.setFitHeight(20);
@@ -73,11 +73,11 @@ public class AnaEkran {
         antrenman_ekle = new Button("Add Workout", imageView1);
         antrenman_ekle.setMinWidth(120);
         antrenman_ekle.setOnAction(e -> {
-            AntrenmanEkleme ant = new AntrenmanEkleme(username);
-            AnaKontrolEkrani.setRoot(ant.getRoot());
+            AddWorkoutScreen ant = new AddWorkoutScreen(username);
+            Main.setRoot(ant.getRoot());
         });
 
-        Image image3 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ikon3.png"));
+        Image image3 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ikon3.png"));
         ImageView imageView3 = new ImageView(image3);
         imageView3.setFitWidth(20);
         imageView3.setFitHeight(20);
@@ -85,26 +85,26 @@ public class AnaEkran {
         antrenman_grafikleri = new Button("Workout Graphics", imageView3);
         antrenman_grafikleri.setMinWidth(120);
         antrenman_grafikleri.setOnAction(e -> {
-            AntrenmanGrafikleriGoster antGra = new AntrenmanGrafikleriGoster(username);
-            AnaKontrolEkrani.setRoot(antGra.getRoot());
+            ShowWorkoutGraphsScreen antGra = new ShowWorkoutGraphsScreen(username);
+            Main.setRoot(antGra.getRoot());
         });
         gunluk_besin_ekle = new Button("Add Daily Food Values");
         gunluk_besin_ekle.setOnAction(e -> {
             DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen(username);
-            AnaKontrolEkrani.setRoot(daily.getPane());
+            Main.setRoot(daily.getPane());
         });
         gunluk_besin_ekle.setMinWidth(120);
 
         createMealButton = new Button("Create Special Meals/Create Special Foods");
         createMealButton.setOnAction(e -> {
             CreateSpecialMealCreateSpecialFood meal = new CreateSpecialMealCreateSpecialFood(username);
-            AnaKontrolEkrani.setRoot(meal.getPane());
+            Main.setRoot(meal.getPane());
         });
 
         besin_grafikleri = new Button("Show Food Graphics");
         besin_grafikleri.setMinWidth(120);
 
-        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
@@ -114,7 +114,7 @@ public class AnaEkran {
         cikis_yap.setMinWidth(120);
         cikis_yap.setOnAction(e -> {
             try {
-                AnaKontrolEkrani.setRoot(KullaniciGirisEkrani.getRoot());
+                Main.setRoot(UserLoginFrame.getRoot());
             } catch (Exception ex) {
             }
         });

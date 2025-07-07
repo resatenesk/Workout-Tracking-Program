@@ -5,7 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
+import org.controlsfx.control.CheckComboBox;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -41,6 +46,63 @@ public class DailyMacroAndFoodValuesScreen {
     private Button geriDonButton;
     private String username;
 
+    private VBox ManualDailyFoodBox;
+    private HBox addMealHBox;
+    private TextField SearchBar;
+    private Label AddMeal;
+    private Label header;
+    private CheckComboBox<Meal> selectMeal;
+    private Label information;
+    private Button saveManualButton;
+    private ObservableList<Food> food_list;
+    private ObservableList<Meal> meal_list;
+    private DatePicker datePicker2;
+
+    public class Meal {
+        private String meal_name;
+        private float total_cal;
+        private float total_fat;
+        private float total_carb;
+        private float total_prot;
+        private ArrayList<Food> foods = new ArrayList<>();
+
+        public Meal(String meal_name, float total_calorie, float total_fat, float total_carb, float total_prot,
+                ArrayList<Food> foods) {
+            this.meal_name = meal_name;
+            this.total_cal = total_calorie;
+            this.total_fat = total_fat;
+            this.total_carb = total_carb;
+            this.total_prot = total_prot;
+            this.foods = foods;
+        }
+
+        public String getMealName() {
+            return meal_name;
+        }
+
+        public float getTotalCal() {
+            return total_cal;
+        }
+
+        public float getTotalFat() {
+            return total_fat;
+        }
+
+        public float getTotalCarb() {
+            return total_carb;
+        }
+
+        public float getTotalProt() {
+            return total_prot;
+        }
+
+        @Override
+        public String toString() {
+            return meal_name;
+        }
+
+    }
+
     public class Food {
         private String foodName;
         private float calorie;
@@ -58,8 +120,7 @@ public class DailyMacroAndFoodValuesScreen {
 
         @Override
         public String toString() {
-            return "Food name: " + foodName + " Calorie: " + calorie + " Fat: " + fat + " Carb: " + carb + " Prot: "
-                    + prot;
+            return foodName;
         }
 
         public String getFoodName() {
@@ -81,11 +142,87 @@ public class DailyMacroAndFoodValuesScreen {
         public float getProt() {
             return prot;
         }
+
     }
 
     public DailyMacroAndFoodValuesScreen(String username) {
         this.username = username;
         root = new BorderPane();
+
+        food_list = FXCollections.observableArrayList();
+        meal_list = FXCollections.observableArrayList();
+
+        selectMeal = new CheckComboBox<>();
+        selectMeal.setPrefSize(200, 40);
+        selectMeal.setMaxSize(200, 40);
+        getData();
+
+        ManualDailyFoodBox = new VBox(10);
+        addMealHBox = new HBox(10);
+        SearchBar = new TextField();
+        SearchBar.setPromptText("Search ... ");
+        SearchBar.textProperty().addListener((obs, oldText, newText) -> {
+            ObservableList<Meal> filtered = FXCollections.observableArrayList();
+
+            for (Meal meal : meal_list) {
+                if (meal.meal_name.toLowerCase().contains(newText.toLowerCase())) {
+                    filtered.add(meal);
+                }
+            }
+
+            if (filtered.isEmpty()) {
+                selectMeal.hide();
+            } else {
+                selectMeal.getItems().setAll(filtered);
+                selectMeal.show();
+            }
+
+            selectMeal.getItems().setAll(filtered);
+        });
+
+        AddMeal = new Label("Add Meal");
+        AddMeal.setStyle("-fx-font-size:15px;-fx-font-style:italic");
+
+        information = new Label("");
+        information.setStyle("-fx-font-size:15px;-fx-font-style:italic");
+
+        selectMeal.getCheckModel().getCheckedItems()
+                .addListener((javafx.collections.ListChangeListener<Meal>) change -> {
+                    float totalCal = 0;
+                    float totalFat = 0;
+                    float totalCarb = 0;
+                    float totalProt = 0;
+
+                    for (Meal selectedMeal : selectMeal.getCheckModel().getCheckedItems()) {
+                        totalCal += selectedMeal.getTotalCal();
+                        totalFat += selectedMeal.getTotalFat();
+                        totalCarb += selectedMeal.getTotalCarb();
+                        totalProt += selectedMeal.getTotalProt();
+                    }
+
+                    information.setText(
+                            String.format("Calorie: %.1f Fat: %.1f Carb: %.1f Prot: %.1f",
+                                    totalCal, totalFat, totalCarb, totalProt));
+                });
+
+        saveManualButton = new Button("Save");
+        saveManualButton.setOnAction(e -> {
+            SaveDailyCalorieManual();
+            information.setText("");
+        });
+
+        header = new Label("Add your values manual");
+        header.setStyle("-fx-font-size:30px;-fx-font-style:italic");
+        datePicker2 = new DatePicker();
+        datePicker2.setPromptText("Enter a date");
+
+        addMealHBox.getChildren().addAll(AddMeal, selectMeal, datePicker2);
+
+        ManualDailyFoodBox.getChildren().addAll(header, SearchBar, addMealHBox, information, saveManualButton);
+        ManualDailyFoodBox.setAlignment(Pos.CENTER);
+        ManualDailyFoodBox.setPadding(new Insets(50, 50, 0, 0));
+        ManualDailyFoodBox.setPrefSize(500, 500);
+        ManualDailyFoodBox.setMaxSize(500, 500);
 
         DailyFoodBox = new VBox(10);
         Label label = new Label("Enter your daily food values");
@@ -118,6 +255,7 @@ public class DailyMacroAndFoodValuesScreen {
         carbLabel = new Label("Carb: ");
         carbLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
         carbTextField = new TextField();
+        protTextField = new TextField();
         carbTextField.setOnAction(e -> protTextField.requestFocus());
         carbTextField.setPrefSize(300, 80);
         carbTextField.setPromptText("Enter your daily carb here(grams)");
@@ -126,8 +264,7 @@ public class DailyMacroAndFoodValuesScreen {
 
         protLabel = new Label("Prot :");
         protLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
-        protTextField = new TextField();
-        carbTextField.setOnAction(e -> datePicker.requestFocus());
+        protTextField.setOnAction(e -> datePicker.requestFocus());
         protTextField.setPrefSize(300, 80);
         protTextField.setPromptText("Enter Your daily prot here(grams)");
 
@@ -147,7 +284,7 @@ public class DailyMacroAndFoodValuesScreen {
         geriDonButton = new Button("Exit");
         geriDonButton.setId("cikis_butonlari");
         geriDonButton.setOnAction(e -> {
-            AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+            Main.setRoot(MainScreen.getRoot());
         });
 
         buttonsHBox.getChildren().addAll(datePicker, saveButton);
@@ -159,6 +296,7 @@ public class DailyMacroAndFoodValuesScreen {
         DailyFoodBox.setMaxSize(500, 500);
         BorderPane mainContent = new BorderPane();
         mainContent.setLeft(DailyFoodBox);
+        mainContent.setRight(ManualDailyFoodBox);
         mainContent.setBottom(geriDonButton);
         StackPane centerStackPane = new StackPane();
         centerStackPane.getChildren().addAll(mainContent);
@@ -207,14 +345,15 @@ public class DailyMacroAndFoodValuesScreen {
             float prot = Float.parseFloat(protText);
 
             try (Connection con = Database.connect()) {
-                String sorgu = "INSERT INTO daily_food_values (calorie,fat,carb,prot,date) VALUES (?,?,?,?,?) WHERE user_id=?";
+                String sorgu = "INSERT INTO daily_food_values (user_id,calorie,fat,carb,prot,date) VALUES (?,?,?,?,?,?)";
                 PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setFloat(1, calorie);
-                ps.setFloat(2, fat);
-                ps.setFloat(3, carb);
-                ps.setFloat(4, prot);
-                ps.setDate(5, java.sql.Date.valueOf(date));
-                ps.setInt(6, user_id);
+                ps.setInt(1, user_id);
+                ps.setFloat(2, calorie);
+                ps.setFloat(3, fat);
+                ps.setFloat(4, carb);
+                ps.setFloat(5, prot);
+                ps.setDate(6, java.sql.Date.valueOf(date));
+
                 int sonuc = ps.executeUpdate();
                 if (sonuc > 0) {
                     Alert alert = new Alert(AlertType.INFORMATION);
@@ -236,6 +375,116 @@ public class DailyMacroAndFoodValuesScreen {
             }
 
         } catch (NumberFormatException e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Hatalı Giriş!");
+            alert.setHeaderText(null);
+            alert.setContentText("Lütfen sayısal alanlara sadece sayı giriniz.");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+            alert.showAndWait();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getData() {
+        try (Connection con = Database.connect()) {
+            int user_id = 0;
+
+            String sorguID = "SELECT user_id FROM users WHERE username = ?";
+            PreparedStatement psID = con.prepareStatement(sorguID);
+            psID.setString(1, username);
+            ResultSet rsID = psID.executeQuery();
+            while (rsID.next()) {
+                user_id = rsID.getInt("user_id");
+            }
+
+            String sorgu2 = "SELECT meal_name,total_cal,total_fat,total_carb,total_prot FROM saved_meals WHERE user_id = ?";
+            PreparedStatement ps2 = con.prepareStatement(sorgu2);
+            ps2.setInt(1, user_id);
+            ResultSet rs2 = ps2.executeQuery();
+            while (rs2.next()) {
+                String meal_name = rs2.getString("meal_name");
+                float totalCal = rs2.getFloat("total_cal");
+                float totalFat = rs2.getFloat("total_fat");
+                float totalCarb = rs2.getFloat("total_carb");
+                float totalProt = rs2.getFloat("total_prot");
+                Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt, null);
+                meal_list.add(meal);
+
+            }
+            selectMeal.getItems().setAll(meal_list);
+        } catch (SQLException ex) {
+        }
+
+    }
+
+    public void SaveDailyCalorieManual() {
+        int user_id = 0;
+        float totalCal = 0;
+        float totalFat = 0;
+        float totalCarb = 0;
+        float totalProt = 0;
+        for (Meal selectedMeal : selectMeal.getCheckModel().getCheckedItems()) {
+            totalCal += selectedMeal.getTotalCal();
+            totalFat += selectedMeal.getTotalFat();
+            totalCarb += selectedMeal.getTotalCarb();
+            totalProt += selectedMeal.getTotalProt();
+        }
+
+        LocalDate date = datePicker2.getValue();
+
+        if (date == null || selectMeal.getCheckModel().getCheckedItems().isEmpty()) {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Veri Eksik!");
+            alert.setHeaderText(null);
+            alert.setContentText("Lütfen tüm alanları doldurunuz.");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+            alert.showAndWait();
+            return;
+        }
+
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+            String sorgu2 = "INSERT INTO daily_food_values (user_id,calorie,fat,carb,prot,date) VALUES (?,?,?,?,?,?)";
+            PreparedStatement ps2 = con.prepareStatement(sorgu2);
+            ps2.setInt(1, user_id);
+            ps2.setFloat(2, totalCal);
+            ps2.setFloat(3, totalFat);
+            ps2.setFloat(4, totalCarb);
+            ps2.setFloat(5, totalProt);
+            ps2.setDate(6, java.sql.Date.valueOf(date));
+
+            int sonuc = ps2.executeUpdate();
+            if (sonuc > 0) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Başarılı!");
+                alert.setHeaderText(null);
+                alert.setContentText("Veriler başarıyla kaydedildi.");
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+                selectMeal.getCheckModel().clearChecks();
+
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Başarısız!");
+                alert.setHeaderText(null);
+                alert.setContentText("Veriler kaydedilemedi");
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+            }
+        }
+
+        catch (NumberFormatException e) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Hatalı Giriş!");
             alert.setHeaderText(null);

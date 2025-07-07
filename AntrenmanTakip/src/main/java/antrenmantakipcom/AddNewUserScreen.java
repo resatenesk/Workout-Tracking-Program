@@ -2,9 +2,7 @@ package antrenmantakipcom;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,88 +20,82 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-public class KullaniciGirisEkrani {
-    static StackPane rootGenel;
-    static BorderPane root;
-    static Label nameLabel;
-    static Label passwordLabel;
+public class AddNewUserScreen {
+    StackPane pane;
+    BorderPane root = new BorderPane();
+    Label nameLabel;
+    Label passwordLabel;
     static TextField nameField;
     static PasswordField passwordField;
-    static Button LoginButton;
-    static Button RegisterButton;
+    Button GeriDonButton;
+    Button KullaniciEkle;
+    VBox layout;
     static String username;
     static String password;
-    static ArrayList<String> Kullanicilar = new ArrayList<>();
-    static ImageView infoIcon;
-    static Image infoImage;
+    ImageView infoIcon;
+    Image infoImage;
 
-    public static StackPane getRoot() {
+    public StackPane getRoot() {
+        pane = new StackPane();
+        pane.setId("rootGenel");
+        pane.getStylesheets().add(UserLoginFrame.class.getResource("/static/style.css").toExternalForm());
+        bilesenler();
 
-        rootGenel = new StackPane();
-        rootGenel.setId("rootGenel");
-        rootGenel.getStylesheets().add(KullaniciGirisEkrani.class.getResource("/static/style.css").toExternalForm());
+        root.setId("kullaniciEklemeRoot");
         bilesenler();
         try {
             ayarlamalar();
         } catch (Exception e) {
+
             e.printStackTrace();
         }
-        return rootGenel;
+        return pane;
     }
 
-    public static void ayarlamalar() throws Exception {
-
+    public void ayarlamalar() throws Exception {
         HBox genellayout = new HBox();
         genellayout.setAlignment(Pos.CENTER);
-        
+        genellayout.setPadding(new Insets(400, 0, 0, 0));
 
         VBox layout = new VBox(15);
+        // layout.setPadding(new Insets(0,0,100,0));
         layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(350, 0, 0, 0));
-       
 
         VBox layout2 = new VBox(15);
         layout2.setAlignment(Pos.CENTER);
-        layout2.setPadding(new Insets(350, 0, 0, 0));
-        
 
         VBox Column1 = new VBox(10);
         Column1.setAlignment(Pos.CENTER);
         Column1.getChildren().addAll(nameLabel, passwordLabel);
-        //Column1.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox passwordHBox = new HBox(10);
         passwordHBox.setAlignment(Pos.CENTER);
         passwordHBox.getChildren().addAll(passwordField, infoIcon);
-        //passwordHBox.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         VBox Column2 = new VBox(10);
         Column2.setAlignment(Pos.CENTER);
         Column2.getChildren().addAll(nameField);
-        //Column2.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox buttonsRow = new HBox(10);
         buttonsRow.setAlignment(Pos.CENTER);
         buttonsRow.setPadding(new Insets(0, 0, 400, 0));
-        buttonsRow.getChildren().addAll(LoginButton, RegisterButton);
-        //buttonsRow.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+        buttonsRow.getChildren().addAll(KullaniciEkle, GeriDonButton);
 
         layout.getChildren().addAll(Column1);
         layout2.getChildren().addAll(Column2, passwordHBox);
 
-        genellayout.getChildren().addAll(layout, layout2);
-
-        root.setCenter(genellayout);
-        root.setBottom(buttonsRow);
-
-        rootGenel.getChildren().add(root);
+        genellayout.getChildren().addAll(layout, layout2, buttonsRow);
+        root.setTop(genellayout);
+        root.setCenter(buttonsRow);
+        pane.getChildren().add(root);
     }
 
-    public static void bilesenler() {
+    public void bilesenler() {
         root = new BorderPane();
-        nameLabel = new Label("Enter your username:");
-        passwordLabel = new Label("Enter your password:");
+        nameLabel = new Label("Enter your username: ");
+        passwordLabel = new Label("Enter your password: ");
         nameLabel.setMinWidth(120);
         passwordLabel.setMinWidth(120);
 
@@ -116,7 +108,7 @@ public class KullaniciGirisEkrani {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoImage = new Image(KullaniciGirisEkrani.class.getResource("/ICONS/info.png").toExternalForm());
+        infoImage = new Image(getClass().getResource("/ICONS/info.png").toExternalForm());
         infoIcon = new ImageView(infoImage);
         infoIcon.setStyle(
                 "-fx-text-fill: #007acc; " +
@@ -128,62 +120,61 @@ public class KullaniciGirisEkrani {
         infoIcon.setPreserveRatio(true);
         infoIcon.setStyle("-fx-cursor: hand;");
         Tooltip passwordTooltip = new Tooltip(
-                "Parolanız Yanlışsa Kontrol Ediniz:\n" +
+                "Parola Kuralları:\n" +
                         "- En az 8 karakter\n" +
                         "- En az 1 büyük harf\n" +
                         "- En az 1 rakam\n" +
                         "- En az 1 özel karakter (@, #, !, vs.)");
         Tooltip.install(infoIcon, passwordTooltip);
 
-        Image image = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ikon1.png"));
+        Image image = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/go-back-icon.png"));
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
 
-        LoginButton = new Button("Giriş Yap", imageView);
-        LoginButton.setOnAction(e -> {
+        GeriDonButton = new Button("Geri Dön",imageView);
+        GeriDonButton.setOnAction(e -> {
             try {
-
-                kullaniciKontrol();
-
+                Main.setRoot(UserLoginFrame.getRoot());
             } catch (Exception e1) {
 
+                e1.printStackTrace();
             }
 
         });
-        LoginButton.setMinWidth(120);
+        GeriDonButton.setMinWidth(120);
 
-        Image image2 = new Image(KullaniciGirisEkrani.class.getResourceAsStream("/ICONS/ekle.png"));
+        Image image2 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(20);
         imageView2.setFitHeight(20);
 
-        RegisterButton = new Button("Yeni Kullanıcı Oluştur", imageView2);
-        RegisterButton.setOnAction(e -> {
-
+        KullaniciEkle = new Button("Kullanıcı Ekle",imageView2);
+        KullaniciEkle.setOnAction(e -> {
             try {
-                KullaniciEklemeEkrani ekran = new KullaniciEklemeEkrani();
-                AnaKontrolEkrani.setRoot(ekran.getRoot());
-            } catch (Exception ex) {
-                System.out.println("yeni sekme açılırken hata oluştu...");
-                ex.printStackTrace();
+                kullaniciEkle();
+
+            } catch (Exception e1) {
+
+                e1.printStackTrace();
             }
+
         });
-        RegisterButton.setMinWidth(120);
+        KullaniciEkle.setMinWidth(120);
 
         nameLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
         // nameField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
         passwordLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
         // passwordField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
-        // LoginButton.setStyle("-fx-border-width: 1px;");
-        // RegisterButton.setStyle("-fx-border-width: 1px; color:white");
 
     }
 
-    public static void kullaniciKontrol() throws Exception {
-
+    public void kullaniciEkle() {
         username = nameField.getText();
         password = passwordField.getText();
+
+        String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@#!$%^&*])[A-Za-z\\d@#!$%^&*]{8,}$";
+
         if (username.equals("") && password.equals("")) {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Bilgi");
@@ -191,38 +182,48 @@ public class KullaniciGirisEkrani {
             alert.setContentText("Lütfen Gerekli Alanları Doldurunuz.");
 
             DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(KullaniciGirisEkrani.class.getResource("/static/alertStyle.css").toExternalForm());
+            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
             alert.showAndWait();
+
         } else {
-            String sorgu = "SELECT * FROM users WHERE username=? AND password=?";
+            if (password.matches(regex)) {
+                try (Connection con = Database.connect()) {
+                    String sorgu = "INSERT INTO users (username,password) VALUES (?,?)";
+                    PreparedStatement ps = con.prepareStatement(sorgu);
+                    ps.setString(1, username);
+                    ps.setString(2, password);
+                    int result = ps.executeUpdate();
+                    if (result != -1) {
+                        System.out.println("işlem başarılı");
+                        Main.setRoot(UserLoginFrame.getRoot());
+                    } else {
+                        System.out.println("işlem başarısız.");
+                    }
 
-            try (Connection con = Database.connect()) {
-
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setString(1, username);
-                ps.setString(2, password);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    AnaEkran.setUsername(username);
-                    AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
-
-                    System.out.println(username + " adlı kullanıcı bulundu");
-                } else {
-                    Alert alert2 = new Alert(AlertType.INFORMATION);
-                    alert2.setTitle("Bilgi");
-                    alert2.setHeaderText(null);
-                    alert2.setContentText("Kullanıcı Bulunamadı.");
-
-                    DialogPane dialogPane2 = alert2.getDialogPane();
-                    dialogPane2.getStylesheets().add(KullaniciGirisEkrani.class.getResource("/static/alertStyle.css").toExternalForm());
-                    alert2.showAndWait();
+                } catch (SQLException e) {
+                    System.out.println("Database'e bağlanılamadı...'");
+                    e.printStackTrace();
                 }
+                try {
 
-            } catch (SQLException e) {
-                System.out.println("Hata var. Database ile bağlanılamadı.");
-                e.printStackTrace();
+                } catch (Exception e1) {
+
+                    e1.printStackTrace();
+
+                    ((Stage) GeriDonButton.getScene().getWindow()).close();
+                }
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Hata");
+                alert.setHeaderText("Parola Hatası");
+                alert.setContentText("Lütfen Parola Kurallarına Uyunuz.");
+
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
             }
-        }
 
+        }
     }
+
 }

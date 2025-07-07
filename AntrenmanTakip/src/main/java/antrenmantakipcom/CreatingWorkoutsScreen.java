@@ -33,14 +33,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class AntrenmanOlusturma {
+public class CreatingWorkoutsScreen {
     private static BorderPane root;
     private int antrenman_id;
     private int user_id;
     private String username;
     private String antrenman_tipi;
     private int gun_sayisi;
-    private static TableView<KullaniciVeri> tablo;
+    private static TableView<User> tablo;
     private static Label label1;
     private static VBox checkboxRoot;
     private static HBox labelRoot;
@@ -65,9 +65,9 @@ public class AntrenmanOlusturma {
     private static VBox hareketleriGostermeKutusu;
     private int gun_no;
     private static Button tablodanSilButton;
-    ObservableList<KullaniciVeri> liste;
+    ObservableList<User> liste;
 
-    public AntrenmanOlusturma(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
+    public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
         this.username = username;
@@ -86,7 +86,7 @@ public class AntrenmanOlusturma {
             ps.setInt(1, id);
             int result = ps.executeUpdate();
             if (result > 0) {
-                KullaniciVeri veri = tablo.getSelectionModel().getSelectedItem();
+                User veri = tablo.getSelectionModel().getSelectedItem();
                 liste.remove(veri);
             }
         } catch (SQLException e) {
@@ -99,7 +99,7 @@ public class AntrenmanOlusturma {
         tablodanSilButton.setOnAction(e -> {
             tablodanVeriSil();
         });
-        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
@@ -115,7 +115,7 @@ public class AntrenmanOlusturma {
         tablo.setId("antrenmanTablo");
         // tablo.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tablo.setOnMouseClicked(e -> {
-            KullaniciVeri secilenVeri = tablo.getSelectionModel().getSelectedItem();
+            User secilenVeri = tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri == null) {
                 return;
             }
@@ -185,27 +185,27 @@ public class AntrenmanOlusturma {
         hareketleriGostermeKutusu.setMaxWidth(500);
         hareketleriGostermeKutusu.setPadding(new Insets(30, 20, 0, 0));
 
-        TableColumn<KullaniciVeri, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<User, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<User, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<User, String> usernameCol = new TableColumn<>("İsim");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<KullaniciVeri, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<User, String> tipCol = new TableColumn<>("Antrenman Tipi");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<KullaniciVeri, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<User, Integer> gunCol = new TableColumn<>("Gün Sayısı");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
@@ -269,7 +269,7 @@ public class AntrenmanOlusturma {
         solIcerik.getChildren().addAll(label1, tablo, hareketleriGostermeKutusu);
         // solIcerik.setStyle("-fx-border-width:2px;-fx-border-color:Blue");
         solIcerik.getStylesheets()
-                .add(AntrenmanOlusturma.class.getResource("/static/style.css").toExternalForm());
+                .add(CreatingWorkoutsScreen.class.getResource("/static/style.css").toExternalForm());
 
         HBox buttonYerlesimi = new HBox(15);
         buttonYerlesimi.setAlignment(Pos.BOTTOM_RIGHT);
@@ -291,7 +291,7 @@ public class AntrenmanOlusturma {
         sagIcerik.setPadding(new Insets(10, 200, 0, 100));
         // sagIcerik.setStyle("-fx-border-width:2px;-fx-border-color:Red");
         sagIcerik.getStylesheets()
-                .add(AntrenmanTurVeGunBelirlemeEkrani.class.getResource("/static/style.css").toExternalForm());
+                .add(WorkoutStyleAndDaySelectionScreen.class.getResource("/static/style.css").toExternalForm());
 
         root.setLeft(solIcerik);
         root.setRight(sagIcerik);
@@ -483,8 +483,8 @@ public class AntrenmanOlusturma {
                             psInsert.addBatch();
                         }
                     }
-                    AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
-                    AnaEkran.gosterBasariMesaji("Antrenman Oluşturuldu...");
+                    Main.setRoot(MainScreen.getRoot());
+                    MainScreen.gosterBasariMesaji("Antrenman Oluşturuldu...");
 
                     psInsert.executeBatch();
 
@@ -630,7 +630,7 @@ public class AntrenmanOlusturma {
                 username2 = rs.getString("username");
                 antrenman_tipi2 = rs.getString("antrenman_tipi");
                 gun_sayisi2 = rs.getInt("gun_sayisi");
-                KullaniciVeri veriler = new KullaniciVeri(antrenman_id2, user_id2, username2, antrenman_tipi2,
+                User veriler = new User(antrenman_id2, user_id2, username2, antrenman_tipi2,
                         gun_sayisi2);
                 liste.add(veriler);
 

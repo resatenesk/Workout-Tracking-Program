@@ -1,13 +1,13 @@
 package antrenmantakipcom;
 
-public class KullaniciVeri {
+public class User {
     private int antrenman_id;
     private int user_id;
     private String username;
     private String antrenman_tipi;
     private int gun_sayisi;
 
-    public KullaniciVeri(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
+    public User(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
         this.username = username;

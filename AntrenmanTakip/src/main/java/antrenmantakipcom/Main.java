@@ -1,228 +1,70 @@
 package antrenmantakipcom;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.animation.TranslateTransition;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
-public class Main {
-    static StackPane rootGenel;
-    static BorderPane root;
-    static Label nameLabel;
-    static Label passwordLabel;
-    static TextField nameField;
-    static PasswordField passwordField;
-    static Button LoginButton;
-    static Button RegisterButton;
-    static String username;
-    static String password;
-    static ArrayList<String> Kullanicilar = new ArrayList<>();
-    static ImageView infoIcon;
-    static Image infoImage;
+public class Main extends Application {
 
-    public static StackPane getRoot() {
+    private static Stage primaryStage;
+    private static Scene mainScene;
+    private static final StackPane rootStack = new StackPane();
 
-        rootGenel = new StackPane();
-        rootGenel.setId("rootGenel");
-        rootGenel.getStylesheets().add(Main.class.getResource("/static/style.css").toExternalForm());
-        bilesenler();
-        try {
-            ayarlamalar();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return rootGenel;
+    @Override
+    public void start(Stage stage) throws Exception {
+        primaryStage = stage;
+
+        // İlk ekran
+        StackPane baslangicRoot = UserLoginFrame.getRoot();  // Ana ekran ilk açılacak ekran
+
+        rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
+        mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver
+
+        mainScene.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
+        primaryStage.setScene(mainScene);
+        primaryStage.setResizable(false);
+        primaryStage.setTitle("Antrenman Takip");
+        primaryStage.show();
     }
 
-    public static void ayarlamalar() throws Exception {
+    public static void setRoot(javafx.scene.Node newRoot) {
+        double width = mainScene.getWidth();
 
-        HBox genellayout = new HBox();
-        genellayout.setAlignment(Pos.CENTER);
-        
+        newRoot.setTranslateX(width); // yeni root sağdan başlasın
+        rootStack.getChildren().add(newRoot);
 
-        VBox layout = new VBox(15);
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(350, 0, 0, 0));
-       
+        // SLIDE IN
+        TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), newRoot);
+        slideIn.setFromX(width);
+        slideIn.setToX(0);
 
-        VBox layout2 = new VBox(15);
-        layout2.setAlignment(Pos.CENTER);
-        layout2.setPadding(new Insets(350, 0, 0, 0));
-        
+        // SLIDE OUT (varsa)
+        if (rootStack.getChildren().size() > 1) {
+            Pane eskiRoot = (Pane) rootStack.getChildren().get(0);
 
-        VBox Column1 = new VBox(10);
-        Column1.setAlignment(Pos.CENTER);
-        Column1.getChildren().addAll(nameLabel, passwordLabel);
-        //Column1.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+            TranslateTransition slideOut = new TranslateTransition(Duration.millis(350), eskiRoot);
+            slideOut.setFromX(0);
+            slideOut.setToX(-width);
 
-        HBox passwordHBox = new HBox(10);
-        passwordHBox.setAlignment(Pos.CENTER);
-        passwordHBox.getChildren().addAll(passwordField, infoIcon);
-        //passwordHBox.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+            slideOut.setOnFinished(event -> {
+                rootStack.getChildren().remove(eskiRoot); // geçiş tamamlanınca eski root'u sil
+            });
 
-        VBox Column2 = new VBox(10);
-        Column2.setAlignment(Pos.CENTER);
-        Column2.getChildren().addAll(nameField);
-        //Column2.setStyle("-fx-border-width:2px;-fx-border-color:Red");
-
-        HBox buttonsRow = new HBox(10);
-        buttonsRow.setAlignment(Pos.CENTER);
-        buttonsRow.setPadding(new Insets(0, 0, 400, 0));
-        buttonsRow.getChildren().addAll(LoginButton, RegisterButton);
-        //buttonsRow.setStyle("-fx-border-width:2px;-fx-border-color:Red");
-
-        layout.getChildren().addAll(Column1);
-        layout2.getChildren().addAll(Column2, passwordHBox);
-
-        genellayout.getChildren().addAll(layout, layout2);
-
-        root.setCenter(genellayout);
-        root.setBottom(buttonsRow);
-
-        rootGenel.getChildren().add(root);
-    }
-
-    public static void bilesenler() {
-        root = new BorderPane();
-        nameLabel = new Label("Enter your username:");
-        passwordLabel = new Label("Enter your password:");
-        nameLabel.setMinWidth(120);
-        passwordLabel.setMinWidth(120);
-
-        nameField = new TextField();
-        nameField.setPromptText("Username");
-        nameField.setMinWidth(120);
-        nameField.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-
-        passwordField = new PasswordField();
-        passwordField.setPromptText("Password");
-        passwordField.setMinWidth(120);
-
-        infoImage = new Image(Main.class.getResource("/ICONS/info.png").toExternalForm());
-        infoIcon = new ImageView(infoImage);
-        infoIcon.setStyle(
-                "-fx-text-fill: #007acc; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-cursor: hand;");
-        infoIcon.setFitHeight(20);
-        infoIcon.setFitWidth(20);
-        infoIcon.setPreserveRatio(true);
-        infoIcon.setStyle("-fx-cursor: hand;");
-        Tooltip passwordTooltip = new Tooltip(
-                "Parolanız Yanlışsa Kontrol Ediniz:\n" +
-                        "- En az 8 karakter\n" +
-                        "- En az 1 büyük harf\n" +
-                        "- En az 1 rakam\n" +
-                        "- En az 1 özel karakter (@, #, !, vs.)");
-        Tooltip.install(infoIcon, passwordTooltip);
-
-        Image image = new Image(Main.class.getResourceAsStream("/ICONS/ikon1.png"));
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(20);
-        imageView.setFitHeight(20);
-
-        LoginButton = new Button("Giriş Yap", imageView);
-        LoginButton.setOnAction(e -> {
-            try {
-
-                kullaniciKontrol();
-
-            } catch (Exception e1) {
-
-            }
-
-        });
-        LoginButton.setMinWidth(120);
-
-        Image image2 = new Image(Main.class.getResourceAsStream("/ICONS/ekle.png"));
-        ImageView imageView2 = new ImageView(image2);
-        imageView2.setFitWidth(20);
-        imageView2.setFitHeight(20);
-
-        RegisterButton = new Button("Yeni Kullanıcı Oluştur", imageView2);
-        RegisterButton.setOnAction(e -> {
-
-            try {
-                KullaniciEklemeEkrani ekran = new KullaniciEklemeEkrani();
-                AnaKontrolEkrani.setRoot(ekran.getRoot());
-            } catch (Exception ex) {
-                System.out.println("yeni sekme açılırken hata oluştu...");
-                ex.printStackTrace();
-            }
-        });
-        RegisterButton.setMinWidth(120);
-
-        nameLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
-        // nameField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
-        passwordLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
-        // passwordField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
-        // LoginButton.setStyle("-fx-border-width: 1px;");
-        // RegisterButton.setStyle("-fx-border-width: 1px; color:white");
-
-    }
-
-    public static void kullaniciKontrol() throws Exception {
-
-        username = nameField.getText();
-        password = passwordField.getText();
-        if (username.equals("") && password.equals("")) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Bilgi");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen Gerekli Alanları Doldurunuz.");
-
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(Main.class.getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
-        } else {
-            String sorgu = "SELECT * FROM users WHERE username=? AND password=?";
-
-            try (Connection con = Database.connect()) {
-
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setString(1, username);
-                ps.setString(2, password);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    AnaEkran.setUsername(username);
-                    AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
-
-                    System.out.println(username + " adlı kullanıcı bulundu");
-                } else {
-                    Alert alert2 = new Alert(AlertType.INFORMATION);
-                    alert2.setTitle("Bilgi");
-                    alert2.setHeaderText(null);
-                    alert2.setContentText("Kullanıcı Bulunamadı.");
-
-                    DialogPane dialogPane2 = alert2.getDialogPane();
-                    dialogPane2.getStylesheets().add(Main.class.getResource("/static/alertStyle.css").toExternalForm());
-                    alert2.showAndWait();
-                }
-
-            } catch (SQLException e) {
-                System.out.println("Hata var. Database ile bağlanılamadı.");
-                e.printStackTrace();
-            }
+            slideOut.play();
         }
 
+        slideIn.play();
+    }
+
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

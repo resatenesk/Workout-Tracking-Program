@@ -12,7 +12,6 @@ import org.controlsfx.control.CheckComboBox;
 
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -179,7 +178,7 @@ public class CreateSpecialMealCreateSpecialFood {
         exitButton = new Button("Exit");
         exitButton.setId("cikis_butonlari");
         exitButton.setOnAction(e -> {
-            AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+            Main.setRoot(MainScreen.getRoot());
         });
         close_meal_listButton = new Button("Close");
         close_meal_listButton.setId("cikis_butonlari");
@@ -353,9 +352,6 @@ public class CreateSpecialMealCreateSpecialFood {
         chooseFoodLabel = new Label("Food Name : ");
         chooseFoodLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
-        Label howMuchAddLabel = new Label("How Much: ");
-        howMuchAddLabel.setStyle("-fx-font-size:15px;-fx-font-style:italic");
-
         mealNameField = new TextField();
         mealNameField.setPrefSize(200, 50);
         mealNameField.setOnAction(e -> foodComboBox.requestFocus());
@@ -365,33 +361,11 @@ public class CreateSpecialMealCreateSpecialFood {
         foodComboBox.setPrefSize(400, 50);
         foodComboBox.setMaxSize(400, 50);
 
-        foodComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Food>) change -> {
-            selectedFoodBoxesContainer.getChildren().clear();
-            selectedFoodBoxesContainerLabel.getChildren().clear();
-            foodAmountMap.clear();
-            for (Food selectedFood : foodComboBox.getCheckModel().getCheckedItems()) {
-                amountComboBox = new ComboBox<>();
-                amountComboBox.setPrefSize(30, 120);
-                amountComboBox.setMaxSize(30, 120);
-                amountComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-                amountComboBox.setValue(1);
-                foodAmountMap.put(selectedFood, amountComboBox);
-                Label label = new Label(selectedFood.foodName);
-                label.setPadding(new Insets(50, 0, 0, 0));
-                label.setStyle("-fx-font-size:10px;-fx-font-style:italic;");
-                HBox hBox = new HBox(20, amountComboBox);
-                hBox.setAlignment(Pos.CENTER);
-                HBox hBox2 = new HBox(15, label);
-                selectedFoodBoxesContainerLabel.getChildren().add(hBox2);
-                selectedFoodBoxesContainer.getChildren().add(hBox);
-            }
-        });
+       
 
         addPrivateMealBoxSaveButton = new Button("Add");
         addPrivateMealBoxSaveButton.setOnAction(e -> {
             saveMeal();
-            amountComboBox.setValue(1);
-
         });
         showMealList = new Button("Show Meal List");
 
@@ -400,12 +374,12 @@ public class CreateSpecialMealCreateSpecialFood {
         addPrivateMealBoxButtonsBox.getChildren().addAll(addPrivateMealBoxSaveButton, showMealList);
         addPrivateMealBoxFieldBox.getChildren().addAll(mealNameField, foodComboBox, selectedFoodBoxesContainerLabel,
                 selectedFoodBoxesContainer);
-        addPrivateBoxLabelBox.getChildren().addAll(addPrivateMealNameLabel, chooseFoodLabel, howMuchAddLabel);
+        addPrivateBoxLabelBox.getChildren().addAll(addPrivateMealNameLabel, chooseFoodLabel);
         addPrivateMealBoxElementsBox.getChildren().addAll(addPrivateBoxLabelBox, addPrivateMealBoxFieldBox);
         addPrivateMealBox.getChildren().addAll(addPrivateMealBoxHeaderLabel, searchField, addPrivateMealBoxElementsBox,
                 addPrivateMealBoxButtonsBox);
 
-        addPrivateFoodBox = new VBox(10);
+        addPrivateFoodBox = new VBox(5);
         addPrivateFoodBox.setPadding(new Insets(50, 0, 0, 50));
         addPrivateBoxElementsBox = new HBox(10);
         addPrivateBoxLabelBox = new VBox(55);
@@ -446,6 +420,7 @@ public class CreateSpecialMealCreateSpecialFood {
         foodCarbField.setPromptText("Enter carbs(grams) of the food here(kcal)");
         foodProtField = new TextField();
         foodProtField.setPrefSize(300, 80);
+        foodProtField.setOnAction(e -> gramsField.requestFocus());
         foodProtField.setPromptText("Enter prot(grams) of the food here(kcal)");
         gramsField = new TextField();
         gramsField.setPrefSize(300, 80);
@@ -710,6 +685,8 @@ public class CreateSpecialMealCreateSpecialFood {
                     dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
                     alert.showAndWait();
                     food_list.add(food);
+                    foodComboBox.getItems().setAll(food_list);
+                    
 
                 } else {
                     Alert alert = new Alert(AlertType.ERROR);

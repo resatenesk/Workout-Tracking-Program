@@ -22,7 +22,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class AntrenmanTurVeGunBelirlemeEkrani {
+public class WorkoutStyleAndDaySelectionScreen {
 
     static String username;
     static ComboBox<String> program_turu_combo_box;
@@ -40,7 +40,7 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
     static BorderPane root;
 
     public static void setUsername(String username) {
-        AntrenmanTurVeGunBelirlemeEkrani.username = username;
+        WorkoutStyleAndDaySelectionScreen.username = username;
     }
 
     public Pane getRoot() {
@@ -52,7 +52,7 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
 
     public void bilesenler() {
 
-        Image imageC = new Image(AnaEkran.class.getResourceAsStream("/ICONS/logout.png"));
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
@@ -60,7 +60,7 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
         cikis_yap.setId("cikis_butonlari");
         cikis_yap.setOnAction(e -> {
             try {
-                AnaKontrolEkrani.setRoot(AnaEkran.getRoot());
+                Main.setRoot(MainScreen.getRoot());
 
             } catch (Exception ex) {
             }
@@ -194,11 +194,11 @@ public class AntrenmanTurVeGunBelirlemeEkrani {
                     antrenman_id = generatedKeys.getInt(1);
                 }
 
-                AntrenmanOlusturma tabloEkrani = new AntrenmanOlusturma(antrenman_id, user_id, username,
+                CreatingWorkoutsScreen tabloEkrani = new CreatingWorkoutsScreen(antrenman_id, user_id, username,
                         secilen_antrenman_tipi,
                         secilen_gun_sayisi);
 
-                AnaKontrolEkrani.setRoot(tabloEkrani.getRoot());
+                Main.setRoot(tabloEkrani.getRoot());
 
             } else {
                 Alert alert2 = new Alert(AlertType.INFORMATION);
