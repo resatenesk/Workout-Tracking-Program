@@ -20,6 +20,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -281,7 +283,12 @@ public class DailyMacroAndFoodValuesScreen {
 
         datePicker = new DatePicker();
         datePicker.setPromptText("Enter a date");
-        geriDonButton = new Button("Exit");
+
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+        geriDonButton = new Button("Exit", imageViewC);
         geriDonButton.setId("cikis_butonlari");
         geriDonButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());

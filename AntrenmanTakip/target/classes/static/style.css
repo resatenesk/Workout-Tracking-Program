@@ -288,3 +288,42 @@
 #translatedList {
     -fx-background-color: #63b7d1;
 }
+
+.chart-legend {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+
+    -fx-translate-x: 40px;
+}
+
+.chart-pie-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-color: white
+}
+
+.default-color0.chart-pie {
+    -fx-pie-color: #f0cd09;
+}
+
+/* Karbonhidrat: yeşil */
+.default-color1.chart-pie {
+    -fx-pie-color: #ff5100;
+}
+
+/* Yağ: turuncu */
+.default-color2.chart-pie {
+    -fx-pie-color: #118ef5;
+}
+
+/* Protein: mavi */
+
+.pie-chart .chart-legend {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4A148C;
+    -fx-background-color: #fce4ec;
+    -fx-padding: 8px;
+    -fx-border-color: purple;
+}

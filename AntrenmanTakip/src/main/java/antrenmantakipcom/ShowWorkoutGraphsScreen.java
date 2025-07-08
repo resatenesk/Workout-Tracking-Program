@@ -89,7 +89,11 @@ public class ShowWorkoutGraphsScreen {
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
 
-        geriDon = new Button("Geri Dön");
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+        geriDon = new Button("Geri Dön", imageViewC);
         geriDon.setId("cikis_butonlari");
         geriDon.setMinWidth(120);
         geriDon.setOnAction(e -> {

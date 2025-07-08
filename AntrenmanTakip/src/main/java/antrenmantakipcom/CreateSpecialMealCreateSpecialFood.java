@@ -25,6 +25,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -175,7 +177,12 @@ public class CreateSpecialMealCreateSpecialFood {
         pane = new BorderPane();
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
-        exitButton = new Button("Exit");
+
+        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
+        ImageView imageViewC = new ImageView(imageC);
+        imageViewC.setFitWidth(20);
+        imageViewC.setFitHeight(20);
+        exitButton = new Button("Exit", imageViewC);
         exitButton.setId("cikis_butonlari");
         exitButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
@@ -360,8 +367,6 @@ public class CreateSpecialMealCreateSpecialFood {
         foodComboBox = new CheckComboBox<>();
         foodComboBox.setPrefSize(400, 50);
         foodComboBox.setMaxSize(400, 50);
-
-       
 
         addPrivateMealBoxSaveButton = new Button("Add");
         addPrivateMealBoxSaveButton.setOnAction(e -> {
@@ -686,7 +691,6 @@ public class CreateSpecialMealCreateSpecialFood {
                     alert.showAndWait();
                     food_list.add(food);
                     foodComboBox.getItems().setAll(food_list);
-                    
 
                 } else {
                     Alert alert = new Alert(AlertType.ERROR);

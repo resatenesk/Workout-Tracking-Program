@@ -86,7 +86,7 @@ public class AddWorkoutScreen {
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
 
-        geriButton = new Button("← Geri Dön");
+        geriButton = new Button("← Geri Dön",imageViewC);
         geriButton.setId("cikis_butonlari");
         geriButton.setStyle("-fx-font-size: 14px;");
         geriButton.setOnAction(e -> {

@@ -102,6 +102,10 @@ public class MainScreen {
         });
 
         besin_grafikleri = new Button("Show Food Graphics");
+        besin_grafikleri.setOnAction(e -> {
+            ShowFoodGraphs graphs = new ShowFoodGraphs(username);
+            Main.setRoot(graphs.getPane());
+        });
         besin_grafikleri.setMinWidth(120);
 
         Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
@@ -163,7 +167,7 @@ public class MainScreen {
 
         HBox besin_butonlari_kutusu = new HBox(20);
         besin_butonlari_kutusu.setAlignment(Pos.CENTER);
-        besin_butonlari_kutusu.getChildren().addAll(gunluk_besin_ekle, createMealButton,besin_grafikleri);
+        besin_butonlari_kutusu.getChildren().addAll(gunluk_besin_ekle, createMealButton, besin_grafikleri);
 
         genelKutu.getChildren().addAll(isim_goruntuleme_kutusu, antrenman_butonlari_kutusu, besin_butonlari_kutusu);
 
