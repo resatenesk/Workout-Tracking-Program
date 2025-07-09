@@ -206,7 +206,6 @@ public class UserLoginFrame {
                     MainScreen.setUsername(username);
                     Main.setRoot(MainScreen.getRoot());
 
-                    System.out.println(username + " adlı kullanıcı bulundu");
                 } else {
                     Alert alert2 = new Alert(AlertType.INFORMATION);
                     alert2.setTitle("Bilgi");

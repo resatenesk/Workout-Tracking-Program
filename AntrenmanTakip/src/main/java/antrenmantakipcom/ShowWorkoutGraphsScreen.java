@@ -45,7 +45,7 @@ public class ShowWorkoutGraphsScreen {
     private HBox grafikKutusu;
     private ComboBox antrenman_id_combobox;
     private ComboBox antrenman_tipi_combobox;
-    private ComboBox hareket_combobox;
+    private ComboBox<String> hareket_combobox;
     private int secilen_id;
     private String secilen_antrenman_tipi;
     private ObservableList<String> PPLliste = FXCollections.observableArrayList();
@@ -147,14 +147,7 @@ public class ShowWorkoutGraphsScreen {
             }
 
         });
-        antrenman_tipi_combobox.setOnAction(e -> {
-            hareketlerListesi.clear();
-            hareketleriAl();
-            hareket_combobox.setItems(hareketlerListesi);
-            secilen_hareket = null;
-            hareket_combobox.getSelectionModel().clearSelection();
-            grafikKutusu.getChildren().clear();
-        });
+
         hareket_combobox = new ComboBox<>();
         hareket_combobox.setPrefWidth(120);
         hareket_combobox.setOnShowing(e -> {
@@ -172,10 +165,20 @@ public class ShowWorkoutGraphsScreen {
             }
 
         });
+        antrenman_tipi_combobox.setOnAction(e -> {
+            hareketlerListesi.clear();
+            hareketleriAl();
+            hareket_combobox.setItems(hareketlerListesi);
+            hareket_combobox.getSelectionModel().clearSelection();
+            secilen_hareket = null;
+            grafikKutusu.getChildren().clear();
+        });
+
         hareket_combobox.setOnAction(e -> {
-            secilen_hareket = (String) hareket_combobox.getValue();
-            System.out.println(secilen_hareket);
-            grafikOlustur();
+            secilen_hareket = hareket_combobox.getValue();
+            if (secilen_hareket != null && !secilen_hareket.isEmpty()) {
+                grafikOlustur();
+            }
         });
 
         antrenman_id_combobox.setItems(antrenmanIDleri);
@@ -223,10 +226,12 @@ public class ShowWorkoutGraphsScreen {
     }
 
     public void grafikOlustur() {
-
+        if (secilen_hareket == null || secilen_hareket.isEmpty()) {
+            grafikKutusu.getChildren().clear();
+            return;
+        }
         if (!hareketAntrenmandaVarMi(secilen_hareket, secilen_id)) {
             if (secilen_hareket == null || secilen_hareket.isEmpty()) {
-                // Hareket seçilmediyse grafik oluşturma, sadece grafik kutusunu temizle
                 grafikKutusu.getChildren().clear();
                 return;
             }
@@ -238,11 +243,11 @@ public class ShowWorkoutGraphsScreen {
             DialogPane dialogPane = alert.getDialogPane();
             dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
             alert.showAndWait();
-            grafikKutusu.getChildren().clear(); // Önceki grafiği temizle
-            hareket_combobox.getSelectionModel().clearSelection(); // Hareket seçimini sıfırla
+            grafikKutusu.getChildren().clear();
             secilen_hareket = null;
             return;
         }
+
         double agirlik_ortalamasi = 0;
         double tekrar_ortalamasi = 0;
         String tarih = null;
@@ -324,6 +329,14 @@ public class ShowWorkoutGraphsScreen {
     }
 
     public void hareketleriAl() {
+
+        hareketlerListesi.clear();
+        String secilenAntrenmanTipi = (String) antrenman_tipi_combobox.getValue();
+        if (secilenAntrenmanTipi == null || secilenAntrenmanTipi.isEmpty()) {
+            return;
+        }
+        System.out.println("Seçilen antrenman tipi: " + antrenman_tipi_combobox.getValue());
+
         try (Connection con = Database.connect()) {
             String sorgu = "SELECT hareket_adi FROM hareketler WHERE antrenman_tur_kategori = ? ";
             PreparedStatement ps = con.prepareStatement(sorgu);

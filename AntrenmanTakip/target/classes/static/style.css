@@ -319,11 +319,3 @@
 
 /* Protein: mavi */
 
-.pie-chart .chart-legend {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #4A148C;
-    -fx-background-color: #fce4ec;
-    -fx-padding: 8px;
-    -fx-border-color: purple;
-}

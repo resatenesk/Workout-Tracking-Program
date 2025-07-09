@@ -49,11 +49,13 @@ public class MainScreen {
 
         Image image2 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/olustur.png"));
         ImageView imageView2 = new ImageView(image2);
-        imageView2.setFitWidth(20);
-        imageView2.setFitHeight(20);
+        imageView2.setFitWidth(30);
+        imageView2.setFitHeight(30);
 
         antrenman_olustur = new Button("Create Workout Program", imageView2);
-        antrenman_olustur.setMinWidth(120);
+        antrenman_olustur.setMinWidth(150);
+        antrenman_olustur.setMinHeight(50);
+
         antrenman_olustur.setOnAction(e -> {
             try {
                 WorkoutStyleAndDaySelectionScreen ekran = new WorkoutStyleAndDaySelectionScreen();
@@ -67,11 +69,12 @@ public class MainScreen {
         label.setVisible(false);
         Image image1 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
         ImageView imageView1 = new ImageView(image1);
-        imageView1.setFitWidth(20);
-        imageView1.setFitHeight(20);
+        imageView1.setFitWidth(30);
+        imageView1.setFitHeight(30);
 
         antrenman_ekle = new Button("Add Workout", imageView1);
-        antrenman_ekle.setMinWidth(120);
+        antrenman_ekle.setMinWidth(150);
+        antrenman_ekle.setMinHeight(50);
         antrenman_ekle.setOnAction(e -> {
             AddWorkoutScreen ant = new AddWorkoutScreen(username);
             Main.setRoot(ant.getRoot());
@@ -79,43 +82,64 @@ public class MainScreen {
 
         Image image3 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ikon3.png"));
         ImageView imageView3 = new ImageView(image3);
-        imageView3.setFitWidth(20);
-        imageView3.setFitHeight(20);
+        imageView3.setFitWidth(30);
+        imageView3.setFitHeight(30);
 
         antrenman_grafikleri = new Button("Workout Graphics", imageView3);
-        antrenman_grafikleri.setMinWidth(120);
+        antrenman_grafikleri.setMinWidth(150);
+        antrenman_grafikleri.setMinHeight(50);
+
         antrenman_grafikleri.setOnAction(e -> {
             ShowWorkoutGraphsScreen antGra = new ShowWorkoutGraphsScreen(username);
             Main.setRoot(antGra.getRoot());
         });
-        gunluk_besin_ekle = new Button("Add Daily Food Values");
+
+        Image image4 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/food.png"));
+        ImageView imageView4 = new ImageView(image4);
+        imageView4.setFitWidth(30);
+        imageView4.setFitHeight(30);
+        gunluk_besin_ekle = new Button("Add Daily Food Values", imageView4);
         gunluk_besin_ekle.setOnAction(e -> {
             DailyMacroAndFoodValuesScreen daily = new DailyMacroAndFoodValuesScreen(username);
             Main.setRoot(daily.getPane());
         });
-        gunluk_besin_ekle.setMinWidth(120);
+        gunluk_besin_ekle.setMinWidth(150);
+        gunluk_besin_ekle.setMinHeight(50);
 
-        createMealButton = new Button("Create Special Meals/Create Special Foods");
+        Image image5 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/meal.png"));
+        ImageView imageView5 = new ImageView(image5);
+        imageView5.setFitWidth(30);
+        imageView5.setFitHeight(30);
+
+        createMealButton = new Button("Create Special Meals/Foods", imageView5);
+        createMealButton.setMinWidth(150);
+        createMealButton.setMinHeight(50);
         createMealButton.setOnAction(e -> {
             CreateSpecialMealCreateSpecialFood meal = new CreateSpecialMealCreateSpecialFood(username);
             Main.setRoot(meal.getPane());
         });
 
-        besin_grafikleri = new Button("Show Food Graphics");
+        Image image6 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/calgraph.png"));
+        ImageView imageView6 = new ImageView(image6);
+        imageView6.setFitWidth(30);
+        imageView6.setFitHeight(30);
+
+        besin_grafikleri = new Button("Show Food Graphics", imageView6);
         besin_grafikleri.setOnAction(e -> {
             ShowFoodGraphs graphs = new ShowFoodGraphs(username);
             Main.setRoot(graphs.getPane());
         });
-        besin_grafikleri.setMinWidth(120);
+        besin_grafikleri.setMinWidth(150);
+        besin_grafikleri.setMinHeight(50);
 
         Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
         ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
+        imageViewC.setFitWidth(30);
+        imageViewC.setFitHeight(30);
         cikis_yap = new Button("Exit", imageViewC);
         cikis_yap.setId("cikis_butonlari");
 
-        cikis_yap.setMinWidth(120);
+        cikis_yap.setMinWidth(150);
         cikis_yap.setOnAction(e -> {
             try {
                 Main.setRoot(UserLoginFrame.getRoot());

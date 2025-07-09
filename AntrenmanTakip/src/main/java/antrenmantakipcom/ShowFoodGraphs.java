@@ -117,12 +117,12 @@ public class ShowFoodGraphs {
         previousButton1.setOnAction(e -> {
             drawGraphs(7);
         });
-        previousButton1.setPrefSize(120, 40);
+        previousButton1.setPrefSize(150, 40);
         nextButton1 = new Button("Monthly");
         nextButton1.setOnAction(e -> {
             drawGraphs(30);
         });
-        nextButton1.setPrefSize(120, 40);
+        nextButton1.setPrefSize(150, 40);
         // previousButton2 = new Button("Previous");
         // previousButton2.setPrefSize(120, 40);
         // nextButton2 = new Button("Next");
@@ -255,9 +255,9 @@ public class ShowFoodGraphs {
                 double ortProt = rs.getDouble("ort_prot");
 
                 ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
-                        new PieChart.Data("Karbonhidrat", ortCarb),
-                        new PieChart.Data("Yağ", ortFat),
-                        new PieChart.Data("Protein", ortProt));
+                        new PieChart.Data("Carb", ortCarb),
+                        new PieChart.Data("Fat", ortFat),
+                        new PieChart.Data("Prot", ortProt));
 
                 PieChart pieChart = new PieChart(pieChartData);
                 pieChart.setTitle("Makro Dağılımı (Aylık Ortalama)");

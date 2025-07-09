@@ -6,9 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.controlsfx.control.CheckComboBox;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -19,13 +21,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 public class DailyMacroAndFoodValuesScreen {
     private BorderPane root;
@@ -58,7 +64,62 @@ public class DailyMacroAndFoodValuesScreen {
     private Button saveManualButton;
     private ObservableList<Food> food_list;
     private ObservableList<Meal> meal_list;
+    private ObservableList<Data> daily_food_values_list;
     private DatePicker datePicker2;
+
+    private TableView<Data> table;
+    private boolean foodPanelAcikMi = false;
+    private VBox translatedListPanel;
+    private StackPane centerStackPane;
+    private Button showValueList;
+
+    public class Data {
+        private int id;
+        private float cal;
+        private float fat;
+        private float carb;
+        private float prot;
+        private Date date;
+
+        public Data(int id, float cal, float fat, float carb, float prot, Date date) {
+            this.id = id;
+            this.cal = cal;
+            this.fat = fat;
+            this.carb = carb;
+            this.prot = prot;
+            this.date = date;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public Float getCal() {
+            return cal;
+        }
+
+        public Float getFat() {
+            return fat;
+        }
+
+        public Float getCarb() {
+            return carb;
+        }
+
+        public Float getProt() {
+            return prot;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        @Override
+        public String toString() {
+            return "Calorie: " + cal + " Fat: " + fat + " Carb " + carb + " Prot: " + prot + " Date: " + date;
+        }
+
+    }
 
     public class Meal {
         private String meal_name;
@@ -153,6 +214,104 @@ public class DailyMacroAndFoodValuesScreen {
 
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
+        daily_food_values_list = FXCollections.observableArrayList();
+
+        translatedListPanel = new VBox(10);
+        translatedListPanel.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
+        translatedListPanel.setId("translatedList");
+        translatedListPanel.setPrefWidth(500);
+        translatedListPanel.setPrefHeight(1000);
+        translatedListPanel.setMaxHeight(1000);
+        translatedListPanel.setMaxWidth(500);
+        translatedListPanel.setAlignment(Pos.CENTER);
+        translatedListPanel.setTranslateX(-500);
+        translatedListPanel.setTranslateY(150);
+        translatedListPanel.setVisible(false);
+
+        table = new TableView<>();
+        createTableOfListOfAddedValues();
+
+        Button closeButton = new Button("Close");
+        closeButton.setId("cikis_butonlari");
+        closeButton.setOnAction(e -> {
+            if (foodPanelAcikMi) {
+                TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
+                transition.setToX(-500);
+                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
+                transition.play();
+                foodPanelAcikMi = false;
+            }
+        });
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.setOnAction(e -> {
+            int selectedIndex = table.getSelectionModel().getSelectedIndex();
+            Data selectedData = table.getSelectionModel().getSelectedItem();
+            int user_id = 0;
+            if (selectedIndex >= 0) {
+                try (Connection con = Database.connect()) {
+                    String sorgu = "SELECT user_id FROM users WHERE username =?";
+                    PreparedStatement ps = con.prepareStatement(sorgu);
+                    ps.setString(1, username);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        user_id = rs.getInt("user_id");
+                    }
+                    int value_id = selectedData.getId();
+                    String sorgu2 = "DELETE FROM daily_food_values WHERE id = ? ";
+                    PreparedStatement ps3 = con.prepareStatement(sorgu2);
+                    ps3.setInt(1, value_id);
+                    int sonuc = ps3.executeUpdate();
+                    if (sonuc > 0) {
+                        Alert alert = new Alert(AlertType.INFORMATION);
+                        alert.setTitle("DELETED");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Food has deleted succesfully");
+                        DialogPane dialogPane = alert.getDialogPane();
+                        dialogPane.getStylesheets()
+                                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                        alert.showAndWait();
+                        if (selectedData != null) {
+                            daily_food_values_list.remove(selectedData);
+                            table.getSelectionModel().clearSelection();
+                        }
+
+                    } else {
+
+                    }
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("NOT SELECTED");
+                alert.setHeaderText(null);
+                alert.setContentText("Please select a food correctly");
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets()
+                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
+                alert.showAndWait();
+            }
+        });
+
+        translatedListPanel.getChildren().addAll(table, closeButton, deleteButton);
+        showValueList = new Button("List");
+        showValueList.setOnAction(e -> {
+            daily_food_valuesGetData();
+            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
+
+            if (foodPanelAcikMi) {
+                transition.setToX(-500);
+                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
+                foodPanelAcikMi = false;
+            } else {
+                translatedListPanel.setVisible(true);
+                transition.setToX(0);
+                foodPanelAcikMi = true;
+            }
+
+            transition.play();
+        });
 
         selectMeal = new CheckComboBox<>();
         selectMeal.setPrefSize(200, 40);
@@ -273,6 +432,9 @@ public class DailyMacroAndFoodValuesScreen {
         protHBox.getChildren().addAll(protLabel, protTextField);
 
         saveButton = new Button("Save");
+        saveButton.setPrefSize(120, 40);
+        saveButton.setMaxSize(120, 40);
+
         saveButton.setOnAction(e -> {
             SaveDailyCalorie();
             fatTextField.setText("");
@@ -294,7 +456,8 @@ public class DailyMacroAndFoodValuesScreen {
             Main.setRoot(MainScreen.getRoot());
         });
 
-        buttonsHBox.getChildren().addAll(datePicker, saveButton);
+        buttonsHBox.getChildren().addAll(datePicker, saveButton, showValueList);
+        buttonsHBox.setPadding(new Insets(0, 20, 0, 0));
 
         DailyFoodBox.getChildren().addAll(label, calorieHBox, fatHBox, carbHBox, protHBox, buttonsHBox);
         DailyFoodBox.setAlignment(Pos.CENTER);
@@ -302,12 +465,16 @@ public class DailyMacroAndFoodValuesScreen {
         DailyFoodBox.setPrefSize(500, 500);
         DailyFoodBox.setMaxSize(500, 500);
         BorderPane mainContent = new BorderPane();
-        mainContent.setLeft(DailyFoodBox);
         mainContent.setRight(ManualDailyFoodBox);
-        mainContent.setBottom(geriDonButton);
+        StackPane leftStackPane = new StackPane();
+        leftStackPane.getChildren().addAll(DailyFoodBox, translatedListPanel);
+        leftStackPane.setPadding(new Insets(0, 0, 270, 0));
         StackPane centerStackPane = new StackPane();
         centerStackPane.getChildren().addAll(mainContent);
         root.setCenter(centerStackPane);
+        root.setLeft(leftStackPane);
+        root.setBottom(geriDonButton);
+        daily_food_valuesGetData();
     }
 
     public BorderPane getPane() {
@@ -502,5 +669,85 @@ public class DailyMacroAndFoodValuesScreen {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    void daily_food_valuesGetData() {
+        int id;
+        Float cal;
+        Float fat;
+        Float carb;
+        Float prot;
+        Date date;
+        int user_id = 0;
+        try (Connection con = Database.connect()) {
+            String sorgu = "SELECT user_id FROM users WHERE username =?";
+            PreparedStatement ps = con.prepareStatement(sorgu);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                user_id = rs.getInt("user_id");
+            }
+            daily_food_values_list.clear();
+            String sorgu2 = "SELECT id,calorie,fat,carb,prot,date FROM daily_food_values WHERE user_id = ?";
+            PreparedStatement ps2 = con.prepareStatement(sorgu2);
+            ps2.setInt(1, user_id);
+            ResultSet rs2 = ps2.executeQuery();
+            while (rs2.next()) {
+                id = rs2.getInt("id");
+                cal = rs2.getFloat("calorie");
+                fat = rs2.getFloat("fat");
+                carb = rs2.getFloat("carb");
+                prot = rs2.getFloat("prot");
+                date = rs2.getDate("date");
+                Data data = new Data(id, cal, fat, carb, prot, date);
+                daily_food_values_list.add(data);
+
+            }
+            table.setItems(daily_food_values_list);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void createTableOfListOfAddedValues() {
+
+        table.setPrefHeight(600);
+        table.setPrefWidth(600);
+        table.setMaxWidth(600);
+        table.setId("Food List");
+
+        TableColumn<Data, Float> calCol = new TableColumn<>("calorie");
+        calCol.setCellValueFactory(new PropertyValueFactory<>("cal"));
+        calCol.setPrefWidth(100);
+
+        TableColumn<Data, Float> fatCol = new TableColumn<>("fat");
+        fatCol.setCellValueFactory(new PropertyValueFactory<>("fat"));
+        fatCol.setPrefWidth(90);
+
+        TableColumn<Data, Float> carbCol = new TableColumn<>("carb");
+        carbCol.setCellValueFactory(new PropertyValueFactory<>("carb"));
+        carbCol.setPrefWidth(90);
+
+        TableColumn<Data, Float> protCol = new TableColumn<>("prot");
+        protCol.setCellValueFactory(new PropertyValueFactory<>("prot"));
+        protCol.setPrefWidth(90);
+
+        TableColumn<Data, Date> dateCol = new TableColumn<>("date");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
+        dateCol.setPrefWidth(80);
+
+        calCol.setStyle("-fx-alignment: CENTER;");
+        fatCol.setStyle("-fx-alignment: CENTER;");
+        carbCol.setStyle("-fx-alignment: CENTER;");
+        protCol.setStyle("-fx-alignment: CENTER;");
+        dateCol.setStyle("-fx-alignment: CENTER;");
+
+        Label labelveriyok = new Label("İçeride veri yok :( ");
+        labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic");
+        table.setPlaceholder(labelveriyok);
+
+        table.getColumns().addAll(calCol, fatCol, carbCol, protCol, dateCol);
+
     }
 }
