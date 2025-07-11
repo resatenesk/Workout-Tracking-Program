@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
+import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -36,9 +39,9 @@ public class AddWorkoutScreen {
 
     private static BorderPane root;
     private final Button geriButton;
-    private TableView<User> tablo;
+    private TableView<WorkoutTemplate> tablo;
     private String username;
-    private ObservableList<User> liste;
+    private ObservableList<WorkoutTemplate> liste;
     private Label antrenmanIDlabel;
     private Label kacinciGunLabel;
     private ComboBox<Integer> kacincıGunComboBox;
@@ -60,6 +63,7 @@ public class AddWorkoutScreen {
     private Button antrenmanSil;
     private VBox sagdanGelecekPanel;
     private Button ozelYiyecekListeGoruntule;
+    private int user_id;
 
     @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
     public AddWorkoutScreen(String username) {
@@ -108,7 +112,7 @@ public class AddWorkoutScreen {
         tablo.setOnMouseClicked(e -> {
             gun_listesi.clear();
             kacincıGunComboBox.getItems().clear();
-            User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
+            WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri != null) {
                 gun_sayisi = secilenVeri.getGunSayisi();
                 antrenman_id = secilenVeri.getAntrenmanID();
@@ -201,7 +205,7 @@ public class AddWorkoutScreen {
     }
 
     public void tablodanVeriSil() {
-        User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
+        WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
         if (secilenVeri != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Onay");
@@ -211,17 +215,8 @@ public class AddWorkoutScreen {
 
             if (result1.isPresent() && result1.get() == ButtonType.OK) {
                 int id = secilenVeri.getAntrenmanID();
-                try (Connection con = Database.connect()) {
-                    String sorgu = "DELETE FROM eklenen_antrenman_sablonlari WHERE id= ?";
-                    PreparedStatement ps = con.prepareStatement(sorgu);
-                    ps.setInt(1, id);
-                    int result = ps.executeUpdate();
-                    if (result > 0) {
-                        User veri = tablo.getSelectionModel().getSelectedItem();
-                        liste.remove(veri);
-                    }
-                } catch (SQLException e) {
-                }
+                IEntityRepositoryBase<WorkoutTemplate> base = new IEntityRepositoryBase<>(WorkoutTemplate.class);
+                base.Delete(secilenVeri);
             }
         } else {
             Alert alert = new Alert(AlertType.WARNING);
@@ -346,7 +341,7 @@ public class AddWorkoutScreen {
     }
 
     public void hareketleriOlustur() {
-        User secilenVeri = (User) tablo.getSelectionModel().getSelectedItem();
+        WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
         if (secilenVeri == null)
             return;
 
@@ -438,27 +433,27 @@ public class AddWorkoutScreen {
         tablo.setMaxWidth(450);
 
         tablo.setId("antrenmanTablo");
-        TableColumn<User, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<User, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<User, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("İsim");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<User, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Antrenman Tipi");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<User, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Gün Sayısı");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
@@ -473,7 +468,7 @@ public class AddWorkoutScreen {
 
     }
 
-    public ObservableList<User> veritabaniVerileriCek(String username) {
+    public ObservableList<WorkoutTemplate> veritabaniVerileriCek(String username) {
         liste = FXCollections.observableArrayList();
 
         int antrenman_id2;
@@ -493,7 +488,7 @@ public class AddWorkoutScreen {
                 username2 = rs.getString("username");
                 antrenman_tipi2 = rs.getString("antrenman_tipi");
                 gun_sayisi2 = rs.getInt("gun_sayisi");
-                User veriler = new User(antrenman_id2, user_id2, username2, antrenman_tipi2,
+                WorkoutTemplate veriler = new WorkoutTemplate(antrenman_id2, user_id2, username2, antrenman_tipi2,
                         gun_sayisi2);
                 liste.add(veriler);
 

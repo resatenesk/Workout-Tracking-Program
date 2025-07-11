@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.DataAccess.Concrete;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

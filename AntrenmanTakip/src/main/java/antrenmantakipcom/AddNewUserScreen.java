@@ -1,9 +1,11 @@
 package antrenmantakipcom;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
+import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -20,7 +22,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class AddNewUserScreen {
     StackPane pane;
@@ -132,7 +133,7 @@ public class AddNewUserScreen {
         imageView.setFitWidth(20);
         imageView.setFitHeight(20);
 
-        GeriDonButton = new Button("Geri Dön",imageView);
+        GeriDonButton = new Button("Geri Dön", imageView);
         GeriDonButton.setOnAction(e -> {
             try {
                 Main.setRoot(UserLoginFrame.getRoot());
@@ -149,7 +150,7 @@ public class AddNewUserScreen {
         imageView2.setFitWidth(20);
         imageView2.setFitHeight(20);
 
-        KullaniciEkle = new Button("Kullanıcı Ekle",imageView2);
+        KullaniciEkle = new Button("Kullanıcı Ekle", imageView2);
         KullaniciEkle.setOnAction(e -> {
             try {
                 kullaniciEkle();
@@ -163,10 +164,8 @@ public class AddNewUserScreen {
         KullaniciEkle.setMinWidth(120);
 
         nameLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
-        // nameField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
         passwordLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
-        // passwordField.setStyle("-fx-border-width: 1px;-fx-prompt-text-fill:black;");
-
+       
     }
 
     public void kullaniciEkle() {
@@ -188,29 +187,14 @@ public class AddNewUserScreen {
         } else {
             if (password.matches(regex)) {
                 try (Connection con = Database.connect()) {
-                    String sorgu = "INSERT INTO users (username,password) VALUES (?,?)";
-                    PreparedStatement ps = con.prepareStatement(sorgu);
-                    ps.setString(1, username);
-                    ps.setString(2, password);
-                    int result = ps.executeUpdate();
-                    if (result != -1) {
-                        System.out.println("işlem başarılı");
-                        Main.setRoot(UserLoginFrame.getRoot());
-                    } else {
-                        System.out.println("işlem başarısız.");
-                    }
-
+                    IEntityRepositoryBase<User> userRepo = new IEntityRepositoryBase<>(User.class);
+                    User user = new User();
+                    user.setUsername(username);
+                    user.setPassword(password);
+                    userRepo.Add(user);
+                    Main.setRoot(UserLoginFrame.getRoot());
                 } catch (SQLException e) {
-                    System.out.println("Database'e bağlanılamadı...'");
                     e.printStackTrace();
-                }
-                try {
-
-                } catch (Exception e1) {
-
-                    e1.printStackTrace();
-
-                    ((Stage) GeriDonButton.getScene().getWindow()).close();
                 }
             } else {
                 Alert alert = new Alert(AlertType.ERROR);

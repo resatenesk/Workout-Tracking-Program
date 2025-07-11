@@ -7,7 +7,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 public class Main extends Application {
 
     private static Stage primaryStage;
@@ -19,7 +18,7 @@ public class Main extends Application {
         primaryStage = stage;
 
         // İlk ekran
-        StackPane baslangicRoot = UserLoginFrame.getRoot();  // Ana ekran ilk açılacak ekran
+        StackPane baslangicRoot = UserLoginFrame.getRoot(); // Ana ekran ilk açılacak ekran
 
         rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
         mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver
@@ -51,7 +50,8 @@ public class Main extends Application {
             slideOut.setToX(-width);
 
             slideOut.setOnFinished(event -> {
-                rootStack.getChildren().remove(eskiRoot); // geçiş tamamlanınca eski root'u sil
+                rootStack.getChildren().remove(eskiRoot);
+                
             });
 
             slideOut.play();
@@ -65,6 +65,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+      
         launch(args);
     }
 }

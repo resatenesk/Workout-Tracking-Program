@@ -23,11 +23,13 @@ public class MainScreen {
     static String username;
     static BorderPane root;
     static Button createMealButton;
+   
 
     public static void setUsername(String username) {
         MainScreen.username = username;
     }
 
+    
     public static BorderPane getRoot() {
 
         root = new BorderPane();

@@ -5,11 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.Food;
+import antrenmantakipcom.Entities.Concrete.Meal;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -121,92 +123,6 @@ public class DailyMacroAndFoodValuesScreen {
 
     }
 
-    public class Meal {
-        private String meal_name;
-        private float total_cal;
-        private float total_fat;
-        private float total_carb;
-        private float total_prot;
-        private ArrayList<Food> foods = new ArrayList<>();
-
-        public Meal(String meal_name, float total_calorie, float total_fat, float total_carb, float total_prot,
-                ArrayList<Food> foods) {
-            this.meal_name = meal_name;
-            this.total_cal = total_calorie;
-            this.total_fat = total_fat;
-            this.total_carb = total_carb;
-            this.total_prot = total_prot;
-            this.foods = foods;
-        }
-
-        public String getMealName() {
-            return meal_name;
-        }
-
-        public float getTotalCal() {
-            return total_cal;
-        }
-
-        public float getTotalFat() {
-            return total_fat;
-        }
-
-        public float getTotalCarb() {
-            return total_carb;
-        }
-
-        public float getTotalProt() {
-            return total_prot;
-        }
-
-        @Override
-        public String toString() {
-            return meal_name;
-        }
-
-    }
-
-    public class Food {
-        private String foodName;
-        private float calorie;
-        private float fat;
-        private float carb;
-        private float prot;
-
-        public Food(String foodName, float calorie, float fat, float carb, float prot) {
-            this.foodName = foodName;
-            this.calorie = calorie;
-            this.fat = fat;
-            this.carb = carb;
-            this.prot = prot;
-        }
-
-        @Override
-        public String toString() {
-            return foodName;
-        }
-
-        public String getFoodName() {
-            return foodName;
-        }
-
-        public float getCalorie() {
-            return calorie;
-        }
-
-        public float getFat() {
-            return fat;
-        }
-
-        public float getCarb() {
-            return carb;
-        }
-
-        public float getProt() {
-            return prot;
-        }
-
-    }
 
     public DailyMacroAndFoodValuesScreen(String username) {
         this.username = username;
@@ -326,7 +242,7 @@ public class DailyMacroAndFoodValuesScreen {
             ObservableList<Meal> filtered = FXCollections.observableArrayList();
 
             for (Meal meal : meal_list) {
-                if (meal.meal_name.toLowerCase().contains(newText.toLowerCase())) {
+                if (meal.getMealName().toLowerCase().contains(newText.toLowerCase())) {
                     filtered.add(meal);
                 }
             }
@@ -583,7 +499,7 @@ public class DailyMacroAndFoodValuesScreen {
                 float totalFat = rs2.getFloat("total_fat");
                 float totalCarb = rs2.getFloat("total_carb");
                 float totalProt = rs2.getFloat("total_prot");
-                Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt, null);
+                Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
                 meal_list.add(meal);
 
             }

@@ -10,6 +10,9 @@ import java.util.Map;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.Food;
+import antrenmantakipcom.Entities.Concrete.Meal;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -88,90 +91,7 @@ public class CreateSpecialMealCreateSpecialFood {
     private ComboBox<Integer> amountComboBox;
     private Map<Food, ComboBox<Integer>> foodAmountMap = new HashMap<>();
     private TextField gramsField;
-
-    public class Meal {
-        private String meal_name;
-        private float total_cal;
-        private float total_fat;
-        private float total_carb;
-        private float total_prot;
-        private ArrayList<Food> foods = new ArrayList<>();
-
-        public Meal(String meal_name, float total_calorie, float total_fat, float total_carb, float total_prot,
-                ArrayList<Food> foods) {
-            this.meal_name = meal_name;
-            this.total_cal = total_calorie;
-            this.total_fat = total_fat;
-            this.total_carb = total_carb;
-            this.total_prot = total_prot;
-            this.foods = foods;
-        }
-
-        public String getMealName() {
-            return meal_name;
-        }
-
-        public float getTotalCal() {
-            return total_cal;
-        }
-
-        public float getTotalFat() {
-            return total_fat;
-        }
-
-        public float getTotalCarb() {
-            return total_carb;
-        }
-
-        public float getTotalProt() {
-            return total_prot;
-        }
-
-    }
-
-    public class Food {
-        private String foodName;
-        private float calorie;
-        private float fat;
-        private float carb;
-        private float prot;
-
-        public Food(String foodName, float calorie, float fat, float carb, float prot) {
-            this.foodName = foodName;
-            this.calorie = calorie;
-            this.fat = fat;
-            this.carb = carb;
-            this.prot = prot;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s (cal: %.2f, fat: %.2f, carb: %.2f, prot: %.2f)",
-                    foodName, calorie, fat, carb, prot);
-        }
-
-        public String getFoodName() {
-            return foodName;
-        }
-
-        public float getCalorie() {
-            return calorie;
-        }
-
-        public float getFat() {
-            return fat;
-        }
-
-        public float getCarb() {
-            return carb;
-        }
-
-        public float getProt() {
-            return prot;
-        }
-
-    }
-
+    
     public CreateSpecialMealCreateSpecialFood(String username) {
         this.username = username;
         pane = new BorderPane();
@@ -251,7 +171,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 try (Connection con = Database.connect()) {
                     String id_sorgu = "SELECT id FROM saved_special_foods WHERE food_name = ?";
                     PreparedStatement ps = con.prepareStatement(id_sorgu);
-                    ps.setString(1, table.getSelectionModel().getSelectedItem().foodName);
+                    ps.setString(1, table.getSelectionModel().getSelectedItem().getFoodName());
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         food_id = rs.getInt("id");
@@ -301,7 +221,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 try (Connection con = Database.connect()) {
                     String id_sorgu = "SELECT id FROM saved_meals WHERE meal_name = ?";
                     PreparedStatement ps = con.prepareStatement(id_sorgu);
-                    ps.setString(1, meal_table.getSelectionModel().getSelectedItem().meal_name);
+                    ps.setString(1, meal_table.getSelectionModel().getSelectedItem().getMealName());
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         food_id = rs.getInt("id");
@@ -731,17 +651,17 @@ public class CreateSpecialMealCreateSpecialFood {
                 miktar = foodAmountMap.get(food).getValue();
             }
 
-            float cal = food.calorie;
-            float fat = food.fat;
-            float carb = food.carb;
-            float prot = food.prot;
+            float cal = food.getCalorie();
+            float fat = food.getFat();
+            float carb = food.getCarb();
+            float prot = food.getProt();
 
             totalCal += cal * miktar;
             totalFat += fat * miktar;
             totalCarb += carb * miktar;
             totalProt += prot * miktar;
         }
-        Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt, secilenFoodList);
+        Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
         meal_list.add(meal);
         if (mealNameField.getText().isEmpty() || foodComboBox.getCheckModel().getCheckedItems().isEmpty()) {
             Alert hataAlert = new Alert(Alert.AlertType.WARNING);
@@ -833,7 +753,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 total_prot = rs.getFloat("total_prot");
                 ArrayList<Food> foods = new ArrayList<>();
 
-                Meal meal = new Meal(meal_name, total_cal, total_fat, total_carb, total_prot, foods);
+                Meal meal = new Meal(meal_name, total_cal, total_fat, total_carb, total_prot);
                 meal_list.add(meal);
             }
 

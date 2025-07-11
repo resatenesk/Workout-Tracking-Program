@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.collections.FXCollections;
@@ -40,7 +42,7 @@ public class CreatingWorkoutsScreen {
     private String username;
     private String antrenman_tipi;
     private int gun_sayisi;
-    private static TableView<User> tablo;
+    private static TableView<WorkoutTemplate> tablo;
     private static Label label1;
     private static VBox checkboxRoot;
     private static HBox labelRoot;
@@ -65,7 +67,7 @@ public class CreatingWorkoutsScreen {
     private static VBox hareketleriGostermeKutusu;
     private int gun_no;
     private static Button tablodanSilButton;
-    ObservableList<User> liste;
+    ObservableList<WorkoutTemplate> liste;
 
     public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
         this.antrenman_id = antrenman_id;
@@ -86,7 +88,7 @@ public class CreatingWorkoutsScreen {
             ps.setInt(1, id);
             int result = ps.executeUpdate();
             if (result > 0) {
-                User veri = tablo.getSelectionModel().getSelectedItem();
+                WorkoutTemplate veri = tablo.getSelectionModel().getSelectedItem();
                 liste.remove(veri);
             }
         } catch (SQLException e) {
@@ -115,7 +117,7 @@ public class CreatingWorkoutsScreen {
         tablo.setId("antrenmanTablo");
         // tablo.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tablo.setOnMouseClicked(e -> {
-            User secilenVeri = tablo.getSelectionModel().getSelectedItem();
+            WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri == null) {
                 return;
             }
@@ -185,27 +187,27 @@ public class CreatingWorkoutsScreen {
         hareketleriGostermeKutusu.setMaxWidth(500);
         hareketleriGostermeKutusu.setPadding(new Insets(30, 20, 0, 0));
 
-        TableColumn<User, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<User, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<User, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("İsim");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<User, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Antrenman Tipi");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<User, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Gün Sayısı");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
@@ -630,9 +632,9 @@ public class CreatingWorkoutsScreen {
                 username2 = rs.getString("username");
                 antrenman_tipi2 = rs.getString("antrenman_tipi");
                 gun_sayisi2 = rs.getInt("gun_sayisi");
-                User veriler = new User(antrenman_id2, user_id2, username2, antrenman_tipi2,
+                WorkoutTemplate veri = new WorkoutTemplate(antrenman_id2, user_id2, username2, antrenman_tipi2,
                         gun_sayisi2);
-                liste.add(veriler);
+                liste.add(veri);
 
             }
 
