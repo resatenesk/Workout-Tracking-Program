@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.Business.FoodMeal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +12,8 @@ import org.controlsfx.control.CheckComboBox;
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
+import antrenmantakipcom.Main;
+import antrenmantakipcom.MainScreen;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -122,7 +124,6 @@ public class DailyMacroAndFoodValuesScreen {
         }
 
     }
-
 
     public DailyMacroAndFoodValuesScreen(String username) {
         this.username = username;
@@ -499,7 +500,7 @@ public class DailyMacroAndFoodValuesScreen {
                 float totalFat = rs2.getFloat("total_fat");
                 float totalCarb = rs2.getFloat("total_carb");
                 float totalProt = rs2.getFloat("total_prot");
-                Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
+                Meal meal = new Meal(meal_name, user_id, totalCal, totalFat, totalCarb, totalProt);
                 meal_list.add(meal);
 
             }

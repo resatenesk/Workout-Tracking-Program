@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.Business.FoodMeal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +10,13 @@ import java.util.Map;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
+import antrenmantakipcom.Entities.Concrete.User;
+import antrenmantakipcom.Main;
+import antrenmantakipcom.MainScreen;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -91,9 +95,19 @@ public class CreateSpecialMealCreateSpecialFood {
     private ComboBox<Integer> amountComboBox;
     private Map<Food, ComboBox<Integer>> foodAmountMap = new HashMap<>();
     private TextField gramsField;
-    
+    int user_id = 0;
+    IEntityRepositoryBase<Food> foodBase;
+    IEntityRepositoryBase<User> userBase;
+
     public CreateSpecialMealCreateSpecialFood(String username) {
         this.username = username;
+        foodBase = new IEntityRepositoryBase<>(Food.class);
+        userBase = new IEntityRepositoryBase<>(User.class);
+        User user = new User();
+        user.setUsername(username);
+        user_id = userBase.SelectUserID(user);
+        System.out.println("Çekilen user_id: " + user_id);
+
         pane = new BorderPane();
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
@@ -226,6 +240,7 @@ public class CreateSpecialMealCreateSpecialFood {
                     while (rs.next()) {
                         food_id = rs.getInt("id");
                     }
+
                     String sorgu = "DELETE FROM saved_meals WHERE id = ? ";
                     PreparedStatement ps2 = con.prepareStatement(sorgu);
                     ps2.setInt(1, food_id);
@@ -365,7 +380,6 @@ public class CreateSpecialMealCreateSpecialFood {
             foodCarbField.setText("");
             foodProtField.setText("");
         });
-
         table = new TableView<>();
         table.setPrefHeight(600);
         table.setPrefWidth(600);
@@ -403,7 +417,6 @@ public class CreateSpecialMealCreateSpecialFood {
         table.setPlaceholder(labelveriyok);
 
         table.getColumns().addAll(nameCol, calorieCol, fatCol, carbCol, protCol);
-        table.setItems(food_list);
 
         meal_table = new TableView<>();
         meal_table.setPrefHeight(600);
@@ -480,6 +493,13 @@ public class CreateSpecialMealCreateSpecialFood {
         showFoodList = new Button("Show Food List");
         showFoodList.setOnAction(e -> {
             verileriCek();
+            for (Food food : food_list) {
+                System.out.println(food);
+                if (food_list.size() == 0) {
+                    System.out.println("boş");
+                }
+            }
+
             TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
 
             if (foodPanelAcikMi) {
@@ -512,7 +532,7 @@ public class CreateSpecialMealCreateSpecialFood {
         pane.setLeft(leftStackPane);
         pane.setRight(rightStackPane);
         pane.setBottom(exitButton);
-        verileriCek();
+
         foodComboBox.getItems().setAll(food_list);
 
     }
@@ -539,7 +559,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 Food food = new Food(food_name, calorie, fat, carb, prot);
                 yemekler.add(food);
             }
-            food_list = FXCollections.observableArrayList(yemekler);
+            food_list.addAll(yemekler);
             foodComboBox.getItems().setAll(food_list);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -557,7 +577,6 @@ public class CreateSpecialMealCreateSpecialFood {
         String carbText = foodCarbField.getText().trim();
         String protText = foodProtField.getText().trim();
         String grams = gramsField.getText().trim();
-        int user_id = 0;
 
         if (foodName.isEmpty() || calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty()
                 || protText.isEmpty()) {
@@ -569,17 +588,6 @@ public class CreateSpecialMealCreateSpecialFood {
             dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
             alert.showAndWait();
             return;
-        }
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
         }
 
         try {
@@ -638,12 +646,13 @@ public class CreateSpecialMealCreateSpecialFood {
     }
 
     public void saveMeal() {
-        int user_id = 0;
+
         String meal_name = mealNameField.getText().trim();
         float totalCal = 0;
         float totalFat = 0;
         float totalCarb = 0;
         float totalProt = 0;
+
         ArrayList<Food> secilenFoodList = new ArrayList<>(foodComboBox.getCheckModel().getCheckedItems());
         for (Food food : secilenFoodList) {
             int miktar = 1;
@@ -661,7 +670,7 @@ public class CreateSpecialMealCreateSpecialFood {
             totalCarb += carb * miktar;
             totalProt += prot * miktar;
         }
-        Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
+        Meal meal = new Meal(meal_name, user_id, totalCal, totalFat, totalCarb, totalProt);
         meal_list.add(meal);
         if (mealNameField.getText().isEmpty() || foodComboBox.getCheckModel().getCheckedItems().isEmpty()) {
             Alert hataAlert = new Alert(Alert.AlertType.WARNING);
@@ -671,57 +680,33 @@ public class CreateSpecialMealCreateSpecialFood {
             hataAlert.showAndWait();
         } else {
 
-            try (Connection con = Database.connect()) {
-                String sorgu = "SELECT user_id FROM users WHERE username =?";
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setString(1, username);
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    user_id = rs.getInt("user_id");
-                }
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
-            try (Connection con = Database.connect()) {
-                String sorgu = "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?,?) ";
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setString(1, meal_name);
-                ps.setInt(2, user_id);
-                ps.setFloat(3, totalCal);
-                ps.setFloat(4, totalFat);
-                ps.setFloat(5, totalCarb);
-                ps.setFloat(6, totalProt);
+            IEntityRepositoryBase<Meal> baseMeal = new IEntityRepositoryBase<>(Meal.class);
+            int result = baseMeal.Add(meal);
+            if (result > 0) {
+                searchField.setText("");
+                mealNameField.setText("");
+                foodComboBox.getCheckModel().clearChecks();
+                Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
+                hataAlert.setTitle("Meal is added");
+                hataAlert.setHeaderText(null);
+                hataAlert.setContentText("You can show the list of meals with pressing show button");
+                hataAlert.showAndWait();
 
-                int result = ps.executeUpdate();
-                if (result > 0) {
-                    searchField.setText("");
-                    mealNameField.setText("");
-                    foodComboBox.getCheckModel().clearChecks();
-                    Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
-                    hataAlert.setTitle("Meal is added");
-                    hataAlert.setHeaderText(null);
-                    hataAlert.setContentText("You can show the list of meals with pressing show button");
-                    hataAlert.showAndWait();
+            } else {
+                Alert hataAlert = new Alert(Alert.AlertType.ERROR);
+                hataAlert.setTitle("Error!");
+                hataAlert.setHeaderText(null);
+                hataAlert.setContentText("The meal could not be added");
+                hataAlert.showAndWait();
 
-                } else {
-                    Alert hataAlert = new Alert(Alert.AlertType.ERROR);
-                    hataAlert.setTitle("Error!");
-                    hataAlert.setHeaderText(null);
-                    hataAlert.setContentText("The meal could not be added");
-                    hataAlert.showAndWait();
-
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
 
         }
+
     }
 
     public void showMealList() {
         meal_list.clear();
-        int user_id = 0;
         String meal_name = null;
         float total_cal = 0;
         float total_fat = 0;
@@ -753,7 +738,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 total_prot = rs.getFloat("total_prot");
                 ArrayList<Food> foods = new ArrayList<>();
 
-                Meal meal = new Meal(meal_name, total_cal, total_fat, total_carb, total_prot);
+                Meal meal = new Meal(meal_name, user_id, total_cal, total_fat, total_carb, total_prot);
                 meal_list.add(meal);
             }
 
@@ -763,46 +748,15 @@ public class CreateSpecialMealCreateSpecialFood {
 
     }
 
-    public void verileriCek() {
-        String ad = null;
-        float cal = 0;
-        float fat = 0;
-        float carb = 0;
-        float prot = 0;
-        int user_id = 0;
+   public void verileriCek() {
+    ObservableList<Food> yeniListe = foodBase.GetAll(
+        "SELECT food_name,calorie,fat,carb,prot FROM saved_special_foods WHERE user_id = ?", user_id);
+    System.out.println("Veri sayısı: " + yeniListe.size());
 
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
-        }
+    food_list.clear();  // önce eski listeyi temizle
+    food_list.addAll(yeniListe);  // sonra yenileri ekle
+    table.setItems(food_list);
+}
 
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT * FROM saved_special_foods WHERE user_id =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setInt(1, user_id);
-            ResultSet rs = ps.executeQuery();
-            food_list.clear();
-            while (rs.next()) {
-                ad = rs.getString("food_name");
-                cal = rs.getFloat("calorie");
-                fat = rs.getFloat("fat");
-                carb = rs.getFloat("carb");
-                prot = rs.getFloat("prot");
-                Food food = new Food(ad, cal, fat, carb, prot);
-                food_list.add(food);
-
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

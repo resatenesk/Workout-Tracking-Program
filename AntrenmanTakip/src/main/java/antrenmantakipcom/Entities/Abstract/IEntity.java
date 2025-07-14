@@ -13,9 +13,14 @@ public interface IEntity {
 
     String getDeleteQuery();
 
+    String getSelectIDQuery();
+
     void fillInsertParameters(PreparedStatement ps) throws SQLException;
 
     void fillUpdateParameters(PreparedStatement ps) throws SQLException;
 
     void fillDeleteParameters(PreparedStatement ps) throws SQLException;
+
+    void fillSelectIDParameters(PreparedStatement ps) throws SQLException;
+
 }

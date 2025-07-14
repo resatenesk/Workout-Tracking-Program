@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.Business.Workout;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +12,8 @@ import java.util.Optional;
 import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
+import antrenmantakipcom.Main;
+import antrenmantakipcom.MainScreen;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

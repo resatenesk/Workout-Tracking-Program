@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Abstract.IEntity;
+import antrenmantakipcom.Entities.Concrete.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -23,12 +24,16 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
     }
 
     @Override
-    public ObservableList<TEntity> GetAll(String sorgu) {
+    public ObservableList<TEntity> GetAll(String sorgu, Object... params) {
         ObservableList<TEntity> list = FXCollections.observableArrayList();
         try (Connection con = Database.connect()) {
             PreparedStatement ps = con.prepareStatement(sorgu);
-            ResultSet rs = ps.executeQuery();
 
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
                     TEntity entity = clazz.getDeclaredConstructor().newInstance();
@@ -46,30 +51,15 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
     }
 
     @Override
-    public void Add(TEntity entity) {
+    public int Add(TEntity entity) {
+        int result = 0;
         try (Connection con = Database.connect()) {
             PreparedStatement ps = con.prepareStatement(entity.getInsertQuery());
             entity.fillInsertParameters(ps);
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("TRANSACTION SUCCESSFUL");
-                alert.setHeaderText(null);
-                alert.setContentText("User added succesfully");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("TRANSACTION FAILED");
-                alert.setHeaderText(null);
-                alert.setContentText("User could not added");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-            }
+            result = ps.executeUpdate();
         } catch (SQLException ex) {
         }
+        return result;
 
     }
 
@@ -129,4 +119,23 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
             e.printStackTrace();
         }
     }
+
+    @Override
+    public int SelectUserID(TEntity entity) {
+        int user_id = 0;
+        try (Connection con = Database.connect()) {
+            PreparedStatement ps = con.prepareStatement(entity.getSelectIDQuery());
+            entity.fillSelectIDParameters(ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = (User) entity.fromResultSet(rs);
+                user_id = user.getUserId();
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return user_id;
+    }
+
 }

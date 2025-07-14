@@ -8,6 +8,7 @@ import antrenmantakipcom.Entities.Abstract.IEntity;
 
 public class Food implements IEntity {
     private int food_id;
+    private int user_id;
     private String foodName;
     private float calorie;
     private float fat;
@@ -16,7 +17,13 @@ public class Food implements IEntity {
 
     public Food(String foodName2, float calorie2, float fat2, float carb2, float prot2) {
 
+        this.foodName = foodName2;
+        this.calorie = calorie2;
+        this.fat = fat2;
+        this.carb = carb2;
+        this.prot = prot2;
     }
+    public Food(){}
 
     @Override
     public String toString() {
@@ -72,11 +79,18 @@ public class Food implements IEntity {
         this.prot = prot;
     }
 
+    private void setUserID(int user_id) {
+        this.user_id = user_id;
+    }
+
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-        Food food = new Food(rs.getString("food_name"), rs.getFloat("calorie"), rs.getFloat("fat"), rs.getFloat("carb"),
-                rs.getFloat("prot"));
-        return food;
+        this.foodName = rs.getString("food_name");
+        this.calorie = rs.getFloat("calorie");
+        this.fat = rs.getFloat("fat");
+        this.carb = rs.getFloat("carb");
+        this.prot = rs.getFloat("prot");
+        return this;
     }
 
     @Override
@@ -116,6 +130,16 @@ public class Food implements IEntity {
     @Override
     public void fillDeleteParameters(PreparedStatement ps) throws SQLException {
         ps.setInt(1, food_id);
+    }
+
+    @Override
+    public String getSelectIDQuery() {
+        return "SELECT id FROM saved_special_foods WHERE user_id = ?";
+    }
+
+    @Override
+    public void fillSelectIDParameters(PreparedStatement ps) throws SQLException {
+        ps.setInt(1, user_id);
     }
 
 }

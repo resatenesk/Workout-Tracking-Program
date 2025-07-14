@@ -1,5 +1,12 @@
 package antrenmantakipcom;
 
+import antrenmantakipcom.Business.Authorization.UserLoginFrame;
+import antrenmantakipcom.Business.FoodMeal.CreateSpecialMealCreateSpecialFood;
+import antrenmantakipcom.Business.FoodMeal.DailyMacroAndFoodValuesScreen;
+import antrenmantakipcom.Business.FoodMeal.ShowFoodGraphs;
+import antrenmantakipcom.Business.Workout.AddWorkoutScreen;
+import antrenmantakipcom.Business.Workout.ShowWorkoutGraphsScreen;
+import antrenmantakipcom.Business.Workout.WorkoutStyleAndDaySelectionScreen;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

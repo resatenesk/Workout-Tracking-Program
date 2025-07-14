@@ -38,13 +38,21 @@ public class User implements IEntity {
     public String getPassword() {
         return password;
     }
-
     @Override
-    public IEntity fromResultSet(ResultSet rs) throws SQLException {
+    public IEntity fromResultSet(ResultSet rs) {
         User user = new User();
-        user.setUserId(rs.getInt("user_id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password"));
+        try {
+            user.setUserId(rs.getInt("user_id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            user.setUsername(rs.getString("username"));
+        } catch (SQLException e) {
+            // username yoksa önemli değil, sadece ID alıyoruz
+        }
+
         return user;
     }
 
@@ -55,8 +63,8 @@ public class User implements IEntity {
 
     @Override
     public String getUpdateQuery() {
-        
-        return "UPDATE users SET username = ?,password = ? WHERE id=?";
+
+        return "UPDATE users SET username = ?,password = ? WHERE user_id=?";
     }
 
     @Override
@@ -65,9 +73,14 @@ public class User implements IEntity {
     }
 
     @Override
+    public String getSelectIDQuery() {
+        return "SELECT user_id FROM users WHERE username = ?";
+    }
+
+    @Override
     public void fillInsertParameters(PreparedStatement ps) throws SQLException {
-       ps.setString(1, username);
-       ps.setString(2, password);
+        ps.setString(1, username);
+        ps.setString(2, password);
     }
 
     @Override
@@ -81,4 +94,10 @@ public class User implements IEntity {
     public void fillDeleteParameters(PreparedStatement ps) throws SQLException {
         ps.setInt(1, user_id);
     }
+
+    @Override
+    public void fillSelectIDParameters(PreparedStatement ps) throws SQLException {
+        ps.setString(1, username);
+    }
+
 }

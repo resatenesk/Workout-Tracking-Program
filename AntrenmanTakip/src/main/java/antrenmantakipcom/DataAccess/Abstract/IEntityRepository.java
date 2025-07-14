@@ -2,12 +2,16 @@ package antrenmantakipcom.DataAccess.Abstract;
 
 import javafx.collections.ObservableList;
 
-public interface IEntityRepository<T> {
-    ObservableList<T> GetAll(String sorgu);
+public interface IEntityRepository<TEntity> {
 
-    void Add(T entity);
+    ObservableList<TEntity> GetAll(String sorgu,Object... params);
 
-    void Delete(T entity);
+    int Add(TEntity entity);
 
-    void Update(T entity);
+    void Delete(TEntity entity);
+
+    void Update(TEntity entity);
+
+    int SelectUserID(TEntity entity);
+
 }

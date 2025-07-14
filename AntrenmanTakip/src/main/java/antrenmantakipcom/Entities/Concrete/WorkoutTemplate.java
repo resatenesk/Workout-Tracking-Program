@@ -100,4 +100,18 @@ public class WorkoutTemplate implements IEntity {
         throw new UnsupportedOperationException("Unimplemented method 'fillDeleteParameters'");
     }
 
+    @Override
+    public String getSelectIDQuery() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSelectIDQuery'");
+    }
+
+    @Override
+    public void fillSelectIDParameters(PreparedStatement ps) throws SQLException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'fillSelectIDParameters'");
+    }
+
+ 
+
 }

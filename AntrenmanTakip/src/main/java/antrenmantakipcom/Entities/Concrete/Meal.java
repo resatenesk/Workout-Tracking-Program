@@ -8,13 +8,15 @@ import antrenmantakipcom.Entities.Abstract.IEntity;
 
 public class Meal implements IEntity {
     private int meal_id;
+    private int user_id;
     private String meal_name;
     private float total_cal;
     private float total_fat;
     private float total_carb;
     private float total_prot;
 
-    public Meal(String meal_name2, float totalCal, float totalFat, float totalCarb, float totalProt) {
+    public Meal(String meal_name2,int user_id, float totalCal, float totalFat, float totalCarb, float totalProt) {
+        this.user_id = user_id;
         this.meal_name = meal_name2;
         this.total_cal = totalCal;
         this.total_fat = totalFat;
@@ -72,7 +74,7 @@ public class Meal implements IEntity {
 
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-        Meal meal = new Meal(rs.getString("meal_name"), rs.getFloat("total_cal"), rs.getFloat("total_fat"),
+        Meal meal = new Meal(rs.getString("meal_name"),rs.getInt(user_id), rs.getFloat("total_cal"), rs.getFloat("total_fat"),
                 rs.getFloat("total_carb"), rs.getFloat("total_prot"));
 
         return meal;
@@ -81,7 +83,7 @@ public class Meal implements IEntity {
 
     @Override
     public String getInsertQuery() {
-        return "INSERT INTO saved_meals (meal_name,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?)";
+        return "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?)";
     }
 
     @Override
@@ -117,5 +119,19 @@ public class Meal implements IEntity {
     public void fillDeleteParameters(PreparedStatement ps) throws SQLException {
         ps.setInt(1, meal_id);
     }
+
+    @Override
+    public String getSelectIDQuery() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSelectIDQuery'");
+    }
+
+    @Override
+    public void fillSelectIDParameters(PreparedStatement ps) throws SQLException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'fillSelectIDParameters'");
+    }
+
+
 
 }

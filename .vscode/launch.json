@@ -1,69 +1,76 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-        "type": "java",
-        "name": "GrafikOrnek",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.GrafikOrnek",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "AntrenmanTurVeGunBelirlemeEkrani",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.AntrenmanTurVeGunBelirlemeEkrani",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "AnaKontrolEkrani",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.AnaKontrolEkrani",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "KullaniciEklemeEkrani",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.KullaniciEklemeEkrani",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "TestAntrenmanEkleme",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.TestAntrenmanEkleme",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "AntrenmanEkleme",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.AntrenmanEkleme",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "AnaEkran",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.AnaEkran",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "Main",
-        "request": "launch",
-        "mainClass": "antrenmantakipcom.Main",
-        "projectName": "AntrenmanTakip"
-    },
-    {
-        "type": "java",
-        "name": "Launch Main",
-        "request": "launch",
-        "mainClass": "com.example.Main",
-        "vmArgs": "--module-path C:/Users/kurtu/OneDrive/Belgeler/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
-    }
-]
-
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "GrafikOrnek",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.GrafikOrnek",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "AntrenmanTurVeGunBelirlemeEkrani",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.AntrenmanTurVeGunBelirlemeEkrani",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "AnaKontrolEkrani",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.AnaKontrolEkrani",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "KullaniciEklemeEkrani",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.KullaniciEklemeEkrani",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "TestAntrenmanEkleme",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.TestAntrenmanEkleme",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "AntrenmanEkleme",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.AntrenmanEkleme",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "AnaEkran",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.AnaEkran",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "antrenmantakipcom.Main",
+            "projectName": "AntrenmanTakip",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        },
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "com.example.Main",
+            "vmArgs": "--module-path C:/Users/kurtu/Documents/JavaVSCODE/JavaFX/javafx-sdk-17.0.15/lib --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
 }

@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.Business.Workout;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +14,8 @@ import org.controlsfx.control.CheckComboBox;
 
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
+import antrenmantakipcom.Main;
+import antrenmantakipcom.MainScreen;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.collections.FXCollections;

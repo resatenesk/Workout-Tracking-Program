@@ -1,4 +1,4 @@
-package antrenmantakipcom;
+package antrenmantakipcom.Business.FoodMeal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Main;
+import antrenmantakipcom.MainScreen;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
