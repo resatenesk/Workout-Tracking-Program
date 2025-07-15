@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
@@ -27,8 +28,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -97,6 +96,7 @@ public class CreateSpecialMealCreateSpecialFood {
 
     public CreateSpecialMealCreateSpecialFood(String username) {
         this.username = username;
+        pane = new BorderPane();
         foodBase = new IEntityRepositoryBase<>(Food.class);
         userBase = new IEntityRepositoryBase<>(User.class);
         mealBase = new IEntityRepositoryBase<>(Meal.class);
@@ -104,21 +104,17 @@ public class CreateSpecialMealCreateSpecialFood {
         user.setUsername(username);
         user_id = userBase.SelectUserID(user);
 
-        pane = new BorderPane();
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-        exitButton = new Button("Exit", imageViewC);
-        exitButton.setId("cikis_butonlari");
+       
+
+
+        exitButton = CreateButton.createExitButton();
         exitButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
         });
-        close_meal_listButton = new Button("Close");
-        close_meal_listButton.setId("cikis_butonlari");
+        close_meal_listButton = CreateButton.createCloseButton();
         close_meal_listButton.setOnAction(e -> {
             if (mealPanelAcikMi) {
                 TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
@@ -173,7 +169,7 @@ public class CreateSpecialMealCreateSpecialFood {
         translatedListPanelMeal.setTranslateX(1200);
         translatedListPanelMeal.setVisible(false);
 
-        addPrivateFoodBoxDeleteButton = new Button("Delete");
+        addPrivateFoodBoxDeleteButton = CreateButton.createDeleteButton();
         addPrivateFoodBoxDeleteButton.setOnAction(e -> {
             Food food = table.getSelectionModel().getSelectedItem();
 
@@ -206,7 +202,7 @@ public class CreateSpecialMealCreateSpecialFood {
             }
 
         });
-        addPrivateMealBoxDeleteButton = new Button("Delete");
+        addPrivateMealBoxDeleteButton = CreateButton.createDeleteButton();
         addPrivateMealBoxDeleteButton.setOnAction(e -> {
             Meal meal = meal_table.getSelectionModel().getSelectedItem();
             int selected_index = meal_table.getSelectionModel().getSelectedIndex();
@@ -268,7 +264,7 @@ public class CreateSpecialMealCreateSpecialFood {
         foodComboBox.setPrefSize(400, 50);
         foodComboBox.setMaxSize(400, 50);
 
-        addPrivateMealBoxSaveButton = new Button("Add");
+        addPrivateMealBoxSaveButton = CreateButton.createSaveButton();
         addPrivateMealBoxSaveButton.setOnAction(e -> {
             saveMeal();
         });
@@ -336,7 +332,7 @@ public class CreateSpecialMealCreateSpecialFood {
         addPrivateBoxTextFieldBox.getChildren().addAll(foodNameField, foodCalorieField, foodFatField, foodCarbField,
                 foodProtField, gramsField);
 
-        addPrivateFoodBoxSaveButton = new Button("Save");
+        addPrivateFoodBoxSaveButton =CreateButton.createSaveButton();
         addPrivateFoodBoxSaveButton.setOnAction(e -> {
             saveSpecialFood();
             foodNameField.setText("");
@@ -451,7 +447,7 @@ public class CreateSpecialMealCreateSpecialFood {
             transition.play();
         });
 
-        Button closeButton = new Button("Close");
+        Button closeButton = CreateButton.createExitButton();
         closeButton.setId("cikis_butonlari");
         closeButton.setOnAction(e -> {
             if (foodPanelAcikMi) {
