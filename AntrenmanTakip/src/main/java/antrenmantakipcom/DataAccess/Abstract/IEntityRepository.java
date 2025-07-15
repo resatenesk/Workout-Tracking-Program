@@ -8,7 +8,7 @@ public interface IEntityRepository<TEntity> {
 
     int Add(TEntity entity);
 
-    void Delete(TEntity entity);
+    int Delete(TEntity entity,Object... params);
 
     void Update(TEntity entity);
 

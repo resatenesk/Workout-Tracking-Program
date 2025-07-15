@@ -16,14 +16,16 @@ public class Food implements IEntity {
     private float prot;
 
     public Food(String foodName2, float calorie2, float fat2, float carb2, float prot2) {
-
+        //this.food_id = food_id;
         this.foodName = foodName2;
         this.calorie = calorie2;
         this.fat = fat2;
         this.carb = carb2;
         this.prot = prot2;
     }
-    public Food(){}
+
+    public Food() {
+    }
 
     @Override
     public String toString() {
@@ -79,12 +81,9 @@ public class Food implements IEntity {
         this.prot = prot;
     }
 
-    private void setUserID(int user_id) {
-        this.user_id = user_id;
-    }
-
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
+        this.food_id = rs.getInt("id");
         this.foodName = rs.getString("food_name");
         this.calorie = rs.getFloat("calorie");
         this.fat = rs.getFloat("fat");
@@ -100,12 +99,12 @@ public class Food implements IEntity {
 
     @Override
     public String getUpdateQuery() {
-        return "UPDATE saved_special_foods SET food_name=? ,calorie=?,fat=?,carb=?,prot=? WHERE food_id =?";
+        return "UPDATE saved_special_foods SET food_name=? ,calorie=?,fat=?,carb=?,prot=? WHERE id =?";
     }
 
     @Override
     public String getDeleteQuery() {
-        return "DELETE FROM saved_special_foods WHERE food_id =?";
+        return "DELETE FROM saved_special_foods WHERE id =?";
     }
 
     @Override

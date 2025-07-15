@@ -64,30 +64,19 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
     }
 
     @Override
-    public void Delete(TEntity entity) {
+    public int Delete(TEntity entity,Object... params) {
+        int result = 0;
         try (Connection con = Database.connect()) {
             PreparedStatement ps = con.prepareStatement(entity.getDeleteQuery());
-            entity.fillUpdateParameters(ps);
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Başarılı!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler başarıyla silindi.");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Başarısız!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler silinemedi");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+
+             for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
             }
+            result = ps.executeUpdate();
+
         } catch (SQLException ex) {
         }
+        return result;
     }
 
     @Override

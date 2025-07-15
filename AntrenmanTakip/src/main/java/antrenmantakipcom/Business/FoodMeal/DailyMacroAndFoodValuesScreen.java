@@ -500,7 +500,7 @@ public class DailyMacroAndFoodValuesScreen {
                 float totalFat = rs2.getFloat("total_fat");
                 float totalCarb = rs2.getFloat("total_carb");
                 float totalProt = rs2.getFloat("total_prot");
-                Meal meal = new Meal(meal_name, user_id, totalCal, totalFat, totalCarb, totalProt);
+                Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
                 meal_list.add(meal);
 
             }

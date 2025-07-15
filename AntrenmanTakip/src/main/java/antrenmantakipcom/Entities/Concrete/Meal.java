@@ -15,8 +15,7 @@ public class Meal implements IEntity {
     private float total_carb;
     private float total_prot;
 
-    public Meal(String meal_name2,int user_id, float totalCal, float totalFat, float totalCarb, float totalProt) {
-        this.user_id = user_id;
+    public Meal(String meal_name2, float totalCal, float totalFat, float totalCarb, float totalProt) {
         this.meal_name = meal_name2;
         this.total_cal = totalCal;
         this.total_fat = totalFat;
@@ -24,8 +23,11 @@ public class Meal implements IEntity {
         this.total_prot = totalProt;
     }
 
-    private int getMealID() {
-        return meal_id;
+    public Meal() {
+    }
+
+    public int getMealID() {
+        return this.meal_id;
     }
 
     public String getMealName() {
@@ -46,10 +48,6 @@ public class Meal implements IEntity {
 
     public float getTotalProt() {
         return total_prot;
-    }
-
-    public void setMealID(int id) {
-        this.meal_id = id;
     }
 
     public void setMealName(String mealname) {
@@ -74,10 +72,13 @@ public class Meal implements IEntity {
 
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-        Meal meal = new Meal(rs.getString("meal_name"),rs.getInt(user_id), rs.getFloat("total_cal"), rs.getFloat("total_fat"),
-                rs.getFloat("total_carb"), rs.getFloat("total_prot"));
-
-        return meal;
+        this.meal_id = rs.getInt("id");
+        this.meal_name = rs.getString("meal_name");
+        this.total_cal = rs.getFloat("total_cal");
+        this.total_fat = rs.getFloat("total_fat");
+        this.total_carb = rs.getFloat("total_carb");
+        this.total_prot = rs.getFloat("total_prot");
+        return this;
 
     }
 
@@ -131,7 +132,5 @@ public class Meal implements IEntity {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'fillSelectIDParameters'");
     }
-
-
 
 }
