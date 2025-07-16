@@ -15,7 +15,8 @@ public class Meal implements IEntity {
     private float total_carb;
     private float total_prot;
 
-    public Meal(String meal_name2, float totalCal, float totalFat, float totalCarb, float totalProt) {
+    public Meal(int user_id, String meal_name2, float totalCal, float totalFat, float totalCarb, float totalProt) {
+        this.user_id = user_id;
         this.meal_name = meal_name2;
         this.total_cal = totalCal;
         this.total_fat = totalFat;
@@ -24,6 +25,14 @@ public class Meal implements IEntity {
     }
 
     public Meal() {
+    }
+
+    public int getUserID() {
+        return user_id;
+    }
+
+    public void setUserID(int id) {
+        this.user_id = id;
     }
 
     public int getMealID() {
@@ -71,8 +80,22 @@ public class Meal implements IEntity {
     }
 
     @Override
+    public String toString() {
+        return "{" +
+                " meal_id='" + getMealID() + "'" +
+                ", user_id='" + getUserID() + "'" +
+                ", meal_name='" + getMealName() + "'" +
+                ", total_cal='" + getTotalCal() + "'" +
+                ", total_fat='" + getTotalFat() + "'" +
+                ", total_carb='" + getTotalCarb() + "'" +
+                ", total_prot='" + getTotalProt() + "'" +
+                "}";
+    }
+
+    @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
         this.meal_id = rs.getInt("id");
+        this.user_id = rs.getInt("user_id");
         this.meal_name = rs.getString("meal_name");
         this.total_cal = rs.getFloat("total_cal");
         this.total_fat = rs.getFloat("total_fat");
@@ -84,7 +107,7 @@ public class Meal implements IEntity {
 
     @Override
     public String getInsertQuery() {
-        return "INSERT INTO saved_meals (meal_name,user_id,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?)";
+        return "INSERT INTO saved_meals (user_id,meal_name,total_cal,total_fat,total_carb,total_prot) VALUES (?,?,?,?,?,?)";
     }
 
     @Override
@@ -99,11 +122,13 @@ public class Meal implements IEntity {
 
     @Override
     public void fillInsertParameters(PreparedStatement ps) throws SQLException {
-        ps.setString(1, meal_name);
-        ps.setFloat(2, total_cal);
-        ps.setFloat(3, total_fat);
-        ps.setFloat(4, total_carb);
-        ps.setFloat(5, total_prot);
+        ps.setInt(1, user_id);
+        ps.setString(2, meal_name);
+        ps.setFloat(3, total_cal);
+        ps.setFloat(4, total_fat);
+        ps.setFloat(5, total_carb);
+        ps.setFloat(6, total_prot);
+
     }
 
     @Override

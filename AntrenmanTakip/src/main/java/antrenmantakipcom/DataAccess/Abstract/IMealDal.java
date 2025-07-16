@@ -1,5 +1,7 @@
 package antrenmantakipcom.DataAccess.Abstract;
 
-public interface  IMealDal extends IEntityRepository{
+import antrenmantakipcom.Entities.Concrete.Meal;
+
+public interface  IMealDal extends IEntityRepository<Meal>{
     
 }

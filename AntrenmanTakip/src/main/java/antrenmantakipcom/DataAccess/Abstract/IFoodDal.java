@@ -1,5 +1,7 @@
 package antrenmantakipcom.DataAccess.Abstract;
 
-public interface  IFoodDal extends IEntityRepository {
+import antrenmantakipcom.Entities.Concrete.Food;
+
+public interface  IFoodDal extends IEntityRepository<Food> {
     
 }

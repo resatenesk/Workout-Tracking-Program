@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
 import antrenmantakipcom.Entities.Concrete.Food;
@@ -18,11 +19,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -107,13 +105,11 @@ public class CreateSpecialMealCreateSpecialFood {
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
 
-       
-
-
         exitButton = CreateButton.createExitButton();
         exitButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
         });
+        
         close_meal_listButton = CreateButton.createCloseButton();
         close_meal_listButton.setOnAction(e -> {
             if (mealPanelAcikMi) {
@@ -123,6 +119,115 @@ public class CreateSpecialMealCreateSpecialFood {
                 transition.play();
                 mealPanelAcikMi = false;
             }
+        });
+        
+        addPrivateFoodBoxSaveButton = CreateButton.createSaveButton();
+        addPrivateFoodBoxSaveButton.setOnAction(e -> {
+            saveSpecialFood();
+            foodNameField.setText("");
+            foodCalorieField.setText("");
+            foodFatField.setText("");
+            foodCarbField.setText("");
+            foodProtField.setText("");
+            gramsField.setText("");
+        });
+        
+        addPrivateFoodBoxDeleteButton = CreateButton.createDeleteButton();
+        addPrivateFoodBoxDeleteButton.setOnAction(e -> {
+            Food food = table.getSelectionModel().getSelectedItem();
+
+            int selectedIndex = table.getSelectionModel().getSelectedIndex();
+            if (selectedIndex >= 0) {
+                int result = foodBase.Delete(food, food.getFoodID());
+                if (result > 0) {
+                    AlertFunction.ShowDeletedAlert();
+                    food_list.remove(food);
+                    table.getSelectionModel().clearSelection();
+                } else {
+                    AlertFunction.NoConnectionWithDatabaseAlert();
+                }
+            } else {
+                AlertFunction.NoElementsSelectedAlert();
+            }
+
+        });
+        
+        addPrivateMealBoxDeleteButton = CreateButton.createDeleteButton();
+        addPrivateMealBoxDeleteButton.setOnAction(e -> {
+
+            int selected_index = meal_table.getSelectionModel().getSelectedIndex();
+
+            if (selected_index >= 0) {
+                Meal meal = meal_table.getSelectionModel().getSelectedItem();
+                int meal_id = meal.getMealID();
+                int sonuc = mealBase.Delete(meal, meal_id);
+                if (sonuc > 0) {
+                    AlertFunction.ShowDeletedAlert();
+                    Meal selectedMeal = meal_table.getSelectionModel().getSelectedItem();
+                    if (selectedMeal != null) {
+                        meal_list.remove(selectedMeal);
+                        table.getSelectionModel().clearSelection();
+                    }
+                } else {
+                    AlertFunction.NoConnectionWithDatabaseAlert();
+                }
+            } else {
+                AlertFunction.NoElementsSelectedAlert();
+            }
+
+        });
+        
+        addPrivateMealBoxSaveButton = CreateButton.createSaveButton();
+        addPrivateMealBoxSaveButton.setOnAction(e -> {
+            saveMeal();
+        });
+        
+        showMealList = new Button("Show Meal List");
+        showMealList.setOnAction(e -> {
+            showMealList();
+            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
+
+            if (mealPanelAcikMi) {
+                transition.setToX(1200);
+                transition.setOnFinished(event -> translatedListPanelMeal.setVisible(false));
+                mealPanelAcikMi = false;
+            } else {
+                translatedListPanelMeal.setVisible(true);
+                transition.setToX(100);
+                mealPanelAcikMi = true;
+            }
+
+            transition.play();
+        });
+
+        Button closeButton = CreateButton.createCloseButton();
+        closeButton.setOnAction(e -> {
+            if (foodPanelAcikMi) {
+                TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
+                transition.setToX(-500);
+                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
+                transition.play();
+                foodPanelAcikMi = false;
+            }
+        });
+        
+        showFoodList = new Button("Show Food List");
+        showFoodList.setOnAction(e -> {
+            verileriCek();
+
+            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
+
+            if (foodPanelAcikMi) {
+                transition.setToX(-500);
+                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
+                foodPanelAcikMi = false;
+            } else {
+                translatedListPanel.setVisible(true);
+                transition.setToX(0);
+                foodPanelAcikMi = true;
+            }
+
+            transition.play();
         });
 
         translatedListPanel = new VBox(10);
@@ -169,76 +274,6 @@ public class CreateSpecialMealCreateSpecialFood {
         translatedListPanelMeal.setTranslateX(1200);
         translatedListPanelMeal.setVisible(false);
 
-        addPrivateFoodBoxDeleteButton = CreateButton.createDeleteButton();
-        addPrivateFoodBoxDeleteButton.setOnAction(e -> {
-            Food food = table.getSelectionModel().getSelectedItem();
-
-            int selectedIndex = table.getSelectionModel().getSelectedIndex();
-            if (selectedIndex >= 0) {
-                int result = foodBase.Delete(food, food.getFoodID());
-                if (result > 0) {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("DELETED");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Food has deleted succesfully");
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets()
-                            .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                    alert.showAndWait();
-                    food_list.remove(food);
-                    table.getSelectionModel().clearSelection();
-                } else {
-                    System.out.println("olmadı reis");
-                }
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("NOT SELECTED");
-                alert.setHeaderText(null);
-                alert.setContentText("Please select a food correctly");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets()
-                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-            }
-
-        });
-        addPrivateMealBoxDeleteButton = CreateButton.createDeleteButton();
-        addPrivateMealBoxDeleteButton.setOnAction(e -> {
-            Meal meal = meal_table.getSelectionModel().getSelectedItem();
-            int selected_index = meal_table.getSelectionModel().getSelectedIndex();
-            int meal_id = meal.getMealID();
-            if (selected_index >= 0) {
-                int sonuc = mealBase.Delete(meal, meal_id);
-                if (sonuc > 0) {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("DELETED");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Meal has deleted succesfully");
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets()
-                            .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                    alert.showAndWait();
-                    Meal selectedMeal = meal_table.getSelectionModel().getSelectedItem();
-                    if (selectedMeal != null) {
-                        meal_list.remove(selectedMeal);
-                        table.getSelectionModel().clearSelection();
-                    }
-                } else {
-                    System.out.println("olmadı reis");
-                }
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("NOT SELECTED");
-                alert.setHeaderText(null);
-                alert.setContentText("Please select a meal correctly");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets()
-                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-            }
-
-        });
-
         addPrivateMealBox = new VBox(10);
         addPrivateMealBox.setPadding(new Insets(150, 150, 0, 0));
         addPrivateBoxLabelBox = new VBox(30);
@@ -263,12 +298,6 @@ public class CreateSpecialMealCreateSpecialFood {
         foodComboBox = new CheckComboBox<>();
         foodComboBox.setPrefSize(400, 50);
         foodComboBox.setMaxSize(400, 50);
-
-        addPrivateMealBoxSaveButton = CreateButton.createSaveButton();
-        addPrivateMealBoxSaveButton.setOnAction(e -> {
-            saveMeal();
-        });
-        showMealList = new Button("Show Meal List");
 
         selectedFoodBoxesContainer.setMaxSize(40, 40);
         selectedFoodBoxesContainer.setPrefSize(40, 40);
@@ -332,15 +361,6 @@ public class CreateSpecialMealCreateSpecialFood {
         addPrivateBoxTextFieldBox.getChildren().addAll(foodNameField, foodCalorieField, foodFatField, foodCarbField,
                 foodProtField, gramsField);
 
-        addPrivateFoodBoxSaveButton =CreateButton.createSaveButton();
-        addPrivateFoodBoxSaveButton.setOnAction(e -> {
-            saveSpecialFood();
-            foodNameField.setText("");
-            foodCalorieField.setText("");
-            foodFatField.setText("");
-            foodCarbField.setText("");
-            foodProtField.setText("");
-        });
         table = new TableView<>();
         table.setPrefHeight(600);
         table.setPrefWidth(600);
@@ -390,8 +410,8 @@ public class CreateSpecialMealCreateSpecialFood {
         meal_table.setId("Meal List");
 
         TableColumn<Meal, Integer> MealIDColumn = new TableColumn<>("ID");
-        foodIdCol.setCellValueFactory(new PropertyValueFactory<>("mealID"));
-        foodIdCol.setVisible(false);
+        MealIDColumn.setCellValueFactory(new PropertyValueFactory<>("mealID"));
+        MealIDColumn.setVisible(false);
 
         TableColumn<Meal, String> meal_name_clmn = new TableColumn<>("meal_name");
         meal_name_clmn.setCellValueFactory(new PropertyValueFactory<>("mealName"));
@@ -428,56 +448,9 @@ public class CreateSpecialMealCreateSpecialFood {
                 meal_total_prot_clmn);
 
         meal_table.setItems(meal_list);
-
         translatedListPanelMeal.getChildren().addAll(meal_table, close_meal_listButton, addPrivateMealBoxDeleteButton);
-        showMealList.setOnAction(e -> {
-            showMealList();
-            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
-
-            if (mealPanelAcikMi) {
-                transition.setToX(1200);
-                transition.setOnFinished(event -> translatedListPanelMeal.setVisible(false));
-                mealPanelAcikMi = false;
-            } else {
-                translatedListPanelMeal.setVisible(true);
-                transition.setToX(100);
-                mealPanelAcikMi = true;
-            }
-
-            transition.play();
-        });
-
-        Button closeButton = CreateButton.createExitButton();
-        closeButton.setId("cikis_butonlari");
-        closeButton.setOnAction(e -> {
-            if (foodPanelAcikMi) {
-                TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
-                transition.setToX(-500);
-                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
-                transition.play();
-                foodPanelAcikMi = false;
-            }
-        });
 
         translatedListPanel.getChildren().addAll(table, closeButton, addPrivateFoodBoxDeleteButton);
-        showFoodList = new Button("Show Food List");
-        showFoodList.setOnAction(e -> {
-            verileriCek();
-
-            TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
-
-            if (foodPanelAcikMi) {
-                transition.setToX(-500);
-                transition.setOnFinished(event -> translatedListPanel.setVisible(false));
-                foodPanelAcikMi = false;
-            } else {
-                translatedListPanel.setVisible(true);
-                transition.setToX(0);
-                foodPanelAcikMi = true;
-            }
-
-            transition.play();
-        });
 
         addPrivateBoxElementsBox.getChildren().addAll(addPrivateBoxLabelBox, addPrivateBoxTextFieldBox);
 
@@ -521,14 +494,8 @@ public class CreateSpecialMealCreateSpecialFood {
         String grams = gramsField.getText().trim();
 
         if (foodName.isEmpty() || calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty()
-                || protText.isEmpty()) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Veri Eksik!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen tüm alanları doldurunuz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+                || protText.isEmpty() || grams.isEmpty()) {
+            AlertFunction.MissingDataAlert();
             return;
         }
 
@@ -541,34 +508,13 @@ public class CreateSpecialMealCreateSpecialFood {
             Food food = new Food(foodName, calorie, fat, carb, prot);
             int sonuc = foodBase.Add(food);
             if (sonuc > 0) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Başarılı!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler başarıyla kaydedildi.");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-                food_list.add(food);
-                foodComboBox.getItems().setAll(food_list);
-
+                AlertFunction.SuccessAlert();
             } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Başarısız!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler kaydedilemedi");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+                AlertFunction.FailAlert();
             }
 
         } catch (NumberFormatException e) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Hatalı Giriş!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen sayısal alanlara sadece sayı giriniz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+            AlertFunction.NumberFormatExceptionAlert();
         }
 
     }
@@ -582,48 +528,28 @@ public class CreateSpecialMealCreateSpecialFood {
         float totalProt = 0;
 
         ArrayList<Food> secilenFoodList = new ArrayList<>(foodComboBox.getCheckModel().getCheckedItems());
+
         for (Food food : secilenFoodList) {
-            int miktar = 1;
-            if (foodAmountMap.containsKey(food)) {
-                miktar = foodAmountMap.get(food).getValue();
-            }
-
-            float cal = food.getCalorie();
-            float fat = food.getFat();
-            float carb = food.getCarb();
-            float prot = food.getProt();
-
-            totalCal += cal * miktar;
-            totalFat += fat * miktar;
-            totalCarb += carb * miktar;
-            totalProt += prot * miktar;
+            totalCal += food.getCalorie();
+            totalFat += food.getFat();
+            totalCarb += food.getCarb();
+            totalProt += food.getProt();
         }
-        Meal meal = new Meal(meal_name, totalCal, totalFat, totalCarb, totalProt);
-        meal_list.add(meal);
+        Meal meal = new Meal(user_id, meal_name, totalCal, totalFat, totalCarb, totalProt);
+
         if (mealNameField.getText().isEmpty() || foodComboBox.getCheckModel().getCheckedItems().isEmpty()) {
-            Alert hataAlert = new Alert(Alert.AlertType.WARNING);
-            hataAlert.setTitle("EMPTY AREA!");
-            hataAlert.setHeaderText(null);
-            hataAlert.setContentText("Please make sure you writed a name and choosed a food");
-            hataAlert.showAndWait();
+            AlertFunction.MissingDataAlert();
         } else {
             int result = mealBase.Add(meal);
             if (result > 0) {
+                meal_list.add(meal);
                 searchField.setText("");
                 mealNameField.setText("");
                 foodComboBox.getCheckModel().clearChecks();
-                Alert hataAlert = new Alert(Alert.AlertType.INFORMATION);
-                hataAlert.setTitle("Meal is added");
-                hataAlert.setHeaderText(null);
-                hataAlert.setContentText("You can show the list of meals with pressing show button");
-                hataAlert.showAndWait();
+                AlertFunction.SuccessAlert();
 
             } else {
-                Alert hataAlert = new Alert(Alert.AlertType.ERROR);
-                hataAlert.setTitle("Error!");
-                hataAlert.setHeaderText(null);
-                hataAlert.setContentText("The meal could not be added");
-                hataAlert.showAndWait();
+                AlertFunction.FailAlert();
 
             }
 

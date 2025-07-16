@@ -1,5 +1,7 @@
 package antrenmantakipcom.DataAccess.Abstract;
 
-public interface IUserDal extends IEntityRepository {
+import antrenmantakipcom.Entities.Concrete.User;
+
+public interface IUserDal extends IEntityRepository<User> {
     
 }

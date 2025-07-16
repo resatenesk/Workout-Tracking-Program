@@ -1,5 +1,7 @@
 package antrenmantakipcom.DataAccess.Abstract;
 
-public interface  IWorkoutDal extends IEntityRepository{
+import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
+
+public interface  IWorkoutDal extends IEntityRepository<WorkoutTemplate>{
     
 }
