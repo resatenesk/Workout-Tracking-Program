@@ -1,25 +1,19 @@
 package antrenmantakipcom.Business.Authorization;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
-import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.ImageFunction;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
+import antrenmantakipcom.Entities.Concrete.User;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -39,7 +33,8 @@ public class UserLoginFrame {
     static String password;
     static ArrayList<String> Kullanicilar = new ArrayList<>();
     static ImageView infoIcon;
-    static Image infoImage;
+    static ImageView imageLogin;
+    static ImageView addNewUserImageView;
 
     public static StackPane getRoot() {
 
@@ -59,38 +54,35 @@ public class UserLoginFrame {
 
         HBox genellayout = new HBox();
         genellayout.setAlignment(Pos.CENTER);
-        
 
         VBox layout = new VBox(15);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(350, 0, 0, 0));
-       
 
         VBox layout2 = new VBox(15);
         layout2.setAlignment(Pos.CENTER);
         layout2.setPadding(new Insets(350, 0, 0, 0));
-        
 
         VBox Column1 = new VBox(10);
         Column1.setAlignment(Pos.CENTER);
         Column1.getChildren().addAll(nameLabel, passwordLabel);
-        //Column1.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+        // Column1.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox passwordHBox = new HBox(10);
         passwordHBox.setAlignment(Pos.CENTER);
         passwordHBox.getChildren().addAll(passwordField, infoIcon);
-        //passwordHBox.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+        // passwordHBox.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         VBox Column2 = new VBox(10);
         Column2.setAlignment(Pos.CENTER);
         Column2.getChildren().addAll(nameField);
-        //Column2.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+        // Column2.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         HBox buttonsRow = new HBox(10);
         buttonsRow.setAlignment(Pos.CENTER);
         buttonsRow.setPadding(new Insets(0, 0, 400, 0));
         buttonsRow.getChildren().addAll(LoginButton, RegisterButton);
-        //buttonsRow.setStyle("-fx-border-width:2px;-fx-border-color:Red");
+        // buttonsRow.setStyle("-fx-border-width:2px;-fx-border-color:Red");
 
         layout.getChildren().addAll(Column1);
         layout2.getChildren().addAll(Column2, passwordHBox);
@@ -119,31 +111,11 @@ public class UserLoginFrame {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoImage = new Image(UserLoginFrame.class.getResource("/ICONS/info.png").toExternalForm());
-        infoIcon = new ImageView(infoImage);
-        infoIcon.setStyle(
-                "-fx-text-fill: #007acc; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-cursor: hand;");
-        infoIcon.setFitHeight(20);
-        infoIcon.setFitWidth(20);
-        infoIcon.setPreserveRatio(true);
-        infoIcon.setStyle("-fx-cursor: hand;");
-        Tooltip passwordTooltip = new Tooltip(
-                "Parolanız Yanlışsa Kontrol Ediniz:\n" +
-                        "- En az 8 karakter\n" +
-                        "- En az 1 büyük harf\n" +
-                        "- En az 1 rakam\n" +
-                        "- En az 1 özel karakter (@, #, !, vs.)");
-        Tooltip.install(infoIcon, passwordTooltip);
+        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png");
 
-        Image image = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ikon1.png"));
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(20);
-        imageView.setFitHeight(20);
+        imageLogin = ImageFunction.LoadImage("/ICONS/ikon1.png");
 
-        LoginButton = new Button("Giriş Yap", imageView);
+        LoginButton = new Button("Giriş Yap", imageLogin);
         LoginButton.setOnAction(e -> {
             try {
 
@@ -156,12 +128,9 @@ public class UserLoginFrame {
         });
         LoginButton.setMinWidth(120);
 
-        Image image2 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
-        ImageView imageView2 = new ImageView(image2);
-        imageView2.setFitWidth(20);
-        imageView2.setFitHeight(20);
+        addNewUserImageView = ImageFunction.LoadImage("/ICONS/ekle.png");
 
-        RegisterButton = new Button("Yeni Kullanıcı Oluştur", imageView2);
+        RegisterButton = new Button("Yeni Kullanıcı Oluştur", addNewUserImageView);
         RegisterButton.setOnAction(e -> {
 
             try {
@@ -184,47 +153,28 @@ public class UserLoginFrame {
     }
 
     public static void kullaniciKontrol() throws Exception {
-
         username = nameField.getText();
         password = passwordField.getText();
-        if (username.equals("") && password.equals("")) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Bilgi");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen Gerekli Alanları Doldurunuz.");
 
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(UserLoginFrame.class.getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+        if (username.equals("") && password.equals("")) {
+            AlertFunction.MissingDataAlert();
         } else {
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            UserDal userDal = new UserDal(User.class);
+            int user_id = userDal.selectUserID(user);
             String sorgu = "SELECT * FROM users WHERE username=? AND password=?";
 
-            try (Connection con = Database.connect()) {
+            if (user_id > 0) {
+                MainScreen.setUsername(username);
+                Main.setRoot(MainScreen.getRoot());
 
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setString(1, username);
-                ps.setString(2, password);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    MainScreen.setUsername(username);
-                    Main.setRoot(MainScreen.getRoot());
-
-                } else {
-                    Alert alert2 = new Alert(AlertType.INFORMATION);
-                    alert2.setTitle("Bilgi");
-                    alert2.setHeaderText(null);
-                    alert2.setContentText("Kullanıcı Bulunamadı.");
-
-                    DialogPane dialogPane2 = alert2.getDialogPane();
-                    dialogPane2.getStylesheets().add(UserLoginFrame.class.getResource("/static/alertStyle.css").toExternalForm());
-                    alert2.showAndWait();
-                }
-
-            } catch (SQLException e) {
-                System.out.println("Hata var. Database ile bağlanılamadı.");
-                e.printStackTrace();
+            } else {
+                AlertFunction.UserNotFound();
             }
-        }
 
+        }
     }
+
 }

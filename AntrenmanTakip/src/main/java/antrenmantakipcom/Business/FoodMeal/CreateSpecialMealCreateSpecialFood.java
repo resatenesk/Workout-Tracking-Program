@@ -9,6 +9,7 @@ import org.controlsfx.control.CheckComboBox;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
 import antrenmantakipcom.Entities.Concrete.User;
@@ -89,18 +90,18 @@ public class CreateSpecialMealCreateSpecialFood {
     private TextField gramsField;
     int user_id = 0;
     IEntityRepositoryBase<Food> foodBase;
-    IEntityRepositoryBase<User> userBase;
+    UserDal userBase;
     IEntityRepositoryBase<Meal> mealBase;
 
     public CreateSpecialMealCreateSpecialFood(String username) {
         this.username = username;
         pane = new BorderPane();
         foodBase = new IEntityRepositoryBase<>(Food.class);
-        userBase = new IEntityRepositoryBase<>(User.class);
+        userBase = new UserDal(User.class);
         mealBase = new IEntityRepositoryBase<>(Meal.class);
         User user = new User();
         user.setUsername(username);
-        user_id = userBase.SelectUserID(user);
+        user_id = userBase.selectUserID(user);
 
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();

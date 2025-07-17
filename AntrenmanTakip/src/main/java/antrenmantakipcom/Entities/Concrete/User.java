@@ -38,6 +38,7 @@ public class User implements IEntity {
     public String getPassword() {
         return password;
     }
+
     @Override
     public IEntity fromResultSet(ResultSet rs) {
         User user = new User();
@@ -50,10 +51,19 @@ public class User implements IEntity {
         try {
             user.setUsername(rs.getString("username"));
         } catch (SQLException e) {
-            // username yoksa önemli değil, sadece ID alıyoruz
+          
         }
 
         return user;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                " user_id='" + getUserId() + "'" +
+                ", username='" + getUsername() + "'" +
+                ", password='" + getPassword() + "'" +
+                "}";
     }
 
     @Override

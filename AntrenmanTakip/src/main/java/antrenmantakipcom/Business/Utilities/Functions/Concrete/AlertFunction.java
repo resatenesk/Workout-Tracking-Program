@@ -1,5 +1,6 @@
 package antrenmantakipcom.Business.Utilities.Functions.Concrete;
 
+import antrenmantakipcom.Business.Authorization.UserLoginFrame;
 import antrenmantakipcom.Business.Utilities.Functions.Abstract.IFunction;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -20,6 +21,17 @@ public class AlertFunction implements IFunction {
                 .add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
         alert.showAndWait();
 
+    }
+
+    public static void WrongPasswordAlert() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Hata");
+        alert.setHeaderText("Parola Hatası");
+        alert.setContentText("Lütfen Parola Kurallarına Uyunuz.");
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
+        alert.showAndWait();
     }
 
     public static void NoElementsSelectedAlert() {
@@ -55,6 +67,29 @@ public class AlertFunction implements IFunction {
         alert.showAndWait();
     }
 
+    public static void UserAlreadyExist() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("ERROR");
+        alert.setHeaderText(null);
+        alert.setContentText("The user already exist");
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets()
+                .add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
+        alert.showAndWait();
+    }
+
+    public static void UserNotFound() {
+        Alert alert2 = new Alert(AlertType.INFORMATION);
+        alert2.setTitle("User Not Found");
+        alert2.setHeaderText(null);
+        alert2.setContentText("Please make you sure that you wrote the data correctly");
+
+        DialogPane dialogPane2 = alert2.getDialogPane();
+        dialogPane2.getStylesheets()
+                .add(UserLoginFrame.class.getResource("/static/alertStyle.css").toExternalForm());
+        alert2.showAndWait();
+    }
+
     public static void SuccessAlert() {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("SUCCESSFUL");
@@ -75,7 +110,8 @@ public class AlertFunction implements IFunction {
         dialogPane.getStylesheets().add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
         alert.showAndWait();
     }
-     public static void NumberFormatExceptionAlert() {
+
+    public static void NumberFormatExceptionAlert() {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("ERROR");
         alert.setHeaderText(null);

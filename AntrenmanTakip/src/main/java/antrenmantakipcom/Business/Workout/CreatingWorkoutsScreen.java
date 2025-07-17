@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
@@ -71,7 +72,8 @@ public class CreatingWorkoutsScreen {
     private static Button tablodanSilButton;
     ObservableList<WorkoutTemplate> liste;
 
-    public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
+    public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi,
+            int gun_sayisi) {
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
         this.username = username;
@@ -107,7 +109,7 @@ public class CreatingWorkoutsScreen {
         ImageView imageViewC = new ImageView(imageC);
         imageViewC.setFitWidth(20);
         imageViewC.setFitHeight(20);
-       
+
         label1 = new Label(username.substring(0, 1).toUpperCase() + username.substring(1, username.length())
                 + " adlı kişinin eklediği antrenman şablonları:");
         label1.setStyle("-fx-font-size:15px;-fx-alignment:center;-fx-font-style:italic");
@@ -127,6 +129,18 @@ public class CreatingWorkoutsScreen {
             this.gun_sayisi = secilenVeri.getGunSayisi();
             if (secilenVeri != null) {
                 int gunSayisi = secilenVeri.getGunSayisi();
+                /*
+                 * 
+                 * 
+                 * 
+                 * 
+                 * Buraya özel bir sorgu/metod yaz. Daha önceden bir antrenman şablonuna hareket eklenmişse yanda combobox oluşturmamalı.
+                 * 
+                 * 
+                 * 
+                 * 
+                 * 
+                 */
                 switch (secilenVeri.getAntrenmanTipi()) {
                     case "PPL":
                         checkboxOlustur(gunSayisi);
@@ -214,7 +228,7 @@ public class CreatingWorkoutsScreen {
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
 
-        tablo.setItems(veritabaniVerileriCek(this.username));
+        tablo.setItems(veritabaniVerileriCek());
         Label labelveriyok = new Label("İçeride veri yok :( ");
         labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic");
         tablo.setPlaceholder(labelveriyok);
@@ -614,36 +628,42 @@ public class CreatingWorkoutsScreen {
 
     }
 
-    public ObservableList veritabaniVerileriCek(String username) {
-        liste = FXCollections.observableArrayList();
-
-        int antrenman_id2;
-        int user_id2;
-        String username2;
-        String antrenman_tipi2;
-        int gun_sayisi2;
-
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                antrenman_id2 = rs.getInt("id");
-                user_id2 = rs.getInt("user_id");
-                username2 = rs.getString("username");
-                antrenman_tipi2 = rs.getString("antrenman_tipi");
-                gun_sayisi2 = rs.getInt("gun_sayisi");
-                WorkoutTemplate veri = new WorkoutTemplate(antrenman_id2, user_id2, username2, antrenman_tipi2,
-                        gun_sayisi2);
-                liste.add(veri);
-
-            }
-
-        } catch (SQLException e) {
-
-            e.printStackTrace();
-        }
+    public ObservableList veritabaniVerileriCek() {
+        WorkoutTemplateDal dal = new WorkoutTemplateDal(WorkoutTemplate.class);
+        liste = dal.GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?", username);
         return liste;
+        /*
+         * int antrenman_id2;
+         * int user_id2;
+         * String username2;
+         * String antrenman_tipi2;
+         * int gun_sayisi2;
+         * 
+         * try (Connection con = Database.connect()) {
+         * String sorgu = "SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?";
+         * PreparedStatement ps = con.prepareStatement(sorgu);
+         * ps.setString(1, username);
+         * ResultSet rs = ps.executeQuery();
+         * while (rs.next()) {
+         * antrenman_id2 = rs.getInt("id");
+         * user_id2 = rs.getInt("user_id");
+         * username2 = rs.getString("username");
+         * antrenman_tipi2 = rs.getString("antrenman_tipi");
+         * gun_sayisi2 = rs.getInt("gun_sayisi");
+         * WorkoutTemplate veri = new WorkoutTemplate(antrenman_id2, user_id2,
+         * username2, antrenman_tipi2,
+         * gun_sayisi2);
+         * liste.add(veri);
+         * 
+         * }
+         * 
+         * } catch (SQLException e) {
+         * 
+         * e.printStackTrace();
+         * }
+         * return liste;
+         * }
+         */
+        
     }
 }

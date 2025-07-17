@@ -6,10 +6,6 @@ import javafx.scene.image.ImageView;
 
 public class CreateButton implements IFunction {
 
-   
-    
-    
-
     private CreateButton() {
     }
 
@@ -36,8 +32,8 @@ public class CreateButton implements IFunction {
 
     public static Button createSaveButton() {
         ImageView iconSave = ImageFunction.LoadImage("ICONS/ekle.png");
-        Button button = new Button("Add", iconSave);
-        button.setId("add_butonlari");
+        Button button = new Button("Save", iconSave);
+        button.setId("save_butonlari");
         return button;
     }
 

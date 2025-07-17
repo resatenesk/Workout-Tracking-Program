@@ -8,12 +8,8 @@ import java.sql.SQLException;
 
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Abstract.IEntity;
-import antrenmantakipcom.Entities.Concrete.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.DialogPane;
 
 public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRepository<TEntity> {
 
@@ -78,8 +74,8 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
         }
         return result;
     }
-
-    @Override
+/*
+  @Override
     public void Update(TEntity entity) {
 
         try (Connection con = Database.connect()) {
@@ -108,23 +104,10 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
             e.printStackTrace();
         }
     }
+  
+ */
+   
 
-    @Override
-    public int SelectUserID(TEntity entity) {
-        int user_id = 0;
-        try (Connection con = Database.connect()) {
-            PreparedStatement ps = con.prepareStatement(entity.getSelectIDQuery());
-            entity.fillSelectIDParameters(ps);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                User user = (User) entity.fromResultSet(rs);
-                user_id = user.getUserId();
-            }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return user_id;
-    }
+   
 
 }

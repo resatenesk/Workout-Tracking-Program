@@ -1,18 +1,16 @@
 package antrenmantakipcom.Business.Authorization;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.List;
 
-import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
-import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.ImageFunction;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.Entities.Concrete.User;
 import antrenmantakipcom.Main;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -110,15 +108,12 @@ public class AddNewUserScreen {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoImage = new Image(getClass().getResource("/ICONS/info.png").toExternalForm());
-        infoIcon = new ImageView(infoImage);
+        infoIcon = ImageFunction.LoadImage("/ICONS/info.png");
         infoIcon.setStyle(
                 "-fx-text-fill: #007acc; " +
                         "-fx-font-weight: bold; " +
                         "-fx-font-size: 16px; " +
                         "-fx-cursor: hand;");
-        infoIcon.setFitHeight(20);
-        infoIcon.setFitWidth(20);
         infoIcon.setPreserveRatio(true);
         infoIcon.setStyle("-fx-cursor: hand;");
         Tooltip passwordTooltip = new Tooltip(
@@ -129,12 +124,7 @@ public class AddNewUserScreen {
                         "- En az 1 özel karakter (@, #, !, vs.)");
         Tooltip.install(infoIcon, passwordTooltip);
 
-        Image image = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/go-back-icon.png"));
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(20);
-        imageView.setFitHeight(20);
-
-        GeriDonButton = new Button("Geri Dön", imageView);
+        GeriDonButton = CreateButton.createExitButton();
         GeriDonButton.setOnAction(e -> {
             try {
                 Main.setRoot(UserLoginFrame.getRoot());
@@ -146,12 +136,7 @@ public class AddNewUserScreen {
         });
         GeriDonButton.setMinWidth(120);
 
-        Image image2 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
-        ImageView imageView2 = new ImageView(image2);
-        imageView2.setFitWidth(20);
-        imageView2.setFitHeight(20);
-
-        KullaniciEkle = new Button("Kullanıcı Ekle", imageView2);
+        KullaniciEkle = CreateButton.createSaveButton();
         KullaniciEkle.setOnAction(e -> {
             try {
                 kullaniciEkle();
@@ -166,7 +151,7 @@ public class AddNewUserScreen {
 
         nameLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
         passwordLabel.setStyle("-fx-font-style:italic;-fx-font-size:20px;-fx-text-fill:white");
-       
+
     }
 
     public void kullaniciEkle() {
@@ -175,40 +160,28 @@ public class AddNewUserScreen {
 
         String regex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@#!$%^&*])[A-Za-z\\d@#!$%^&*]{8,}$";
 
-        if (username.equals("") && password.equals("")) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Bilgi");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen Gerekli Alanları Doldurunuz.");
-
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+        if (username.equals("") || password.equals("")) {
+            AlertFunction.MissingDataAlert();
 
         } else {
-            if (password.matches(regex)) {
-                try (Connection con = Database.connect()) {
-                    IEntityRepositoryBase<User> userRepo = new IEntityRepositoryBase<>(User.class);
-                    User user = new User();
-                    user.setUsername(username);
-                    user.setPassword(password);
-                    userRepo.Add(user);
-                    Main.setRoot(UserLoginFrame.getRoot());
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Hata");
-                alert.setHeaderText("Parola Hatası");
-                alert.setContentText("Lütfen Parola Kurallarına Uyunuz.");
-
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+            UserDal userRepo = new UserDal(User.class);
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            List<User> list = userRepo.GetAll("SELECT * FROM users");
+            boolean exists = list.stream().anyMatch(u -> u.getUsername().equals(username));
+            if (exists) {
+                AlertFunction.UserAlreadyExist();
+                return;
             }
-
+            if (!password.matches(regex)) {
+                AlertFunction.WrongPasswordAlert();
+                return;
+            }
+            userRepo.Add(user);
+            Main.setRoot(UserLoginFrame.getRoot());
         }
+
     }
 
 }

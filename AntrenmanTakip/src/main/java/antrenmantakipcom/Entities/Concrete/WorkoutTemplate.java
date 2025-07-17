@@ -13,8 +13,15 @@ public class WorkoutTemplate implements IEntity {
     private String antrenman_tipi;
     private int gun_sayisi;
 
-    public WorkoutTemplate(int antrenman_id2, int user_id2, String username2, String antrenman_tipi2, int gun_sayisi2) {
-        // TODO Auto-generated constructor stub
+    public WorkoutTemplate(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
+        this.antrenman_id = antrenman_id;
+        this.user_id = user_id;
+        this.username = username;
+        this.antrenman_tipi = antrenman_tipi;
+        this.gun_sayisi = gun_sayisi;
+    }
+
+    public WorkoutTemplate() {
     }
 
     public int getAntrenmanID() {
@@ -58,8 +65,19 @@ public class WorkoutTemplate implements IEntity {
     }
 
     @Override
+    public String toString() {
+        return "{" +
+                " antrenman_id='" + getAntrenmanID() + "'" +
+                ", user_id='" + getUserID() + "'" +
+                ", username='" + getUsername() + "'" +
+                ", antrenman_tipi='" + getAntrenmanTipi() + "'" +
+                ", gun_sayisi='" + getGunSayisi() + "'" +
+                "}";
+    }
+
+    @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-        WorkoutTemplate workout = new WorkoutTemplate(rs.getInt("antrenman_id"), rs.getInt("user_id"),
+        WorkoutTemplate workout = new WorkoutTemplate(rs.getInt("id"), rs.getInt("user_id"),
                 rs.getString("username"), rs.getString("antrenman_tipi"), rs.getInt("gun_sayisi"));
         return workout;
 
@@ -111,7 +129,5 @@ public class WorkoutTemplate implements IEntity {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'fillSelectIDParameters'");
     }
-
- 
 
 }

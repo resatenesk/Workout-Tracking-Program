@@ -10,8 +10,7 @@ public interface IEntityRepository<TEntity> {
 
     int Delete(TEntity entity,Object... params);
 
-    void Update(TEntity entity);
+   // void Update(TEntity entity);
 
-    int SelectUserID(TEntity entity);
 
 }
