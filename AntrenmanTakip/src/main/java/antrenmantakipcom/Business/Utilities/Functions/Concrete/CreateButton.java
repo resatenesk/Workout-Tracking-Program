@@ -36,5 +36,11 @@ public class CreateButton implements IFunction {
         button.setId("save_butonlari");
         return button;
     }
+    public static Button confirmButton(){
+        ImageView iconConfirm = ImageFunction.LoadImage("ICONS/confirm.png");
+        Button button = new Button("Confirm",iconConfirm);
+        button.setId("confirm_butonlari");
+        return button;
+    }
 
 }

@@ -64,7 +64,7 @@ public class IEntityRepositoryBase<TEntity extends IEntity> implements IEntityRe
         int result = 0;
         try (Connection con = Database.connect()) {
             PreparedStatement ps = con.prepareStatement(entity.getDeleteQuery());
-
+          
              for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
             }

@@ -12,8 +12,14 @@ import java.util.Optional;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IRecordsDal;
+import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.RecordsDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.Records;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
@@ -23,7 +29,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -31,8 +36,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -71,9 +74,14 @@ public class CreatingWorkoutsScreen {
     private int gun_no;
     private static Button tablodanSilButton;
     ObservableList<WorkoutTemplate> liste;
+    IRecordsDal _recordDal;
+    IWorkoutDal _WorkoutDal;
+    private Button exitButton;
 
     public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi,
             int gun_sayisi) {
+        _recordDal = new RecordsDal(Records.class);
+        _WorkoutDal = new WorkoutTemplateDal(WorkoutTemplate.class);
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
         this.username = username;
@@ -86,29 +94,35 @@ public class CreatingWorkoutsScreen {
 
     public void tablodanVeriSil() {
         int id = tablo.getSelectionModel().getSelectedItem().getAntrenmanID();
-        try (Connection con = Database.connect()) {
-            String sorgu = "DELETE FROM eklenen_antrenman_sablonlari WHERE id= ?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setInt(1, id);
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                WorkoutTemplate veri = tablo.getSelectionModel().getSelectedItem();
-                liste.remove(veri);
+        WorkoutTemplate secilen = tablo.getSelectionModel().getSelectedItem();
+        int result = _WorkoutDal.Delete(secilen, id);
+        if (result > 0) {
+            liste.remove(secilen);
+            if (hareketleriGostermeKutusu != null) {
+                hareketleriGostermeKutusu.getChildren().clear();
             }
-        } catch (SQLException e) {
         }
+
+        /*
+         * try (Connection con = Database.connect()) {
+         * String sorgu = "DELETE FROM eklenen_antrenman_sablonlari WHERE id= ?";
+         * PreparedStatement ps = con.prepareStatement(sorgu);
+         * ps.setInt(1, id);
+         * int result = ps.executeUpdate();
+         */
+
     }
 
     @SuppressWarnings("unchecked")
     public void bilesenler() {
-        tablodanSilButton = new Button("Antrenman şablonunu sil");
+        tablodanSilButton = CreateButton.createDeleteButton();
         tablodanSilButton.setOnAction(e -> {
-            tablodanVeriSil();
+            Optional<ButtonType> result = AlertFunction.ConfirmAlert();
+            if (result.isPresent() && result.get().getText().equals("Evet")) {
+                tablodanVeriSil();
+
+            }
         });
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
 
         label1 = new Label(username.substring(0, 1).toUpperCase() + username.substring(1, username.length())
                 + " adlı kişinin eklediği antrenman şablonları:");
@@ -119,6 +133,24 @@ public class CreatingWorkoutsScreen {
         tablo.setPrefWidth(450);
         tablo.setMaxWidth(450);
         tablo.setId("antrenmanTablo");
+
+        List<Records> recordList = _recordDal
+                .GetAll("SELECT * FROM eklenen_antrenman_programlari WHERE user_id = ?", user_id);
+        for (Records records : recordList) {
+
+            WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
+            if (secilenVeri != null) {
+                if (records.getAntrenman_id() == secilenVeri.getAntrenmanID()) {
+                    AlertFunction.TheWorkoutHasAlreadyModifiedAlert();
+                    if (checkboxRoot != null) {
+                        checkboxRoot.getChildren().clear();
+                    }
+
+                    return;
+                }
+            }
+
+        }
         // tablo.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tablo.setOnMouseClicked(e -> {
             WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
@@ -128,19 +160,20 @@ public class CreatingWorkoutsScreen {
             this.antrenman_tipi = secilenVeri.getAntrenmanTipi();
             this.gun_sayisi = secilenVeri.getGunSayisi();
             if (secilenVeri != null) {
+                for (Records records : recordList) {
+                    if (records.getAntrenman_id() == secilenVeri.getAntrenmanID()) {
+                        AlertFunction.TheWorkoutHasAlreadyModifiedAlert();
+                        ekleButton.setVisible(false);
+                        onaylaButton.setVisible(false);
+                        if (checkboxRoot != null) {
+                            checkboxRoot.getChildren().clear();
+                        }
+
+                        return;
+                    }
+                }
                 int gunSayisi = secilenVeri.getGunSayisi();
-                /*
-                 * 
-                 * 
-                 * 
-                 * 
-                 * Buraya özel bir sorgu/metod yaz. Daha önceden bir antrenman şablonuna hareket eklenmişse yanda combobox oluşturmamalı.
-                 * 
-                 * 
-                 * 
-                 * 
-                 * 
-                 */
+
                 switch (secilenVeri.getAntrenmanTipi()) {
                     case "PPL":
                         checkboxOlustur(gunSayisi);
@@ -166,12 +199,15 @@ public class CreatingWorkoutsScreen {
 
         });
 
-        ekleButton = new Button("Ekle");
-        ekleButton.setId("AntrenmanEkleEkleButton");
-        ekleButton.setPrefWidth(120);
-        ekleButton.setPrefHeight(40);
+        exitButton = CreateButton.createExitButton();
+        exitButton.setOnAction(e -> {
+            Main.setRoot(MainScreen.getRoot());
+        });
+
+        ekleButton = CreateButton.createSaveButton();
         ekleButton.setVisible(false);
         ekleButton.setOnAction(e -> {
+
             secilenHareketleriAktar();
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), checkboxRoot);
             fadeOut.setFromValue(1.0);
@@ -185,10 +221,7 @@ public class CreatingWorkoutsScreen {
 
         });
 
-        onaylaButton = new Button("Onayla");
-        onaylaButton.setId("AntrenmanEkleOnaylaButton");
-        onaylaButton.setPrefWidth(120);
-        onaylaButton.setPrefHeight(40);
+        onaylaButton = CreateButton.confirmButton();
         onaylaButton.setVisible(false);
         onaylaButton.setOnAction(e -> {
             tabloOlustur();
@@ -291,17 +324,24 @@ public class CreatingWorkoutsScreen {
 
         HBox buttonYerlesimi = new HBox(15);
         buttonYerlesimi.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonYerlesimi.getChildren().addAll(tablodanSilButton, ekleButton, onaylaButton);
+        buttonYerlesimi.getChildren().addAll(tablodanSilButton, ekleButton, onaylaButton, exitButton);
 
         // buttonYerlesimi.setStyle("-fx-border-width:2px;-fx-border-color:Blue");
         buttonYerlesimi.setPadding(new Insets(0, 220, 70, 0));
         buttonYerlesimi.setPrefHeight(40);
         buttonYerlesimi.setPrefWidth(120);
         buttonYerlesimi.setMaxHeight(120);
+        /*
+         * Label AntrenmanIDLabel = new Label("For Workout " + antrenman_id);
+         * AntrenmanIDLabel
+         * .setStyle("-fx-text-fill: black; -fx-font-weight: bold;-fx-font-style:italic;-fx-font-size:20px"
+         * );
+         */
 
         HBox sagIcerik = new HBox(20);
         checkboxRoot = new VBox(10);
         labelRoot = new HBox(10);
+        // sagIcerik.getChildren().add(AntrenmanIDLabel);
         sagIcerik.getChildren().add(checkboxRoot);
         sagIcerik.getChildren().add(labelRoot);
         sagIcerik.setAlignment(Pos.BASELINE_RIGHT);
@@ -454,23 +494,15 @@ public class CreatingWorkoutsScreen {
             }
 
             if (bosHareketVar) {
-                Alert hataAlert = new Alert(Alert.AlertType.ERROR);
-                hataAlert.setTitle("Hata");
-                hataAlert.setHeaderText(null);
-                hataAlert.setContentText("Hiçbir antrenman Eklenmedi. Lütfen en az bir hareket seçiniz.");
-                hataAlert.showAndWait();
+                AlertFunction.MissingDataAlert();
                 return;
             }
 
             try (PreparedStatement psInsert = con.prepareStatement(insertSorgu)) {
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Onay");
-                alert.setHeaderText(null);
-                alert.setContentText("Onaylıyor musunuz?");
-                Optional<ButtonType> result = alert.showAndWait();
+                Optional<ButtonType> result = AlertFunction.ConfirmAlert();
 
-                if (result.isPresent() && result.get() == ButtonType.OK) {
+                if (result.isPresent() && (result.get().getText().equals("Evet"))) {
                     for (List<String> hareketler : gun_hareket_map.values()) {
                         if (hareketler.isEmpty()) {
                             bosHareketVar = true;
@@ -478,11 +510,7 @@ public class CreatingWorkoutsScreen {
                         }
                     }
                     if (bosHareketVar) {
-                        Alert hataAlert = new Alert(Alert.AlertType.ERROR);
-                        hataAlert.setTitle("Hata");
-                        hataAlert.setHeaderText(null);
-                        hataAlert.setContentText("Hiçbir antrenman Eklenmedi. Tekrar Deneyiniz.");
-                        hataAlert.showAndWait();
+                        AlertFunction.FailAlert();
                         return;
                     }
 
@@ -632,38 +660,6 @@ public class CreatingWorkoutsScreen {
         WorkoutTemplateDal dal = new WorkoutTemplateDal(WorkoutTemplate.class);
         liste = dal.GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?", username);
         return liste;
-        /*
-         * int antrenman_id2;
-         * int user_id2;
-         * String username2;
-         * String antrenman_tipi2;
-         * int gun_sayisi2;
-         * 
-         * try (Connection con = Database.connect()) {
-         * String sorgu = "SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?";
-         * PreparedStatement ps = con.prepareStatement(sorgu);
-         * ps.setString(1, username);
-         * ResultSet rs = ps.executeQuery();
-         * while (rs.next()) {
-         * antrenman_id2 = rs.getInt("id");
-         * user_id2 = rs.getInt("user_id");
-         * username2 = rs.getString("username");
-         * antrenman_tipi2 = rs.getString("antrenman_tipi");
-         * gun_sayisi2 = rs.getInt("gun_sayisi");
-         * WorkoutTemplate veri = new WorkoutTemplate(antrenman_id2, user_id2,
-         * username2, antrenman_tipi2,
-         * gun_sayisi2);
-         * liste.add(veri);
-         * 
-         * }
-         * 
-         * } catch (SQLException e) {
-         * 
-         * e.printStackTrace();
-         * }
-         * return liste;
-         * }
-         */
-        
+
     }
 }

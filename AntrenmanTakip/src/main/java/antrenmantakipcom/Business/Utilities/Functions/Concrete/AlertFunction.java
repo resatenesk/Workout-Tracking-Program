@@ -1,9 +1,12 @@
 package antrenmantakipcom.Business.Utilities.Functions.Concrete;
 
+import java.util.Optional;
+
 import antrenmantakipcom.Business.Authorization.UserLoginFrame;
 import antrenmantakipcom.Business.Utilities.Functions.Abstract.IFunction;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 
 public class AlertFunction implements IFunction {
@@ -119,5 +122,35 @@ public class AlertFunction implements IFunction {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
         alert.showAndWait();
+    }
+
+    public static void TheWorkoutHasAlreadyModifiedAlert() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("ERROR");
+        alert.setHeaderText(null);
+        alert.setContentText("The workout that you've chosen already set");
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
+        alert.showAndWait();
+
+    }
+
+    public static Optional<ButtonType> ConfirmAlert() {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("CONFIRM");
+        alert.setContentText("Are you sure ?");
+        alert.setHeaderText(null);
+        ButtonType evet = new ButtonType("Evet");
+        ButtonType hayir = new ButtonType("Hayır");
+        alert.getButtonTypes().setAll(evet, hayir);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result;
+
+        /*
+         * DialogPane dialogPane = alert.getDialogPane();
+         * dialogPane.getStylesheets().add(AlertFunction.class.getResource(
+         * "/static/alertStyle.css").toExternalForm());
+         */
+
     }
 }
