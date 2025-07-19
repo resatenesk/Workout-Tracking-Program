@@ -383,14 +383,18 @@
     -fx-pie-color: #f0cd09;
 }
 
-/* Karbonhidrat: yeşil */
 .default-color1.chart-pie {
     -fx-pie-color: #ff5100;
 }
 
-/* Yağ: turuncu */
 .default-color2.chart-pie {
     -fx-pie-color: #118ef5;
 }
 
-/* Protein: mavi */
+.date-picker {
+    -fx-background-color: #686666;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-border-color: #555;
+    -fx-border-radius: 15;
+}

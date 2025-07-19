@@ -146,11 +146,13 @@ public class AlertFunction implements IFunction {
         Optional<ButtonType> result = alert.showAndWait();
         return result;
 
-        /*
-         * DialogPane dialogPane = alert.getDialogPane();
-         * dialogPane.getStylesheets().add(AlertFunction.class.getResource(
-         * "/static/alertStyle.css").toExternalForm());
-         */
+    }
 
+    public static void DateIsNotSelectedAlert() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Tarih Seçilmedi!");
+        alert.setHeaderText(null);
+        alert.setContentText("Lütfen Tarih Seçiniz.");
+        alert.showAndWait();
     }
 }

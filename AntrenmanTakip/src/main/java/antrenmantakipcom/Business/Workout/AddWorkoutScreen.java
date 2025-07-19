@@ -1,6 +1,7 @@
 package antrenmantakipcom.Business.Workout;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,8 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IRecordsDal;
+import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.RecordsDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.Records;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
@@ -18,13 +25,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -67,9 +71,17 @@ public class AddWorkoutScreen {
     private Button ozelYiyecekListeGoruntule;
     private int user_id;
 
+    private Label hareketLabel;
+    private TextField agirlikTextField;
+    private TextField tekrarTextField;
+
+    IRecordsDal _RecordsDal;
+    IWorkoutDal _WorkoutDal;
+
     @SuppressWarnings({ "static-access", "SuspiciousToArrayCall", "CollectionsToArray" })
     public AddWorkoutScreen(String username) {
-
+        _RecordsDal = new RecordsDal(Records.class);
+        _WorkoutDal = new WorkoutTemplateDal(WorkoutTemplate.class);
         antrenmanIDlabel = new Label("");
         this.username = username;
         root = new BorderPane();
@@ -87,14 +99,7 @@ public class AddWorkoutScreen {
         // header.setStyle("-fx-border-width:2px;-fx-border-color:blue");
         root.setTop(header);
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-
-        geriButton = new Button("← Geri Dön",imageViewC);
-        geriButton.setId("cikis_butonlari");
-        geriButton.setStyle("-fx-font-size: 14px;");
+        geriButton = CreateButton.createExitButton();
         geriButton.setOnAction(e -> {
             MainScreen anaEkran = new MainScreen();
             Main.setRoot(anaEkran.getRoot());
@@ -114,42 +119,41 @@ public class AddWorkoutScreen {
         tablo.setOnMouseClicked(e -> {
             gun_listesi.clear();
             kacincıGunComboBox.getItems().clear();
-            WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
+            kacincıGunComboBox.getSelectionModel().clearSelection();
+            ekleButton.setVisible(false);
+            for (HBox value : hareketSatirlari) {
+                value.getChildren().clear();
+            }
+            WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
+
             if (secilenVeri != null) {
                 gun_sayisi = secilenVeri.getGunSayisi();
                 antrenman_id = secilenVeri.getAntrenmanID();
 
-                for (int i = 1; i < gun_sayisi + 1; i++) {
+                for (int i = 1; i <= gun_sayisi; i++) {
                     gun_listesi.add(i);
                 }
                 kacincıGunComboBox.getItems().addAll(gun_listesi);
-
             }
-
         });
 
-        antrenmanSil = new Button("Delete Selected Workout");
+        antrenmanSil = CreateButton.createDeleteButton();
         antrenmanSil.setOnAction(e -> {
             tablodanVeriSil();
 
         });
 
-        ekleButton = new Button("EKLE");
+        ekleButton = CreateButton.createSaveButton();
         ekleButton.setVisible(false);
         ekleButton.setOnAction(e -> {
 
             secilenTarih = datePicker.getValue();
-            if (secilenTarih != null) {
-                veritabaniVerileriAktar();
-            } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Tarih Seçilmedi!");
-                alert.setHeaderText(null);
-                alert.setContentText("Lütfen Tarih Seçiniz.");
+            if (secilenTarih == null) {
+                AlertFunction.DateIsNotSelectedAlert();
+                return;
 
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+            } else {
+                veritabaniVerileriAktar();
             }
             secilenTarih = null;
 
@@ -190,7 +194,10 @@ public class AddWorkoutScreen {
 
         kacincıGunComboBox = new ComboBox<>();
         kacincıGunComboBox.setOnAction(e -> {
-            secilenGun = kacincıGunComboBox.getValue();
+            if (kacincıGunComboBox.getSelectionModel().getSelectedItem() != null) {
+                secilenGun = kacincıGunComboBox.getValue();
+            }
+
             if (secilenGun != 0) {
                 hareketleriOlustur();
                 if (!icerikSag.getChildren().contains(textFieldVBox)) {
@@ -209,138 +216,95 @@ public class AddWorkoutScreen {
     public void tablodanVeriSil() {
         WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
         if (secilenVeri != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Onay");
-            alert.setHeaderText(null);
-            alert.setContentText("Onaylıyor musunuz?");
-            Optional<ButtonType> result1 = alert.showAndWait();
+            Optional<ButtonType> result1 = AlertFunction.ConfirmAlert();
 
-            if (result1.isPresent() && result1.get() == ButtonType.OK) {
+            if (result1.isPresent() && result1.get().getText().equals("Evet")) {
                 int id = secilenVeri.getAntrenmanID();
-                IEntityRepositoryBase<WorkoutTemplate> base = new IEntityRepositoryBase<>(WorkoutTemplate.class);
-                base.Delete(secilenVeri);
+                _WorkoutDal.Delete(secilenVeri, id);
+                liste.remove(secilenVeri);
             }
         } else {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Hareket Yok!");
-            alert.setHeaderText(null);
-            alert.setContentText("Şablon seçilmedi !");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+            AlertFunction.MissingDataAlert();
 
         }
     }
 
-    public void veritabaniVerileriAktar() {
-        System.out.println("Toplam hareket satırı sayısı: " + hareketSatirlari.size());
-        if (secilenGun == 0) {
-            System.out.println("HATA: Lütfen bir gün seçin!");
-            return;
-        }
-
-        // === TÜM SATIRLARDA BOŞLUK KONTROLÜ ===
-        boolean bosVeriVarMi = false;
-        for (HBox veri : hareketSatirlari) {
-            if (veri.getChildren().size() < 3)
-                continue;
-
-            VBox column2 = (VBox) veri.getChildren().get(1);
-            VBox column3 = (VBox) veri.getChildren().get(2);
-
-            if (column2.getChildren().isEmpty() || column3.getChildren().isEmpty())
-                continue;
-
-            TextField agirlikTextField = (TextField) column2.getChildren().get(0);
-            TextField tekrarTextField = (TextField) column3.getChildren().get(0);
-
-            if (agirlikTextField.getText().isBlank() || tekrarTextField.getText().isBlank()) {
-                bosVeriVarMi = true;
-                break; // Bir tane bile boş varsa çık
-            }
-        }
-
-        if (bosVeriVarMi) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Veri Eksik!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen tüm ağırlık ve tekrar bilgilerini doldurun.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
-            return; // Boş veri varsa kayıt yapma
-        }
-
-        // === VERİTABANINA KAYIT KISMI ===
-        try (Connection con = Database.connect()) {
-            String sorgu = "INSERT INTO kayitlar (username, antrenman_id, gun_no, hareket_adi, set_no, agirlik, tekrar, tarih) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-
-            for (HBox veri : hareketSatirlari) {
-                if (veri.getChildren().size() < 3)
-                    continue;
-
-                VBox column1 = (VBox) veri.getChildren().get(0);
-                VBox column2 = (VBox) veri.getChildren().get(1);
-                VBox column3 = (VBox) veri.getChildren().get(2);
-
-                if (column1.getChildren().isEmpty() || column2.getChildren().isEmpty()
-                        || column3.getChildren().isEmpty())
-                    continue;
-
-                Label hareketLabel = (Label) column1.getChildren().get(0);
-                TextField agirlikTextField = (TextField) column2.getChildren().get(0);
-                TextField tekrarTextField = (TextField) column3.getChildren().get(0);
-
-                String hareket_adi = hareketLabel.getText();
-                String agirliklar = agirlikTextField.getText();
-                String tekrarlar = tekrarTextField.getText();
-
-                String[] kgArray = agirliklar.split(",");
-                String[] tekrarArray = tekrarlar.split(",");
-
-                if (kgArray.length != tekrarArray.length) {
-                    System.out.println("HATA: " + hareket_adi + " için set ve tekrar sayısı eşleşmiyor!");
-                    continue;
-                }
-
-                LocalDate secilenTarih = datePicker.getValue();
-
-                for (int i = 0; i < kgArray.length; i++) {
-                    try {
-                        double kg = Double.parseDouble(kgArray[i].trim());
-                        int tekrar = Integer.parseInt(tekrarArray[i].trim());
-
-                        ps.setString(1, username);
-                        ps.setInt(2, antrenman_id);
-                        ps.setInt(3, secilenGun);
-                        ps.setString(4, hareket_adi);
-                        ps.setInt(5, i + 1);
-                        ps.setDouble(6, kg);
-                        ps.setInt(7, tekrar);
-                        ps.setDate(8, java.sql.Date.valueOf(secilenTarih));
-
-                        int result = ps.executeUpdate();
-
-                    } catch (NumberFormatException ex) {
-                        System.out.println("HATA: Sayı parse edilemedi! (" + hareket_adi + ", Set " + (i + 1) + ")");
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Veriler Başarıyla Kaydedildi !");
-        alert.setHeaderText(null);
-        alert.setContentText(
-                "Antrenman Gelişiminizi \"Antrenman Grafikleri\" Bölümünden Takip Edebilirsiniz.");
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets()
-                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-        alert.showAndWait();
+   public void veritabaniVerileriAktar() {
+    if (datePicker.getValue() == null) {
+        AlertFunction.DateIsNotSelectedAlert();
+        return;
     }
+    Date tarih = Date.valueOf(datePicker.getValue());
+
+    Integer gun_no = kacincıGunComboBox.getSelectionModel().getSelectedItem();
+    if (gun_no == null || gun_no == 0) {
+        AlertFunction.MissingDataAlert();
+        return;
+    }
+
+    WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
+    if (secilenVeri == null) {
+        AlertFunction.NoElementsSelectedAlert();
+        return;
+    }
+
+
+    for (HBox satir : hareketSatirlari) {
+        if (satir.getChildren().size() < 3)
+            continue;
+
+        TextField agirlikField = (TextField) ((VBox) satir.getChildren().get(1)).getChildren().get(0);
+        TextField tekrarField = (TextField) ((VBox) satir.getChildren().get(2)).getChildren().get(0);
+
+        if (agirlikField.getText().isBlank() || tekrarField.getText().isBlank()) {
+            AlertFunction.MissingDataAlert();
+            return; 
+        }
+    }
+
+    int user_id = secilenVeri.getUserID();
+    String username = secilenVeri.getUsername();
+    int antrenman_id = secilenVeri.getAntrenmanID();
+
+    for (HBox satir : hareketSatirlari) {
+        if (satir.getChildren().size() < 3)
+            continue;
+
+        Label hareketLabel = (Label) ((VBox) satir.getChildren().get(0)).getChildren().get(0);
+        TextField agirlikField = (TextField) ((VBox) satir.getChildren().get(1)).getChildren().get(0);
+        TextField tekrarField = (TextField) ((VBox) satir.getChildren().get(2)).getChildren().get(0);
+
+        String hareket_adi = hareketLabel.getText();
+        String agirlikText = agirlikField.getText().replace(" ", "");
+        String tekrarText = tekrarField.getText().replace(" ", "");
+
+        String[] agirliklar = agirlikText.split(",");
+        String[] tekrarlars = tekrarText.split(",");
+
+        if (agirliklar.length != tekrarlars.length) {
+            System.out.println("Set sayısı uyuşmuyor: " + hareket_adi);
+            continue;
+        }
+
+        for (int i = 0; i < agirliklar.length; i++) {
+            try {
+                double agirlik = Double.parseDouble(agirliklar[i].trim());
+                int tekrar = Integer.parseInt(tekrarlars[i].trim());
+                int set_no = i + 1;
+
+                Records r = new Records(user_id, username, antrenman_id, gun_no, hareket_adi, set_no, agirlik,
+                        tekrar, tarih);
+                _RecordsDal.Add(r);
+
+            } catch (NumberFormatException e) {
+                AlertFunction.FailAlert();
+                return; 
+            }
+        }
+    }
+
+    AlertFunction.SuccessAlert(); 
+}
 
     public void hareketleriOlustur() {
         WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
@@ -348,8 +312,8 @@ public class AddWorkoutScreen {
             return;
 
         int antrenman_id = secilenVeri.getAntrenmanID();
-        Integer secilenGun = kacincıGunComboBox.getValue();
-        if (secilenGun == null)
+        int secilenGun = kacincıGunComboBox.getValue();
+        if (secilenGun == 0)
             return;
 
         labeller.clear();
