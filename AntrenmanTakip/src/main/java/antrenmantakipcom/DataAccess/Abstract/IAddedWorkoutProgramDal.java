@@ -2,6 +2,6 @@ package antrenmantakipcom.DataAccess.Abstract;
 
 import antrenmantakipcom.Entities.Concrete.AddedWorkoutProgram;
 
-public interface IRecordsDal extends IEntityRepository<AddedWorkoutProgram> {
+public interface IAddedWorkoutProgramDal extends IEntityRepository<AddedWorkoutProgram> {
     
 }

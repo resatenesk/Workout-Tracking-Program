@@ -14,12 +14,15 @@ import org.controlsfx.control.CheckComboBox;
 
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
-import antrenmantakipcom.DataAccess.Abstract.IRecordsDal;
+import antrenmantakipcom.DataAccess.Abstract.IAddedWorkoutProgramDal;
+import antrenmantakipcom.DataAccess.Abstract.IUserDal;
 import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
-import antrenmantakipcom.DataAccess.Concrete.Dal.RecordsDal;
+import antrenmantakipcom.DataAccess.Concrete.AddedWorkoutProgramDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
-import antrenmantakipcom.Entities.Concrete.Records;
+import antrenmantakipcom.Entities.Concrete.AddedWorkoutProgram;
+import antrenmantakipcom.Entities.Concrete.User;
 import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
@@ -74,13 +77,16 @@ public class CreatingWorkoutsScreen {
     private int gun_no;
     private static Button tablodanSilButton;
     ObservableList<WorkoutTemplate> liste;
-    IRecordsDal _recordDal;
+    IAddedWorkoutProgramDal _addedWorkoutProgramsDal;
     IWorkoutDal _WorkoutDal;
+    IUserDal _UserDal;
     private Button exitButton;
 
     public CreatingWorkoutsScreen(int antrenman_id, int user_id, String username, String antrenman_tipi,
             int gun_sayisi) {
-        _recordDal = new RecordsDal(Records.class);
+
+        _UserDal = new UserDal(User.class);
+        _addedWorkoutProgramsDal = new AddedWorkoutProgramDal(AddedWorkoutProgram.class);
         _WorkoutDal = new WorkoutTemplateDal(WorkoutTemplate.class);
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
@@ -97,6 +103,13 @@ public class CreatingWorkoutsScreen {
         WorkoutTemplate secilen = tablo.getSelectionModel().getSelectedItem();
         int result = _WorkoutDal.Delete(secilen, id);
         if (result > 0) {
+            List<AddedWorkoutProgram> addedList = _addedWorkoutProgramsDal
+                    .GetAll("SELECT * FROM eklenen_antrenman_programlari WHERE user_id = ?", user_id);
+            for (AddedWorkoutProgram addedWorkoutProgram : addedList) {
+                if (addedWorkoutProgram.getAntrenman_id() == secilen.getAntrenmanID()) {
+                    _addedWorkoutProgramsDal.Delete(addedWorkoutProgram, secilen.getAntrenmanID());
+                }
+            }
             liste.remove(secilen);
             if (hareketleriGostermeKutusu != null) {
                 hareketleriGostermeKutusu.getChildren().clear();
@@ -120,6 +133,7 @@ public class CreatingWorkoutsScreen {
             Optional<ButtonType> result = AlertFunction.ConfirmAlert();
             if (result.isPresent() && result.get().getText().equals("Evet")) {
                 tablodanVeriSil();
+                tablo.getSelectionModel().clearSelection();
 
             }
         });
@@ -134,9 +148,9 @@ public class CreatingWorkoutsScreen {
         tablo.setMaxWidth(450);
         tablo.setId("antrenmanTablo");
 
-        List<Records> recordList = _recordDal
+        List<AddedWorkoutProgram> recordList = _addedWorkoutProgramsDal
                 .GetAll("SELECT * FROM eklenen_antrenman_programlari WHERE user_id = ?", user_id);
-        for (Records records : recordList) {
+        for (AddedWorkoutProgram records : recordList) {
 
             WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri != null) {
@@ -151,7 +165,7 @@ public class CreatingWorkoutsScreen {
             }
 
         }
-        // tablo.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
         tablo.setOnMouseClicked(e -> {
             WorkoutTemplate secilenVeri = tablo.getSelectionModel().getSelectedItem();
             if (secilenVeri == null) {
@@ -160,8 +174,8 @@ public class CreatingWorkoutsScreen {
             this.antrenman_tipi = secilenVeri.getAntrenmanTipi();
             this.gun_sayisi = secilenVeri.getGunSayisi();
             if (secilenVeri != null) {
-                for (Records records : recordList) {
-                    if (records.getAntrenman_id() == secilenVeri.getAntrenmanID()) {
+                for (AddedWorkoutProgram addedWorkoutProgram : recordList) {
+                    if (addedWorkoutProgram.getAntrenman_id() == secilenVeri.getAntrenmanID()) {
                         AlertFunction.TheWorkoutHasAlreadyModifiedAlert();
                         ekleButton.setVisible(false);
                         onaylaButton.setVisible(false);
@@ -229,6 +243,7 @@ public class CreatingWorkoutsScreen {
         });
 
         gun_hareket_map = new HashMap<>();
+
         hareketleriGostermeKutusu = new VBox(2);
         hareketleriGostermeKutusu.setAlignment(Pos.CENTER);
         // hareketleriGostermeKutusu.setStyle("-fx-border-width:2px;-fx-border-color:Yellow");
@@ -460,93 +475,46 @@ public class CreatingWorkoutsScreen {
     }
 
     public void tabloOlustur() {
-        try (Connection con = Database.connect()) {
+        boolean bosHareketVar = false;
+        for (List<String> hareketler : gun_hareket_map.values()) {
+            if (hareketler.isEmpty()) {
+                bosHareketVar = true;
+                break;
+            }
+        }
 
-            int yeni_antrenman_id = 1;
-            String maxIDQuery = "SELECT MAX(antrenman_id) FROM eklenen_antrenman_programlari WHERE username = ?";
-            try (PreparedStatement maxIDStmt = con.prepareStatement(maxIDQuery)) {
-                maxIDStmt.setString(1, username);
-                try (ResultSet maxRS = maxIDStmt.executeQuery()) {
-                    if (maxRS.next()) {
-                        yeni_antrenman_id = maxRS.getInt(1) + 1;
-                    }
+        if (bosHareketVar) {
+            AlertFunction.MissingDataAlert();
+            return;
+        }
+
+        Optional<ButtonType> result = AlertFunction.ConfirmAlert();
+
+        if (result.isPresent() && (result.get().getText().equals("Evet"))) {
+            WorkoutTemplate temp = tablo.getSelectionModel().getSelectedItem();
+
+            for (Map.Entry<Integer, List<String>> entry : gun_hareket_map.entrySet()) {
+                int gun = entry.getKey();
+                List<String> hareketler = entry.getValue();
+
+                for (String hareket_adi : hareketler) {
+                    AddedWorkoutProgram program = new AddedWorkoutProgram(
+                            temp.getAntrenmanID(),
+                            user_id,
+                            username,
+                            temp.getAntrenmanTipi(),
+                            temp.getGunSayisi(),
+                            gun + 1,
+                            hareket_adi);
+
+                    _addedWorkoutProgramsDal.Add(program);
                 }
             }
 
-            int user_id = 0;
-            String user_idSorgu = "SELECT user_id FROM users WHERE username = ?";
-            try (PreparedStatement psUser = con.prepareStatement(user_idSorgu)) {
-                psUser.setString(1, username);
-                try (ResultSet rsUser = psUser.executeQuery()) {
-                    if (rsUser.next()) {
-                        user_id = rsUser.getInt("user_id");
-                    }
-                }
-            }
-
-            String insertSorgu = "INSERT INTO eklenen_antrenman_programlari (antrenman_id, user_id, username, antrenman_tipi, gun_sayisi, gun_no, hareket_adi) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            boolean bosHareketVar = false;
-            for (List<String> hareketler : gun_hareket_map.values()) {
-                if (hareketler.isEmpty()) {
-                    bosHareketVar = true;
-                    break;
-                }
-            }
-
-            if (bosHareketVar) {
-                AlertFunction.MissingDataAlert();
-                return;
-            }
-
-            try (PreparedStatement psInsert = con.prepareStatement(insertSorgu)) {
-
-                Optional<ButtonType> result = AlertFunction.ConfirmAlert();
-
-                if (result.isPresent() && (result.get().getText().equals("Evet"))) {
-                    for (List<String> hareketler : gun_hareket_map.values()) {
-                        if (hareketler.isEmpty()) {
-                            bosHareketVar = true;
-                            break;
-                        }
-                    }
-                    if (bosHareketVar) {
-                        AlertFunction.FailAlert();
-                        return;
-                    }
-
-                    for (Map.Entry<Integer, List<String>> entry : gun_hareket_map.entrySet()) {
-                        int gun = entry.getKey();
-                        List<String> hareketler = entry.getValue();
-
-                        for (String hareket : hareketler) {
-                            psInsert.setInt(1, antrenman_id);
-                            psInsert.setInt(2, user_id);
-                            psInsert.setString(3, username);
-                            psInsert.setString(4, antrenman_tipi);
-                            psInsert.setInt(5, gun_sayisi);
-                            psInsert.setInt(6, gun + 1);
-                            psInsert.setString(7, hareket);
-                            psInsert.addBatch();
-                        }
-                    }
-                    Main.setRoot(MainScreen.getRoot());
-                    MainScreen.gosterBasariMesaji("Antrenman Oluşturuldu...");
-
-                    psInsert.executeBatch();
-
-                    try {
-
-                    } catch (Exception ex) {
-
-                    }
-
-                } else {
-                    System.out.println("Kullanıcı onaylamadı...");
-                }
-            }
-
-        } catch (SQLException e) {
-
+            Main.setRoot(MainScreen.getRoot());
+            MainScreen.gosterBasariMesaji("Antrenman Oluşturuldu...");
+        } else {
+            System.out.println("Kullanıcı onaylamadı...");
         }
     }
 

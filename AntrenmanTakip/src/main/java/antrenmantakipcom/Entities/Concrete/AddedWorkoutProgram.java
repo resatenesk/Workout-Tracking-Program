@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import antrenmantakipcom.Entities.Abstract.IEntity;
 
-public class Records implements IEntity {
+public class AddedWorkoutProgram implements IEntity {
     private int id;
     private int antrenman_id;
     private int user_id;
@@ -15,11 +15,14 @@ public class Records implements IEntity {
     private int gun_sayisi;
     private int gun_no;
     private String hareket_adi;
-    public Records(){
+
+    public AddedWorkoutProgram() {
 
     }
-    public Records(int id,int antrenman_id,int user_id,String username,String antrenman_tipi,int gun_sayisi,int gun_no,String hareket_adi){
-        this.id = id;
+
+    public AddedWorkoutProgram(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi,
+            int gun_no, String hareket_adi) {
+
         this.antrenman_id = antrenman_id;
         this.user_id = user_id;
         this.username = username;
@@ -96,61 +99,74 @@ public class Records implements IEntity {
     @Override
     public String toString() {
         return "{" +
-            " id='" + getId() + "'" +
-            ", antrenman_id='" + getAntrenman_id() + "'" +
-            ", user_id='" + getUser_id() + "'" +
-            ", username='" + getUsername() + "'" +
-            ", antrenman_tipi='" + getAntrenman_tipi() + "'" +
-            ", gun_sayisi='" + getGun_sayisi() + "'" +
-            ", gun_no='" + getGun_no() + "'" +
-            ", hareket_adi='" + getHareket_adi() + "'" +
-            "}";
+                " id='" + getId() + "'" +
+                ", antrenman_id='" + getAntrenman_id() + "'" +
+                ", user_id='" + getUser_id() + "'" +
+                ", username='" + getUsername() + "'" +
+                ", antrenman_tipi='" + getAntrenman_tipi() + "'" +
+                ", gun_sayisi='" + getGun_sayisi() + "'" +
+                ", gun_no='" + getGun_no() + "'" +
+                ", hareket_adi='" + getHareket_adi() + "'" +
+                "}";
     }
+
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-       Records records = new Records(rs.getInt("id"),rs.getInt("antrenman_id"),rs.getInt("user_id"),
-       rs.getString("username"),rs.getString("antrenman_tipi"),rs.getInt("gun_sayisi"),rs.getInt("gun_no"),rs.getString("hareket_adi"));
-       return records;
+        AddedWorkoutProgram records = new AddedWorkoutProgram(rs.getInt("antrenman_id"), rs.getInt("user_id"),
+                rs.getString("username"), rs.getString("antrenman_tipi"), rs.getInt("gun_sayisi"), rs.getInt("gun_no"),
+                rs.getString("hareket_adi"));
+        records.setId(rs.getInt("id"));
+        return records;
     }
+
     @Override
     public String getInsertQuery() {
         return "INSERT INTO eklenen_antrenman_programlari (id,antrenman_id,user_id,username,antrenman_tipi,gun_sayisi,gun_no,hareket_adi) VALUES (?,?,?,?,?,?,?,?)";
     }
+
     @Override
     public String getUpdateQuery() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getUpdateQuery'");
     }
+
     @Override
     public String getDeleteQuery() {
         return "DELETE FROM eklenen_antrenman_programlari WHERE antrenman_id = ?";
     }
+
     @Override
     public String getSelectIDQuery() {
         return "SELECT antrenman_id FROM eklenen_antrenman_programlari";
     }
+
     @Override
     public void fillInsertParameters(PreparedStatement ps) throws SQLException {
-        ps.setInt(1, id);ps.setInt(2, antrenman_id);ps.setInt(3, user_id);ps.setString(4, username);
-        ps.setString(5, antrenman_tipi);ps.setInt(6, gun_sayisi);ps.setInt(7, gun_no);ps.setString(8, hareket_adi);
+        ps.setInt(1, id);
+        ps.setInt(2, antrenman_id);
+        ps.setInt(3, user_id);
+        ps.setString(4, username);
+        ps.setString(5, antrenman_tipi);
+        ps.setInt(6, gun_sayisi);
+        ps.setInt(7, gun_no);
+        ps.setString(8, hareket_adi);
     }
+
     @Override
     public void fillUpdateParameters(PreparedStatement ps) throws SQLException {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'fillUpdateParameters'");
     }
+
     @Override
     public void fillDeleteParameters(PreparedStatement ps) throws SQLException {
         ps.setInt(1, antrenman_id);
     }
+
     @Override
     public void fillSelectIDParameters(PreparedStatement ps) throws SQLException {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'fillSelectIDParameters'");
     }
-
-
-
-
 
 }
