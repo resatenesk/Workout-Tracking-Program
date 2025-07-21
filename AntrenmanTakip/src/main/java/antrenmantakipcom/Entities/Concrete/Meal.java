@@ -82,13 +82,11 @@ public class Meal implements IEntity {
     @Override
     public String toString() {
         return "{" +
-                " meal_id='" + getMealID() + "'" +
-                ", user_id='" + getUserID() + "'" +
-                ", meal_name='" + getMealName() + "'" +
-                ", total_cal='" + getTotalCal() + "'" +
-                ", total_fat='" + getTotalFat() + "'" +
-                ", total_carb='" + getTotalCarb() + "'" +
-                ", total_prot='" + getTotalProt() + "'" +
+                " meal_name='" + getMealName() + "'" +
+                ",total_cal='" + getTotalCal() + "'" +
+                ",total_fat='" + getTotalFat() + "'" +
+                ",total_carb='" + getTotalCarb() + "'" +
+                ",total_prot='" + getTotalProt() + "'" +
                 "}";
     }
 

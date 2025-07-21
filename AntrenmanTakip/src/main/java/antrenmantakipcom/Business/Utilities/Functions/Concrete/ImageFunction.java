@@ -22,7 +22,7 @@ public class ImageFunction {
         return imageView;
     }
 
-    public static ImageView LoadTooltip(String path) {
+    public static ImageView LoadTooltip(String path,String tooltipText) {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
@@ -32,12 +32,7 @@ public class ImageFunction {
         imageView.setFitWidth(20);
         imageView.setPreserveRatio(true);
         imageView.setStyle("-fx-cursor: hand;");
-        Tooltip passwordTooltip = new Tooltip(
-                "Parolanız Yanlışsa Kontrol Ediniz:\n" +
-                        "- En az 8 karakter\n" +
-                        "- En az 1 büyük harf\n" +
-                        "- En az 1 rakam\n" +
-                        "- En az 1 özel karakter (@, #, !, vs.)");
+        Tooltip passwordTooltip = new Tooltip(tooltipText);
         Tooltip.install(imageView, passwordTooltip);
         return imageView;
     }

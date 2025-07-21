@@ -111,7 +111,11 @@ public class UserLoginFrame {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png");
+        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "Parolanız Yanlışsa Kontrol Ediniz:\n" +
+                        "- En az 8 karakter\n" +
+                        "- En az 1 büyük harf\n" +
+                        "- En az 1 rakam\n" +
+                        "- En az 1 özel karakter (@, #, !, vs.)");
 
         imageLogin = ImageFunction.LoadImage("/ICONS/ikon1.png");
 

@@ -120,6 +120,25 @@
     -fx-scale-y: 1.05;
 }
 
+#list_butonlari {
+    -fx-background-color: linear-gradient(to right, #18e0c6, #4644d6);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 12;
+    -fx-border-radius: 8;
+    -fx-border-color: #888;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 8, 0.3, 2, 2);
+}
+
+#list_butonlari:hover {
+    -fx-background-color: linear-gradient(to bottom, #00ffd5, #5e84c9);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
 .button {
     -fx-background-color: linear-gradient(to top, rgb(40, 44, 42), #665a5a);
     -fx-text-fill: white;

@@ -17,7 +17,7 @@ import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IAddedWorkoutProgramDal;
 import antrenmantakipcom.DataAccess.Abstract.IUserDal;
 import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
-import antrenmantakipcom.DataAccess.Concrete.AddedWorkoutProgramDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.AddedWorkoutProgramDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;

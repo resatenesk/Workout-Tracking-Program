@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "görev-Main",
+      "appliesTo": "AntrenmanTakip/src/main/java/antrenmantakipcom/Main.java",
+      "type": "launch"
+    }
+  ]
+}

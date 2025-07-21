@@ -9,9 +9,17 @@ import java.util.Date;
 
 import org.controlsfx.control.CheckComboBox;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IDailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Abstract.IUserDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.DailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.DailyFoodValue;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
+import antrenmantakipcom.Entities.Concrete.User;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.animation.TranslateTransition;
@@ -19,18 +27,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -68,66 +71,30 @@ public class DailyMacroAndFoodValuesScreen {
     private Button saveManualButton;
     private ObservableList<Food> food_list;
     private ObservableList<Meal> meal_list;
-    private ObservableList<Data> daily_food_values_list;
+    private ObservableList<DailyFoodValue> daily_food_values_list;
     private DatePicker datePicker2;
 
-    private TableView<Data> table;
+    private TableView<DailyFoodValue> table;
     private boolean foodPanelAcikMi = false;
     private VBox translatedListPanel;
     private StackPane centerStackPane;
     private Button showValueList;
+    private int user_id;
 
-    public class Data {
-        private int id;
-        private float cal;
-        private float fat;
-        private float carb;
-        private float prot;
-        private Date date;
-
-        public Data(int id, float cal, float fat, float carb, float prot, Date date) {
-            this.id = id;
-            this.cal = cal;
-            this.fat = fat;
-            this.carb = carb;
-            this.prot = prot;
-            this.date = date;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public Float getCal() {
-            return cal;
-        }
-
-        public Float getFat() {
-            return fat;
-        }
-
-        public Float getCarb() {
-            return carb;
-        }
-
-        public Float getProt() {
-            return prot;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        @Override
-        public String toString() {
-            return "Calorie: " + cal + " Fat: " + fat + " Carb " + carb + " Prot: " + prot + " Date: " + date;
-        }
-
-    }
+    IDailyFoodValueDal _DailyFoodValueDal;
+    IUserDal _IUserDal;
 
     public DailyMacroAndFoodValuesScreen(String username) {
         this.username = username;
         root = new BorderPane();
+
+
+        _DailyFoodValueDal = new DailyFoodValueDal(DailyFoodValue.class);
+        _IUserDal = new UserDal(User.class);
+        User user = new User();
+        user.setUsername(username);
+        user_id = _IUserDal.selectUserID(user);
+        System.out.println(username + " / " + user_id);
 
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
@@ -148,8 +115,7 @@ public class DailyMacroAndFoodValuesScreen {
         table = new TableView<>();
         createTableOfListOfAddedValues();
 
-        Button closeButton = new Button("Close");
-        closeButton.setId("cikis_butonlari");
+        Button closeButton = CreateButton.createCloseButton();
         closeButton.setOnAction(e -> {
             if (foodPanelAcikMi) {
                 TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
@@ -160,59 +126,29 @@ public class DailyMacroAndFoodValuesScreen {
             }
         });
 
-        Button deleteButton = new Button("Delete");
+        Button deleteButton = CreateButton.createDeleteButton();
         deleteButton.setOnAction(e -> {
             int selectedIndex = table.getSelectionModel().getSelectedIndex();
-            Data selectedData = table.getSelectionModel().getSelectedItem();
-            int user_id = 0;
+            DailyFoodValue selectedData = table.getSelectionModel().getSelectedItem();
             if (selectedIndex >= 0) {
-                try (Connection con = Database.connect()) {
-                    String sorgu = "SELECT user_id FROM users WHERE username =?";
-                    PreparedStatement ps = con.prepareStatement(sorgu);
-                    ps.setString(1, username);
-                    ResultSet rs = ps.executeQuery();
-                    while (rs.next()) {
-                        user_id = rs.getInt("user_id");
+                int sonuc = _DailyFoodValueDal.Delete(selectedData, selectedData.getId());
+                if (sonuc > 0) {
+                    AlertFunction.ShowDeletedAlert();
+                    if (selectedData != null) {
+                        daily_food_values_list.remove(selectedData);
+                        table.getSelectionModel().clearSelection();
                     }
-                    int value_id = selectedData.getId();
-                    String sorgu2 = "DELETE FROM daily_food_values WHERE id = ? ";
-                    PreparedStatement ps3 = con.prepareStatement(sorgu2);
-                    ps3.setInt(1, value_id);
-                    int sonuc = ps3.executeUpdate();
-                    if (sonuc > 0) {
-                        Alert alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("DELETED");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Food has deleted succesfully");
-                        DialogPane dialogPane = alert.getDialogPane();
-                        dialogPane.getStylesheets()
-                                .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                        alert.showAndWait();
-                        if (selectedData != null) {
-                            daily_food_values_list.remove(selectedData);
-                            table.getSelectionModel().clearSelection();
-                        }
 
-                    } else {
-
-                    }
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                } else {
+                    AlertFunction.FailAlert();
                 }
             } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("NOT SELECTED");
-                alert.setHeaderText(null);
-                alert.setContentText("Please select a food correctly");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets()
-                        .add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+                AlertFunction.MissingDataAlert();
             }
         });
 
         translatedListPanel.getChildren().addAll(table, closeButton, deleteButton);
-        showValueList = new Button("List");
+        showValueList = CreateButton.createListButton();
         showValueList.setOnAction(e -> {
             daily_food_valuesGetData();
             TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanel);
@@ -363,12 +299,7 @@ public class DailyMacroAndFoodValuesScreen {
         datePicker = new DatePicker();
         datePicker.setPromptText("Enter a date");
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-        geriDonButton = new Button("Exit", imageViewC);
-        geriDonButton.setId("cikis_butonlari");
+        geriDonButton = CreateButton.createExitButton();
         geriDonButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
         });
@@ -399,34 +330,18 @@ public class DailyMacroAndFoodValuesScreen {
     }
 
     public void SaveDailyCalorie() {
-        int user_id = 0;
         String calorieText = calorieTextField.getText().trim();
         String fatText = fatTextField.getText().trim();
         String carbText = carbTextField.getText().trim();
         String protText = protTextField.getText().trim();
         LocalDate date = datePicker.getValue();
 
-        if (calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty() || protText.isEmpty() || date == null) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Veri Eksik!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen tüm alanları doldurunuz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+        if (calorieText.isEmpty() || fatText.isEmpty() || carbText.isEmpty() || protText.isEmpty()) {
+            AlertFunction.MissingDataAlert();
             return;
         }
-
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
+        if (date == null) {
+            AlertFunction.DateIsNotSelectedAlert();
         }
 
         try {
@@ -435,60 +350,23 @@ public class DailyMacroAndFoodValuesScreen {
             float carb = Float.parseFloat(carbText);
             float prot = Float.parseFloat(protText);
 
-            try (Connection con = Database.connect()) {
-                String sorgu = "INSERT INTO daily_food_values (user_id,calorie,fat,carb,prot,date) VALUES (?,?,?,?,?,?)";
-                PreparedStatement ps = con.prepareStatement(sorgu);
-                ps.setInt(1, user_id);
-                ps.setFloat(2, calorie);
-                ps.setFloat(3, fat);
-                ps.setFloat(4, carb);
-                ps.setFloat(5, prot);
-                ps.setDate(6, java.sql.Date.valueOf(date));
-
-                int sonuc = ps.executeUpdate();
-                if (sonuc > 0) {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Başarılı!");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Veriler başarıyla kaydedildi.");
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                    alert.showAndWait();
-                } else {
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Başarısız!");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Veriler kaydedilemedi");
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                    alert.showAndWait();
-                }
+            DailyFoodValue entity = new DailyFoodValue(user_id,calorie, fat, carb, prot, date);
+            int sonuc = _DailyFoodValueDal.Add(entity);
+            if (sonuc > 0) {
+                daily_food_values_list.add(entity);
+                AlertFunction.SuccessAlert();
+            } else {
+                AlertFunction.FailAlert();
             }
+        }
 
-        } catch (NumberFormatException e) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Hatalı Giriş!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen sayısal alanlara sadece sayı giriniz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        catch (NumberFormatException e) {
+            AlertFunction.NumberFormatExceptionAlert();
         }
     }
 
     public void getData() {
         try (Connection con = Database.connect()) {
-            int user_id = 0;
-
-            String sorguID = "SELECT user_id FROM users WHERE username = ?";
-            PreparedStatement psID = con.prepareStatement(sorguID);
-            psID.setString(1, username);
-            ResultSet rsID = psID.executeQuery();
-            while (rsID.next()) {
-                user_id = rsID.getInt("user_id");
-            }
 
             String sorgu2 = "SELECT meal_name,total_cal,total_fat,total_carb,total_prot FROM saved_meals WHERE user_id = ?";
             PreparedStatement ps2 = con.prepareStatement(sorgu2);
@@ -500,7 +378,7 @@ public class DailyMacroAndFoodValuesScreen {
                 float totalFat = rs2.getFloat("total_fat");
                 float totalCarb = rs2.getFloat("total_carb");
                 float totalProt = rs2.getFloat("total_prot");
-                Meal meal = new Meal(user_id,meal_name, totalCal, totalFat, totalCarb, totalProt);
+                Meal meal = new Meal(user_id, meal_name, totalCal, totalFat, totalCarb, totalProt);
                 meal_list.add(meal);
 
             }
@@ -511,7 +389,6 @@ public class DailyMacroAndFoodValuesScreen {
     }
 
     public void SaveDailyCalorieManual() {
-        int user_id = 0;
         float totalCal = 0;
         float totalFat = 0;
         float totalCarb = 0;
@@ -526,105 +403,33 @@ public class DailyMacroAndFoodValuesScreen {
         LocalDate date = datePicker2.getValue();
 
         if (date == null || selectMeal.getCheckModel().getCheckedItems().isEmpty()) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Veri Eksik!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen tüm alanları doldurunuz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+            AlertFunction.DateIsNotSelectedAlert();
             return;
         }
 
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-            String sorgu2 = "INSERT INTO daily_food_values (user_id,calorie,fat,carb,prot,date) VALUES (?,?,?,?,?,?)";
-            PreparedStatement ps2 = con.prepareStatement(sorgu2);
-            ps2.setInt(1, user_id);
-            ps2.setFloat(2, totalCal);
-            ps2.setFloat(3, totalFat);
-            ps2.setFloat(4, totalCarb);
-            ps2.setFloat(5, totalProt);
-            ps2.setDate(6, java.sql.Date.valueOf(date));
+        try {
 
-            int sonuc = ps2.executeUpdate();
+            DailyFoodValue data = new DailyFoodValue(user_id,totalCal, totalFat, totalCarb, totalProt, date);
+            int sonuc = _DailyFoodValueDal.Add(data);
             if (sonuc > 0) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Başarılı!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler başarıyla kaydedildi.");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
-                selectMeal.getCheckModel().clearChecks();
+
+                daily_food_values_list.add(data);
+                AlertFunction.SuccessAlert();
 
             } else {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Başarısız!");
-                alert.setHeaderText(null);
-                alert.setContentText("Veriler kaydedilemedi");
-                DialogPane dialogPane = alert.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert.showAndWait();
+                AlertFunction.FailAlert();
             }
         }
 
         catch (NumberFormatException e) {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Hatalı Giriş!");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen sayısal alanlara sadece sayı giriniz.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            AlertFunction.NumberFormatExceptionAlert();
         }
     }
 
     void daily_food_valuesGetData() {
-        int id;
-        Float cal;
-        Float fat;
-        Float carb;
-        Float prot;
-        Date date;
-        int user_id = 0;
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username =?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-            daily_food_values_list.clear();
-            String sorgu2 = "SELECT id,calorie,fat,carb,prot,date FROM daily_food_values WHERE user_id = ?";
-            PreparedStatement ps2 = con.prepareStatement(sorgu2);
-            ps2.setInt(1, user_id);
-            ResultSet rs2 = ps2.executeQuery();
-            while (rs2.next()) {
-                id = rs2.getInt("id");
-                cal = rs2.getFloat("calorie");
-                fat = rs2.getFloat("fat");
-                carb = rs2.getFloat("carb");
-                prot = rs2.getFloat("prot");
-                date = rs2.getDate("date");
-                Data data = new Data(id, cal, fat, carb, prot, date);
-                daily_food_values_list.add(data);
-
-            }
-            table.setItems(daily_food_values_list);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        daily_food_values_list = _DailyFoodValueDal.GetAll("SELECT * FROM daily_food_values WHERE user_id = ?",
+                user_id);
+        table.setItems(daily_food_values_list);
     }
 
     void createTableOfListOfAddedValues() {
@@ -634,24 +439,24 @@ public class DailyMacroAndFoodValuesScreen {
         table.setMaxWidth(600);
         table.setId("Food List");
 
-        TableColumn<Data, Float> calCol = new TableColumn<>("calorie");
-        calCol.setCellValueFactory(new PropertyValueFactory<>("cal"));
+        TableColumn<DailyFoodValue, Float> calCol = new TableColumn<>("calorie");
+        calCol.setCellValueFactory(new PropertyValueFactory<>("Cal"));
         calCol.setPrefWidth(100);
 
-        TableColumn<Data, Float> fatCol = new TableColumn<>("fat");
-        fatCol.setCellValueFactory(new PropertyValueFactory<>("fat"));
+        TableColumn<DailyFoodValue, Float> fatCol = new TableColumn<>("fat");
+        fatCol.setCellValueFactory(new PropertyValueFactory<>("Fat"));
         fatCol.setPrefWidth(90);
 
-        TableColumn<Data, Float> carbCol = new TableColumn<>("carb");
-        carbCol.setCellValueFactory(new PropertyValueFactory<>("carb"));
+        TableColumn<DailyFoodValue, Float> carbCol = new TableColumn<>("carb");
+        carbCol.setCellValueFactory(new PropertyValueFactory<>("Carb"));
         carbCol.setPrefWidth(90);
 
-        TableColumn<Data, Float> protCol = new TableColumn<>("prot");
-        protCol.setCellValueFactory(new PropertyValueFactory<>("prot"));
+        TableColumn<DailyFoodValue, Float> protCol = new TableColumn<>("prot");
+        protCol.setCellValueFactory(new PropertyValueFactory<>("Prot"));
         protCol.setPrefWidth(90);
 
-        TableColumn<Data, Date> dateCol = new TableColumn<>("date");
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
+        TableColumn<DailyFoodValue, Date> dateCol = new TableColumn<>("date");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
         dateCol.setPrefWidth(80);
 
         calCol.setStyle("-fx-alignment: CENTER;");

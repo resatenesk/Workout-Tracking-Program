@@ -1,4 +1,4 @@
-package antrenmantakipcom.DataAccess.Concrete;
+package antrenmantakipcom.DataAccess.Concrete.Dal;
 
 import antrenmantakipcom.DataAccess.Abstract.IAddedWorkoutProgramDal;
 import antrenmantakipcom.DataAccess.Abstract.IEntityRepositoryBase;
@@ -10,5 +10,11 @@ public class AddedWorkoutProgramDal extends IEntityRepositoryBase<AddedWorkoutPr
         super(clazz);
         //TODO Auto-generated constructor stub
     }
+
+    // @Override
+    // public List<Movement> hareketListesi() {
+ 
+    //   return null;
+    // }
     
 }

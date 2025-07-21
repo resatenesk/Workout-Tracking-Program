@@ -16,6 +16,13 @@ public class CreateButton implements IFunction {
         return button;
     }
 
+    public static Button createListButton() {
+        ImageView iconClose = ImageFunction.LoadImage("ICONS/ikon3.png");
+        Button button = new Button("List", iconClose);
+        button.setId("list_butonlari");
+        return button;
+    }
+
     public static Button createCloseButton() {
         ImageView iconClose = ImageFunction.LoadImage("ICONS/close.png");
         Button button = new Button("Close", iconClose);
@@ -36,9 +43,10 @@ public class CreateButton implements IFunction {
         button.setId("save_butonlari");
         return button;
     }
-    public static Button confirmButton(){
+
+    public static Button confirmButton() {
         ImageView iconConfirm = ImageFunction.LoadImage("ICONS/confirm.png");
-        Button button = new Button("Confirm",iconConfirm);
+        Button button = new Button("Confirm", iconConfirm);
         button.setId("confirm_butonlari");
         return button;
     }
