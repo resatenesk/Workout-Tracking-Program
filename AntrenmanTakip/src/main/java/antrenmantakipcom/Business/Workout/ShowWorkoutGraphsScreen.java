@@ -5,8 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import antrenmantakipcom.Business.Authorization.UserLoginFrame;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IMovementDal;
+import antrenmantakipcom.DataAccess.Abstract.IRecordsDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.MovementDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.RecordsDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.Movement;
+import antrenmantakipcom.Entities.Concrete.Records;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.animation.FadeTransition;
@@ -18,14 +25,9 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -62,7 +64,13 @@ public class ShowWorkoutGraphsScreen {
     private ObservableList<String> hareketlerListesi = FXCollections.observableArrayList();
     private String secilen_hareket;
 
+    private IRecordsDal _IRecordsDal;
+    private IMovementDal _IMovementDal;
+
     public ShowWorkoutGraphsScreen(String username) {
+
+        _IRecordsDal = new RecordsDal(Records.class);
+        _IMovementDal = new MovementDal(Movement.class);
 
         this.username = username;
         antrenmanIDsiniAl();
@@ -88,18 +96,7 @@ public class ShowWorkoutGraphsScreen {
 
         root = new BorderPane();
 
-        Image image = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/go-back-icon.png"));
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(20);
-        imageView.setFitHeight(20);
-
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-        geriDon = new Button("Geri Dön", imageViewC);
-        geriDon.setId("cikis_butonlari");
-        geriDon.setMinWidth(120);
+        geriDon = CreateButton.createExitButton();
         geriDon.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
 
@@ -239,15 +236,7 @@ public class ShowWorkoutGraphsScreen {
                 grafikKutusu.getChildren().clear();
                 return;
             }
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Hareket Yok!");
-            alert.setHeaderText(null);
-            alert.setContentText("Bu antrenman şablonunda " + secilen_hareket
-                    + " hareketi için hiç veri yok. Grafik oluşturulamadı.");
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
-            grafikKutusu.getChildren().clear();
+            AlertFunction.ThereIsNoWorkoutThereAlert();
             secilen_hareket = null;
             return;
         }
@@ -269,45 +258,11 @@ public class ShowWorkoutGraphsScreen {
             yEkseni.setLabel("KG/Tekrar");
             yEkseni.setAutoRanging(false);
 
-            if (secilen_hareket.equals("Bench Press")) {
-                yEkseni.setLowerBound(60);
-                yEkseni.setUpperBound(100);
-                yEkseni.setTickUnit(5);
-            }
-            if (secilen_hareket.equals("Incline Dumbell Press")) {
-                yEkseni.setLowerBound(20);
-                yEkseni.setUpperBound(50);
-                yEkseni.setTickUnit(2.5);
-            }
-            if (secilen_hareket.equals("High Cable Crossover")) {
-                yEkseni.setLowerBound(15);
-                yEkseni.setUpperBound(40);
-                yEkseni.setTickUnit(5);
-            }
-            if (secilen_hareket.equals("Dumbell Shoulder Press")) {
-                yEkseni.setLowerBound(15);
-                yEkseni.setUpperBound(40);
-                yEkseni.setTickUnit(2.5);
-            }
-            if (secilen_hareket.equals("Triceps Dips")) {
-                yEkseni.setLowerBound(0);
-                yEkseni.setUpperBound(15);
-                yEkseni.setTickUnit(1);
-            }
-            if (secilen_hareket.equals("Lateral Raise")) {
-                yEkseni.setLowerBound(0);
-                yEkseni.setUpperBound(20);
-                yEkseni.setTickUnit(2.5);
-            }
-            if (secilen_hareket.equals("Dumbell Skull Crusher")) {
-                yEkseni.setLowerBound(0);
-                yEkseni.setUpperBound(20);
-                yEkseni.setTickUnit(2.5);
-            }
-
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
             lineChart.setTitle(secilen_hareket + " İlerleme Grafiği");
             lineChart.setAnimated(true);
+
+            _IRecordsDal.CheckIF(secilen_hareket, yEkseni);
 
             XYChart.Series<String, Number> agirliklar = new XYChart.Series<>();
             agirliklar.setName("Ağırlıklar");

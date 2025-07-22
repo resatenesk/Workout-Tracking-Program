@@ -14,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -108,21 +107,11 @@ public class AddNewUserScreen {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoIcon = ImageFunction.LoadImage("/ICONS/info.png");
-        infoIcon.setStyle(
-                "-fx-text-fill: #007acc; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-cursor: hand;");
-        infoIcon.setPreserveRatio(true);
-        infoIcon.setStyle("-fx-cursor: hand;");
-        Tooltip passwordTooltip = new Tooltip(
-                "Parola Kuralları:\n" +
-                        "- En az 8 karakter\n" +
-                        "- En az 1 büyük harf\n" +
-                        "- En az 1 rakam\n" +
-                        "- En az 1 özel karakter (@, #, !, vs.)");
-        Tooltip.install(infoIcon, passwordTooltip);
+        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "Parolanız Kuralları Şunlardır:\n" +
+                "- En az 8 karakter\n" +
+                "- En az 1 büyük harf\n" +
+                "- En az 1 rakam\n" +
+                "- En az 1 özel karakter (@, #, !, vs.)");
 
         GeriDonButton = CreateButton.createExitButton();
         GeriDonButton.setOnAction(e -> {

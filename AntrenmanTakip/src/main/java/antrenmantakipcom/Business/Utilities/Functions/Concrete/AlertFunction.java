@@ -155,4 +155,13 @@ public class AlertFunction implements IFunction {
         alert.setContentText("Lütfen Tarih Seçiniz.");
         alert.showAndWait();
     }
+
+    public static void ThereIsNoWorkoutThereAlert() {
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("Hareket Yok!");
+        alert.setHeaderText(null);
+        alert.setContentText("Bu antrenman şablonunda bu hareket için hiç veri yok. Grafik oluşturulamadı.");
+       
+        alert.showAndWait();
+    }
 }

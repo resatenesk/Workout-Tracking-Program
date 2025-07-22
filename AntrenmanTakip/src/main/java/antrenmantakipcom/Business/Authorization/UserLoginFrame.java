@@ -168,7 +168,6 @@ public class UserLoginFrame {
             user.setPassword(password);
             UserDal userDal = new UserDal(User.class);
             int user_id = userDal.selectUserID(user);
-            String sorgu = "SELECT * FROM users WHERE username=? AND password=?";
 
             if (user_id > 0) {
                 MainScreen.setUsername(username);

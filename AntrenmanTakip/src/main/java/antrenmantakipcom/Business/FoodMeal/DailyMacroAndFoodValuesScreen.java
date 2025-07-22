@@ -1,9 +1,5 @@
 package antrenmantakipcom.Business.FoodMeal;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -12,10 +8,11 @@ import org.controlsfx.control.CheckComboBox;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IDailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Abstract.IMealDal;
 import antrenmantakipcom.DataAccess.Abstract.IUserDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.DailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.MealDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
-import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.DailyFoodValue;
 import antrenmantakipcom.Entities.Concrete.Food;
 import antrenmantakipcom.Entities.Concrete.Meal;
@@ -83,6 +80,7 @@ public class DailyMacroAndFoodValuesScreen {
 
     IDailyFoodValueDal _DailyFoodValueDal;
     IUserDal _IUserDal;
+    IMealDal _IMealDal;
 
     public DailyMacroAndFoodValuesScreen(String username) {
         this.username = username;
@@ -94,7 +92,7 @@ public class DailyMacroAndFoodValuesScreen {
         User user = new User();
         user.setUsername(username);
         user_id = _IUserDal.selectUserID(user);
-        System.out.println(username + " / " + user_id);
+        _IMealDal = new MealDal(Meal.class);
 
         food_list = FXCollections.observableArrayList();
         meal_list = FXCollections.observableArrayList();
@@ -143,7 +141,7 @@ public class DailyMacroAndFoodValuesScreen {
                     AlertFunction.FailAlert();
                 }
             } else {
-                AlertFunction.MissingDataAlert();
+                AlertFunction.NoElementsSelectedAlert();
             }
         });
 
@@ -219,7 +217,7 @@ public class DailyMacroAndFoodValuesScreen {
                                     totalCal, totalFat, totalCarb, totalProt));
                 });
 
-        saveManualButton = new Button("Save");
+        saveManualButton = CreateButton.createSaveButton();
         saveManualButton.setOnAction(e -> {
             SaveDailyCalorieManual();
             information.setText("");
@@ -284,7 +282,7 @@ public class DailyMacroAndFoodValuesScreen {
 
         protHBox.getChildren().addAll(protLabel, protTextField);
 
-        saveButton = new Button("Save");
+        saveButton = CreateButton.createSaveButton();
         saveButton.setPrefSize(120, 40);
         saveButton.setMaxSize(120, 40);
 
@@ -294,6 +292,7 @@ public class DailyMacroAndFoodValuesScreen {
             carbTextField.setText("");
             calorieTextField.setText("");
             protTextField.setText("");
+            datePicker.setValue(null);
         });
 
         datePicker = new DatePicker();
@@ -366,25 +365,11 @@ public class DailyMacroAndFoodValuesScreen {
     }
 
     public void getData() {
-        try (Connection con = Database.connect()) {
 
-            String sorgu2 = "SELECT meal_name,total_cal,total_fat,total_carb,total_prot FROM saved_meals WHERE user_id = ?";
-            PreparedStatement ps2 = con.prepareStatement(sorgu2);
-            ps2.setInt(1, user_id);
-            ResultSet rs2 = ps2.executeQuery();
-            while (rs2.next()) {
-                String meal_name = rs2.getString("meal_name");
-                float totalCal = rs2.getFloat("total_cal");
-                float totalFat = rs2.getFloat("total_fat");
-                float totalCarb = rs2.getFloat("total_carb");
-                float totalProt = rs2.getFloat("total_prot");
-                Meal meal = new Meal(user_id, meal_name, totalCal, totalFat, totalCarb, totalProt);
-                meal_list.add(meal);
-
-            }
+            meal_list = _IMealDal.GetAll("SELECT * FROM saved_meals WHERE user_id = ?", user_id);
             selectMeal.getItems().setAll(meal_list);
-        } catch (SQLException ex) {
-        }
+            
+        
 
     }
 

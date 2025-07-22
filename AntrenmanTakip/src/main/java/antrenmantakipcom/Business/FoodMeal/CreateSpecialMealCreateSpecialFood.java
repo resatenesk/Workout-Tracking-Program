@@ -183,7 +183,7 @@ public class CreateSpecialMealCreateSpecialFood {
             saveMeal();
         });
         
-        showMealList = new Button("Show Meal List");
+        showMealList = CreateButton.createListButton();
         showMealList.setOnAction(e -> {
             showMealList();
             TranslateTransition transition = new TranslateTransition(Duration.millis(300), translatedListPanelMeal);
@@ -212,7 +212,7 @@ public class CreateSpecialMealCreateSpecialFood {
             }
         });
         
-        showFoodList = new Button("Show Food List");
+        showFoodList =  CreateButton.createListButton();
         showFoodList.setOnAction(e -> {
             verileriCek();
 

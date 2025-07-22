@@ -18,7 +18,8 @@ public class Records implements IEntity {
     private int tekrar;
     private Date tarih;
 
-    public Records(int id, String username, int antrenman_id, int gun_no, String hareket_adi, int set_no, double agirlik,
+    public Records(int id, String username, int antrenman_id, int gun_no, String hareket_adi, int set_no,
+            double agirlik,
             int tekrar, Date tarih) {
         this.id = id;
         this.username = username;

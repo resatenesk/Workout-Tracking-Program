@@ -4,7 +4,6 @@ import antrenmantakipcom.Business.Authorization.UserLoginFrame;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -19,10 +18,10 @@ public class Main extends Application {
         primaryStage = stage;
 
         // İlk ekran
-        StackPane baslangicRoot = UserLoginFrame.getRoot(); // Ana ekran ilk açılacak ekran
+        StackPane baslangicRoot = UserLoginFrame.getRoot(); 
 
-        rootStack.getChildren().add(baslangicRoot); // StackPane'e ekle
-        mainScene = new Scene(rootStack, 1200, 1000); // Scene'e StackPane'i ver
+        rootStack.getChildren().add(baslangicRoot); 
+        mainScene = new Scene(rootStack, 1200, 1000); 
 
         mainScene.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
         primaryStage.setScene(mainScene);
@@ -31,35 +30,34 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public static void setRoot(javafx.scene.Node newRoot) {
-        double width = mainScene.getWidth();
+public static void setRoot(javafx.scene.Node newRoot) {
+    double width = mainScene.getWidth();
 
-        newRoot.setTranslateX(width); // yeni root sağdan başlasın
-        rootStack.getChildren().add(newRoot);
+    newRoot.setTranslateX(width); 
+    rootStack.getChildren().add(newRoot);
 
-        // SLIDE IN
-        TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), newRoot);
-        slideIn.setFromX(width);
-        slideIn.setToX(0);
+    TranslateTransition slideIn = new TranslateTransition(Duration.millis(350), newRoot);
+    slideIn.setFromX(width);
+    slideIn.setToX(0);
 
-        // SLIDE OUT (varsa)
-        if (rootStack.getChildren().size() > 1) {
-            Pane eskiRoot = (Pane) rootStack.getChildren().get(0);
+    if (!rootStack.getChildren().isEmpty()) {
+        javafx.scene.Node eskiRoot = rootStack.getChildren().get(0);
 
-            TranslateTransition slideOut = new TranslateTransition(Duration.millis(350), eskiRoot);
-            slideOut.setFromX(0);
-            slideOut.setToX(-width);
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(350), eskiRoot);
+        slideOut.setFromX(0);
+        slideOut.setToX(-width);
 
-            slideOut.setOnFinished(event -> {
-                rootStack.getChildren().remove(eskiRoot);
-                
-            });
+        slideOut.setOnFinished(event -> {
+            rootStack.getChildren().remove(eskiRoot);
+        });
 
-            slideOut.play();
-        }
-
-        slideIn.play();
+        slideOut.play();
     }
+
+    slideIn.play();
+}
+
+
 
     public static Stage getPrimaryStage() {
         return primaryStage;

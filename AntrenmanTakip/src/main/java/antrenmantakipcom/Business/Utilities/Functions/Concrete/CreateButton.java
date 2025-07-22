@@ -18,7 +18,7 @@ public class CreateButton implements IFunction {
 
     public static Button createListButton() {
         ImageView iconClose = ImageFunction.LoadImage("ICONS/ikon3.png");
-        Button button = new Button("List", iconClose);
+        Button button = new Button("", iconClose);
         button.setId("list_butonlari");
         return button;
     }

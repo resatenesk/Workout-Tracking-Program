@@ -6,7 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IDailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Abstract.IUserDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.DailyFoodValueDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.DailyFoodValue;
+import antrenmantakipcom.Entities.Concrete.User;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.collections.FXCollections;
@@ -18,8 +25,6 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -37,70 +42,23 @@ public class ShowFoodGraphs {
     private Button nextButton2;
     private StackPane graphsBox;
     private StackPane PieChartBox;
-    private ObservableList<Data> dataList = FXCollections.observableArrayList();
+    private ObservableList<DailyFoodValue> dataList;
     private int user_id = 0;
     private Button geriDon;
-
-    public class Data {
-        private int user_id;
-        private int totalCal;
-        private int totalFat;
-        private int totalCarb;
-        private int totalProt;
-        private Date date;
-
-        public Data(int user_id, int totalCal, int totalFat, int totalCarb, int totalProt, Date date) {
-            this.date = date;
-            this.totalCal = totalCal;
-            this.totalFat = totalFat;
-            this.totalCarb = totalCarb;
-            this.totalProt = totalProt;
-        }
-
-        public int getUser_id() {
-            return user_id;
-        }
-
-        public int getTotalCal() {
-            return totalCal;
-        }
-
-        public int getTotalFat() {
-            return totalFat;
-        }
-
-        public int getTotalCarb() {
-            return totalCarb;
-        }
-
-        public int getTotalProt() {
-            return totalProt;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        @Override
-        public String toString() {
-            return "TotalCal: " + totalCal + " TotalFat: " + totalFat + " TotalCarb: " + totalCarb + " TotalProt: "
-                    + totalProt + " Tarih: " + date;
-        }
-
-    }
+    private IUserDal _IUserDal;
+    private IDailyFoodValueDal _DailyFoodValueDal;
 
     public ShowFoodGraphs(String username) {
+        _IUserDal = new UserDal(User.class);
+        _DailyFoodValueDal = new DailyFoodValueDal(DailyFoodValue.class);
 
         this.username = username;
+        User user = new User();
+        user.setUsername(username);
+        user_id = _IUserDal.selectUserID(user);
         pane = new BorderPane();
-        //pane.setStyle("-fx-border-size:5px;-fx-border-color:green");
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-        geriDon = new Button("Exit", imageViewC);
-        geriDon.setId("cikis_butonlari");
+        geriDon = CreateButton.createExitButton();
         geriDon.setOnAction(e -> {
             try {
                 Main.setRoot(MainScreen.getRoot());
@@ -109,8 +67,6 @@ public class ShowFoodGraphs {
         });
 
         generalBox = new VBox(10);
-        //generalBox.setStyle("-fx-border-size:5px;-fx-border-color:green");
-
         LineChartHBox = new HBox(10);
         LineChartHBox.setAlignment(Pos.CENTER);
         PieChartHBox = new HBox(10);
@@ -126,18 +82,14 @@ public class ShowFoodGraphs {
             drawGraphs(30);
         });
         nextButton1.setPrefSize(150, 40);
-        // previousButton2 = new Button("Previous");
-        // previousButton2.setPrefSize(120, 40);
-        // nextButton2 = new Button("Next");
-        // nextButton2.setPrefSize(120, 40);
 
         graphsBox = new StackPane();
-        //graphsBox.setStyle("-fx-border-size:5px;-fx-border-color:green");
+     
         graphsBox.setPrefSize(500, 500);
         graphsBox.setMaxSize(500, 500);
 
         PieChartBox = new StackPane();
-        //PieChartBox.setStyle("-fx-border-size:5px;-fx-border-color:green");
+     
         PieChartBox.setPrefSize(500, 500);
         PieChartBox.setMaxSize(500, 500);
 
@@ -164,34 +116,9 @@ public class ShowFoodGraphs {
     }
 
     public void getData() {
-        try (Connection con = Database.connect()) {
-            String sorguID = "SELECT user_id FROM users WHERE username = ?";
-            PreparedStatement psID = con.prepareStatement(sorguID);
-            psID.setString(1, username);
-            ResultSet rsID = psID.executeQuery();
-            while (rsID.next()) {
-                user_id = rsID.getInt("user_id");
-            }
-
-            String sorgu = "SELECT calorie, fat, carb, prot, date FROM daily_food_values WHERE user_id = ?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setInt(1, user_id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int cal = (int) (rs.getFloat("calorie"));
-                int fat = (int) (rs.getFloat("fat"));
-                int carb = (int) (rs.getFloat("carb"));
-                int prot = (int) (rs.getFloat("prot"));
-                Date date = rs.getDate("date");
-
-                Data data = new Data(user_id, cal, fat, carb, prot, date);
-                dataList.add(data);
-
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        dataList = _DailyFoodValueDal.GetAll(
+                "SELECT id ,user_id , calorie , fat , carb , prot , date FROM daily_food_values WHERE user_id = ?",
+                user_id);
     }
 
     public void drawGraphs(int gunSayisi) {
