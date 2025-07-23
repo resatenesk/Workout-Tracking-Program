@@ -47,6 +47,7 @@ public class Records implements IEntity {
 
     }
 
+
     @Override
     public String getInsertQuery() {
         return "INSERT INTO kayitlar (username,antrenman_id,gun_no,hareket_adi,set_no,agirlik,tekrar,tarih) VALUES (?,?,?,?,?,?,?,?)";
@@ -82,6 +83,7 @@ public class Records implements IEntity {
         ps.setDate(8, tarih);
 
     }
+
 
     @Override
     public void fillUpdateParameters(PreparedStatement ps) throws SQLException {

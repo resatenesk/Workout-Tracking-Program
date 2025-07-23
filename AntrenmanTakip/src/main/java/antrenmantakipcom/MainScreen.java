@@ -4,6 +4,7 @@ import antrenmantakipcom.Business.Authorization.UserLoginFrame;
 import antrenmantakipcom.Business.FoodMeal.CreateSpecialMealCreateSpecialFood;
 import antrenmantakipcom.Business.FoodMeal.DailyMacroAndFoodValuesScreen;
 import antrenmantakipcom.Business.FoodMeal.ShowFoodGraphs;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.Business.Workout.AddWorkoutScreen;
 import antrenmantakipcom.Business.Workout.ShowWorkoutGraphsScreen;
 import antrenmantakipcom.Business.Workout.WorkoutStyleAndDaySelectionScreen;
@@ -38,8 +39,9 @@ public class MainScreen {
 
     
     public static BorderPane getRoot() {
-
+        
         root = new BorderPane();
+        root.setFocusTraversable(true); 
         bilesenler();
         ayarlamalar();
         return root;
@@ -74,7 +76,7 @@ public class MainScreen {
             }
 
         });
-        Label label = new Label("Antrenman Oluşturuldu...");
+        Label label = new Label("Workout Was Created...");
         label.setVisible(false);
         Image image1 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/ekle.png"));
         ImageView imageView1 = new ImageView(image1);
@@ -128,12 +130,9 @@ public class MainScreen {
             Main.setRoot(meal.getPane());
         });
 
-        Image image6 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/calgraph.png"));
-        ImageView imageView6 = new ImageView(image6);
-        imageView6.setFitWidth(30);
-        imageView6.setFitHeight(30);
 
-        besin_grafikleri = new Button("Show Food Graphics", imageView6);
+        besin_grafikleri = CreateButton.createListButton();
+        besin_grafikleri.setText("Show Food Graphs");
         besin_grafikleri.setOnAction(e -> {
             ShowFoodGraphs graphs = new ShowFoodGraphs(username);
             Main.setRoot(graphs.getPane());
@@ -141,11 +140,8 @@ public class MainScreen {
         besin_grafikleri.setMinWidth(150);
         besin_grafikleri.setMinHeight(50);
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(30);
-        imageViewC.setFitHeight(30);
-        cikis_yap = new Button("Exit", imageViewC);
+     
+        cikis_yap = CreateButton.createExitButton();
         cikis_yap.setId("cikis_butonlari");
 
         cikis_yap.setMinWidth(150);

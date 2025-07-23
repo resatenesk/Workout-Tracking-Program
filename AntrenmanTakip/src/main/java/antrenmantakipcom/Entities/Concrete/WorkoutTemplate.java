@@ -13,8 +13,7 @@ public class WorkoutTemplate implements IEntity {
     private String antrenman_tipi;
     private int gun_sayisi;
 
-    public WorkoutTemplate(int antrenman_id, int user_id, String username, String antrenman_tipi, int gun_sayisi) {
-        this.antrenman_id = antrenman_id;
+    public WorkoutTemplate(int user_id, String username, String antrenman_tipi, int gun_sayisi) {
         this.user_id = user_id;
         this.username = username;
         this.antrenman_tipi = antrenman_tipi;
@@ -67,7 +66,7 @@ public class WorkoutTemplate implements IEntity {
     @Override
     public String toString() {
         return "{" +
-                " antrenman_id='" + getAntrenmanID() + "'" +
+        ", antrenman_id :"+ getAntrenmanID() + " "+
                 ", user_id='" + getUserID() + "'" +
                 ", username='" + getUsername() + "'" +
                 ", antrenman_tipi='" + getAntrenmanTipi() + "'" +
@@ -77,16 +76,19 @@ public class WorkoutTemplate implements IEntity {
 
     @Override
     public IEntity fromResultSet(ResultSet rs) throws SQLException {
-        WorkoutTemplate workout = new WorkoutTemplate(rs.getInt("id"), rs.getInt("user_id"),
-                rs.getString("username"), rs.getString("antrenman_tipi"), rs.getInt("gun_sayisi"));
-        return workout;
+       this.antrenman_id = rs.getInt("id");
+       this.user_id = rs.getInt("user_id");
+       this.username = rs.getString("username");
+       this.antrenman_tipi = rs.getString("antrenman_tipi");
+       this.gun_sayisi = rs.getInt("gun_sayisi");
+       return this;
 
     }
 
-    @Override
-    public String getInsertQuery() {
-        return "INSERT INTO eklenen_antrenman_sablonlari (id,user_id,username,antrenman_tipi,gun_sayisi)";
-    }
+   public String getInsertQuery() {
+    return "INSERT INTO eklenen_antrenman_sablonlari (user_id, username, antrenman_tipi, gun_sayisi) VALUES (?, ?, ?, ?)";
+}
+
 
     @Override
     public String getUpdateQuery() {
@@ -100,11 +102,10 @@ public class WorkoutTemplate implements IEntity {
 
     @Override
     public void fillInsertParameters(PreparedStatement ps) throws SQLException {
-        ps.setInt(1, antrenman_id);
-        ps.setInt(2, user_id);
-        ps.setString(3, username);
-        ps.setString(4, antrenman_tipi);
-        ps.setInt(5, gun_sayisi);
+        ps.setInt(1, user_id);
+        ps.setString(2, username);
+        ps.setString(3, antrenman_tipi);
+        ps.setInt(4, gun_sayisi);
     }
 
     @Override

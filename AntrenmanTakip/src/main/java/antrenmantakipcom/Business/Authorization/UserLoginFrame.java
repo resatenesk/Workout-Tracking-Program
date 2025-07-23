@@ -39,7 +39,7 @@ public class UserLoginFrame {
     public static StackPane getRoot() {
 
         rootGenel = new StackPane();
-        rootGenel.setId("rootGenel");
+        rootGenel.setId("rootGeneral");
         rootGenel.getStylesheets().add(UserLoginFrame.class.getResource("/static/style.css").toExternalForm());
         bilesenler();
         try {
@@ -111,15 +111,15 @@ public class UserLoginFrame {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "Parolanız Yanlışsa Kontrol Ediniz:\n" +
-                        "- En az 8 karakter\n" +
-                        "- En az 1 büyük harf\n" +
-                        "- En az 1 rakam\n" +
-                        "- En az 1 özel karakter (@, #, !, vs.)");
+        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "If your password is wrong, please check out:\n" +
+                "- Enat least 8 characters\n" +
+                "- At least 1 uppercase letter\n" +
+                "- At least 1 number\n" +
+                "- At least 1 special character (@, #, !, etc.)");
 
         imageLogin = ImageFunction.LoadImage("/ICONS/ikon1.png");
 
-        LoginButton = new Button("Giriş Yap", imageLogin);
+        LoginButton = new Button("Login", imageLogin);
         LoginButton.setOnAction(e -> {
             try {
 
@@ -134,14 +134,14 @@ public class UserLoginFrame {
 
         addNewUserImageView = ImageFunction.LoadImage("/ICONS/ekle.png");
 
-        RegisterButton = new Button("Yeni Kullanıcı Oluştur", addNewUserImageView);
+        RegisterButton = new Button("Create New User", addNewUserImageView);
         RegisterButton.setOnAction(e -> {
 
             try {
                 AddNewUserScreen ekran = new AddNewUserScreen();
                 Main.setRoot(ekran.getRoot());
             } catch (Exception ex) {
-                System.out.println("yeni sekme açılırken hata oluştu...");
+               
                 ex.printStackTrace();
             }
         });

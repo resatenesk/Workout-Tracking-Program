@@ -5,20 +5,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
+import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
+import antrenmantakipcom.DataAccess.Abstract.IUserDal;
+import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.UserDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
+import antrenmantakipcom.Entities.Concrete.User;
+import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -41,6 +44,8 @@ public class WorkoutStyleAndDaySelectionScreen {
     static int user_id;
     static Button cikis_yap;
     static BorderPane root;
+    static IUserDal _IUserDal = new UserDal(User.class);
+    static IWorkoutDal _WorkoutDal = new WorkoutTemplateDal(WorkoutTemplate.class);
 
     public static void setUsername(String username) {
         WorkoutStyleAndDaySelectionScreen.username = username;
@@ -55,12 +60,7 @@ public class WorkoutStyleAndDaySelectionScreen {
 
     public void bilesenler() {
 
-        Image imageC = new Image(MainScreen.class.getResourceAsStream("/ICONS/logout.png"));
-        ImageView imageViewC = new ImageView(imageC);
-        imageViewC.setFitWidth(20);
-        imageViewC.setFitHeight(20);
-        cikis_yap = new Button("Geri Dön", imageViewC);
-        cikis_yap.setId("cikis_butonlari");
+        cikis_yap = CreateButton.createExitButton();
         cikis_yap.setOnAction(e -> {
             try {
                 Main.setRoot(MainScreen.getRoot());
@@ -71,10 +71,10 @@ public class WorkoutStyleAndDaySelectionScreen {
         program_turu_combo_box = new ComboBox<>();
         gun_sayisi_combo_box = new ComboBox<>();
         uyariLabel = new Label();
-        label1 = new Label("Antrenman Tipini Belirleyiniz:");
+        label1 = new Label("Determine Training Type:");
         label1.setStyle("-fx-font-size:20px");
-        label2 = new Label("Gün sayısını belirleyiniz:");
-        label2.setStyle("-fx-font-size: 20px; -fx-padding: 0 0 0 50;");
+        label2 = new Label("Specify the number of days:");
+        label2.setStyle("-fx-font-size: 20px; -fx-padding: 0 0 0 0;");
         uyariLabel.setStyle("-fx-font-size:10px");
         program_turu_combo_box.setPrefWidth(150);
         gun_sayisi_combo_box.setPrefWidth(150);
@@ -84,12 +84,9 @@ public class WorkoutStyleAndDaySelectionScreen {
         gun_sayisi_combo_box.setId("gun_sayisi_cb");
 
         databaseBilesenleriEkle();
-        button = new Button("+");
-        button.setId("antrenman_ekleme");
+        button = CreateButton.createSaveButton();
         button.setOnAction(event -> {
-
             antrenman_ekle();
-
         });
 
         program_turu_combo_box.setOnAction(e -> {
@@ -116,7 +113,7 @@ public class WorkoutStyleAndDaySelectionScreen {
 
         gun_sayisi_combo_box.setOnShowing(event -> {
             if (program_turu_combo_box.getValue() == null) {
-                uyariLabel.setText("Önce Program Tipini Belirleyiniz.");
+                uyariLabel.setText("First, Determine the Program Type.");
                 FadeTransition fade = new FadeTransition(Duration.millis(1500), uyariLabel);
                 fade.setFromValue(0);
                 fade.setToValue(1);
@@ -160,65 +157,26 @@ public class WorkoutStyleAndDaySelectionScreen {
         Integer secilen_gun_sayisi = gun_sayisi_combo_box.getValue();
 
         if (secilen_antrenman_tipi == null || secilen_gun_sayisi == null) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Uyarı");
-            alert.setHeaderText(null);
-            alert.setContentText("Lütfen hem antrenman tipini hem de gün sayısını seçiniz!");
-
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-            alert.showAndWait();
+            AlertFunction.MissingDataAlert();
             return;
         }
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT user_id FROM users WHERE username= ?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                user_id = rs.getInt("user_id");
-            }
-        } catch (SQLException e1) {
-            e1.printStackTrace();
+        User user = new User();
+        user.setUsername(username);
+        int user_id = _IUserDal.selectUserID(user);
+        WorkoutTemplate program = new WorkoutTemplate(user_id, username, secilen_antrenman_tipi, secilen_gun_sayisi);
+        System.out.println(user_id + " " + username + " " + secilen_antrenman_tipi + " " + secilen_gun_sayisi);
+        int result = _WorkoutDal.Add(program);
+        if (result > 0) {
+            CreatingWorkoutsScreen tabloEkrani = new CreatingWorkoutsScreen(antrenman_id, user_id, username,
+                    secilen_antrenman_tipi,
+                    secilen_gun_sayisi);
+
+            Main.setRoot(tabloEkrani.getRoot());
+
+        } else {
+            AlertFunction.FailAlert();
         }
 
-        try (Connection con = Database.connect()) {
-            String sorgu = "INSERT INTO eklenen_antrenman_sablonlari (user_id,username,antrenman_tipi,gun_sayisi) VALUES (?,?,?,?)";
-            PreparedStatement ps = con.prepareStatement(sorgu, PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, user_id);
-            ps.setString(2, username);
-            ps.setString(3, secilen_antrenman_tipi);
-            ps.setInt(4, secilen_gun_sayisi);
-
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                ResultSet generatedKeys = ps.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    antrenman_id = generatedKeys.getInt(1);
-                }
-
-                CreatingWorkoutsScreen tabloEkrani = new CreatingWorkoutsScreen(antrenman_id, user_id, username,
-                        secilen_antrenman_tipi,
-                        secilen_gun_sayisi);
-
-                Main.setRoot(tabloEkrani.getRoot());
-
-            } else {
-                Alert alert2 = new Alert(AlertType.INFORMATION);
-                alert2.setTitle("Bilgi");
-                alert2.setHeaderText(null);
-                alert2.setContentText("Antrenman Eklenemedi. Tekrar Deneyiniz.");
-
-                DialogPane dialogPane = alert2.getDialogPane();
-                dialogPane.getStylesheets().add(getClass().getResource("/static/alertStyle.css").toExternalForm());
-                alert2.showAndWait();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void databaseBilesenleriEkle() {
@@ -232,7 +190,6 @@ public class WorkoutStyleAndDaySelectionScreen {
             }
 
         } catch (SQLException e) {
-            System.out.println("Database bağlantısı kurulamadı!");
             e.printStackTrace();
         }
     }

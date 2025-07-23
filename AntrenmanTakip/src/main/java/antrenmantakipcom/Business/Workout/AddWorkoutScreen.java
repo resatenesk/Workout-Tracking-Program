@@ -89,9 +89,9 @@ public class AddWorkoutScreen {
         root.setPadding(new Insets(20));
 
         datePicker = new DatePicker();
-        datePicker.setPromptText("Tarih Seçiniz");
+        datePicker.setPromptText("Please select a date");
 
-        Label baslik = new Label("Antrenman Ekleme Ekranı");
+        Label baslik = new Label("Adding Workout Screen");
         baslik.setStyle("-fx-font-size:20px");
 
         HBox header = new HBox(baslik);
@@ -108,14 +108,17 @@ public class AddWorkoutScreen {
 
         HBox footer = new HBox(geriButton);
         footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.setPadding(new Insets(10, 10, 0, 10)); // Dış boşluk
         // footer.setStyle("-fx-border-width:2px;-fx-border-color:red");
         root.setBottom(footer);
 
         icerikSol = new VBox(2);
         icerikSol.setMargin(antrenmanIDlabel, Insets.EMPTY);
         icerikSol.setAlignment(Pos.CENTER);
+        icerikSol.setPrefHeight(300);
+        icerikSol.setMaxHeight(300);
         // icerikSol.setStyle("-fx-border-width:2px;-fx-border-color:green");
-        icerikSol.setPadding(new Insets(0, 0, 300, 0));
+        icerikSol.setPadding(new Insets(0, 0, 0, 0));
         tablo = tabloyuGetir();
         tablo.setOnMouseClicked(e -> {
             gun_listesi.clear();
@@ -164,21 +167,23 @@ public class AddWorkoutScreen {
 
         icerikSag = new VBox(30);
         // icerikSag.setStyle("-fx-border-width:2px;-fx-border-color:green");
+        icerikSag.setPadding(new Insets(0, 10, 10, 10)); // Dış boşluk
         icerikSag.setPrefWidth(700);
         icerikSag.setMaxWidth(700);
+        icerikSag.setPrefHeight(500);
+        icerikSag.setMaxHeight(500);
         icerikSag.setAlignment(Pos.TOP_CENTER);
 
         infoIcon = ImageFunction.LoadTooltip(
                 "/ICONS/info.png",
-                "Eklemek istediğiniz antrenmanı seçiniz.\n" +
-                        " Ardından eklemek istediğiniz günü seçiniz. Daha sonra hareketleri tek tek giriniz.\n" +
-                        " Ama dikkat ediniz, tekrarların ve ağırlıkların arasına , koyunuz. Veriler , ile birbirinden ayrılıyor.");
-
+                "Select the workout you want to add.\n" +
+                        "Then select the day you want to add it. Then enter the exercises one by one.\n" +
+                        "But be careful, put a , between the reps and weights. The data is separated by ,.");
         HBox kacinciGunHBox = new HBox(10);
         kacinciGunHBox.setAlignment(Pos.CENTER);
         // kacinciGunHBox.setStyle("-fx-border-width:2px;-fx-border-color:green");
 
-        kacinciGunLabel = new Label("Kaçıncı Güne Hareket Ekleyeceksiniz ?");
+        kacinciGunLabel = new Label("On which day will you add movement?");
         kacinciGunLabel.setStyle("-fx-font-size:15px;");
 
         textFieldVBox = new VBox(5);
@@ -201,8 +206,6 @@ public class AddWorkoutScreen {
         kacinciGunHBox.getChildren().addAll(kacinciGunLabel, kacincıGunComboBox, infoIcon);
         root.setLeft(icerikSol);
         root.setRight(icerikSag);
-        root.setBottom(geriButton);
-
     }
 
     public void tablodanVeriSil() {
@@ -210,7 +213,7 @@ public class AddWorkoutScreen {
         if (secilenVeri != null) {
             Optional<ButtonType> result1 = AlertFunction.ConfirmAlert();
 
-            if (result1.isPresent() && result1.get().getText().equals("Evet")) {
+            if (result1.isPresent() && result1.get().getText().equals("Yes")) {
                 int id = secilenVeri.getAntrenmanID();
                 _WorkoutDal.Delete(secilenVeri, id);
                 liste.remove(secilenVeri);
@@ -273,7 +276,7 @@ public class AddWorkoutScreen {
             String[] tekrarlars = tekrarText.split(",");
 
             if (agirliklar.length != tekrarlars.length) {
-                System.out.println("Set sayısı uyuşmuyor: " + hareket_adi);
+                System.out.println("Number of sets does not match:" + hareket_adi);
                 continue;
             }
 
@@ -299,17 +302,24 @@ public class AddWorkoutScreen {
 
     public void hareketleriOlustur() {
         WorkoutTemplate secilenVeri = (WorkoutTemplate) tablo.getSelectionModel().getSelectedItem();
-        if (secilenVeri == null)
+        if (secilenVeri == null) {
             return;
-        
+        }
 
         int antrenman_id = secilenVeri.getAntrenmanID();
-        int secilenGun = kacincıGunComboBox.getValue();
-        String category = secilenVeri.getAntrenmanTipi();
-        if (secilenGun == 0)
-            return;
 
-        ObservableList<AddedWorkoutProgram> list = _AddedWorkoutProgramDal.GetAll("SELECT * FROM eklenen_antrenman_programlari WHERE antrenman_id = ? AND gun_no = ?",antrenman_id,secilenGun); 
+        Integer gunIndex = kacincıGunComboBox.getValue();
+        if (gunIndex == null) {
+            return;
+        }
+        String category = secilenVeri.getAntrenmanTipi();
+        if (secilenGun == 0) {
+            return;
+        }
+
+        ObservableList<AddedWorkoutProgram> list = _AddedWorkoutProgramDal.GetAll(
+                "SELECT * FROM eklenen_antrenman_programlari WHERE antrenman_id = ? AND gun_no = ?", antrenman_id,
+                secilenGun);
 
         labeller.clear();
         hareketSatirlari.clear();
@@ -317,54 +327,54 @@ public class AddWorkoutScreen {
 
         int satirIndex = 0;
         for (AddedWorkoutProgram program : list) {
-            
-                String hareket_adi = program.getHareket_adi();
 
-                Label label = new Label(hareket_adi);
-                label.setStyle("-fx-font-size: 14px; -fx-padding: 5 0 5 10;");
+            String hareket_adi = program.getHareket_adi();
 
-                TextField textFieldSol = new TextField();
-                textFieldSol.setPromptText("Kg");
+            Label label = new Label(hareket_adi);
+            label.setStyle("-fx-font-size: 14px; -fx-padding: 5 0 5 10;");
 
-                TextField textFieldSag = new TextField();
-                textFieldSag.setPromptText("Tekrar");
+            TextField textFieldSol = new TextField();
+            textFieldSol.setPromptText("Weight");
 
-                HBox satir = new HBox(20);
+            TextField textFieldSag = new TextField();
+            textFieldSag.setPromptText("Reps");
 
-                VBox column1 = new VBox(label);
-                VBox column2 = new VBox(textFieldSol);
-                VBox column3 = new VBox(textFieldSag);
-                satir.getChildren().addAll(column1, column2, column3);
+            HBox satir = new HBox(20);
 
-                hareketSatirlari.add(satir);
-                textFieldVBox.getChildren().addAll(satir);
-                ekleButton.setVisible(true);
-                if (!icerikSag.getChildren().contains(textFieldVBox)) {
-                    icerikSag.getChildren().add(textFieldVBox);
-                }
-                if (!icerikSag.getChildren().contains(ekleButton)) {
-                    icerikSag.getChildren().add(ekleButton);
-                }
+            VBox column1 = new VBox(label);
+            VBox column2 = new VBox(textFieldSol);
+            VBox column3 = new VBox(textFieldSag);
+            satir.getChildren().addAll(column1, column2, column3);
 
-                final int currentIndex = satirIndex;
+            hareketSatirlari.add(satir);
+            textFieldVBox.getChildren().addAll(satir);
+            ekleButton.setVisible(true);
+            if (!icerikSag.getChildren().contains(textFieldVBox)) {
+                icerikSag.getChildren().add(textFieldVBox);
+            }
+            if (!icerikSag.getChildren().contains(ekleButton)) {
+                icerikSag.getChildren().add(ekleButton);
+            }
 
-                textFieldSol.setOnAction(e -> {
-                    textFieldSag.requestFocus();
-                });
+            final int currentIndex = satirIndex;
 
-                textFieldSag.setOnAction(e -> {
-                    int nextIndex = currentIndex + 1;
-                    if (nextIndex < hareketSatirlari.size()) {
-                        HBox nextSatir = hareketSatirlari.get(nextIndex);
-                        VBox nextColumn2 = (VBox) nextSatir.getChildren().get(1);
-                        if (!nextColumn2.getChildren().isEmpty()) {
-                            TextField nextTextFieldSol = (TextField) nextColumn2.getChildren().get(0);
-                            nextTextFieldSol.requestFocus();
-                        }
+            textFieldSol.setOnAction(e -> {
+                textFieldSag.requestFocus();
+            });
+
+            textFieldSag.setOnAction(e -> {
+                int nextIndex = currentIndex + 1;
+                if (nextIndex < hareketSatirlari.size()) {
+                    HBox nextSatir = hareketSatirlari.get(nextIndex);
+                    VBox nextColumn2 = (VBox) nextSatir.getChildren().get(1);
+                    if (!nextColumn2.getChildren().isEmpty()) {
+                        TextField nextTextFieldSol = (TextField) nextColumn2.getChildren().get(0);
+                        nextTextFieldSol.requestFocus();
                     }
-                });
+                }
+            });
 
-                satirIndex++;
+            satirIndex++;
         }
     }
 
@@ -377,33 +387,33 @@ public class AddWorkoutScreen {
         tablo.setMaxWidth(450);
 
         tablo.setId("antrenmanTablo");
-        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Workout ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("User ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
-        antrenmanIdCol.setPrefWidth(100);
+        userIdCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("Name");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Workout Type");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Number of Days");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
 
         tablo.setItems(veritabaniVerileriCek(this.username));
-        Label labelveriyok = new Label("İçeride veri yok :( ");
+        Label labelveriyok = new Label("No Data 🔧:(");
         labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic;-fx-font-size:10px;");
         tablo.setPlaceholder(labelveriyok);
 
@@ -414,7 +424,7 @@ public class AddWorkoutScreen {
 
     public ObservableList<WorkoutTemplate> veritabaniVerileriCek(String username) {
 
-        liste =  _WorkoutDal.GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?", username);
+        liste = _WorkoutDal.GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE username=?", username);
         return liste;
     }
 

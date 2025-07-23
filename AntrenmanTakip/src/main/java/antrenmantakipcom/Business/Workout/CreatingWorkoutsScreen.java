@@ -131,15 +131,16 @@ public class CreatingWorkoutsScreen {
         tablodanSilButton = CreateButton.createDeleteButton();
         tablodanSilButton.setOnAction(e -> {
             Optional<ButtonType> result = AlertFunction.ConfirmAlert();
-            if (result.isPresent() && result.get().getText().equals("Evet")) {
+            if (result.isPresent() && result.get().getText().equals("Yes")) {
                 tablodanVeriSil();
                 tablo.getSelectionModel().clearSelection();
 
             }
         });
 
-        label1 = new Label(username.substring(0, 1).toUpperCase() + username.substring(1, username.length())
-                + " adlı kişinin eklediği antrenman şablonları:");
+        label1 = new Label(
+                " Workout templates added by:" + username.substring(0, 1).toUpperCase()
+                        + username.substring(1, username.length()));
         label1.setStyle("-fx-font-size:15px;-fx-alignment:center;-fx-font-style:italic");
 
         tablo = new TableView<>();
@@ -251,33 +252,33 @@ public class CreatingWorkoutsScreen {
         hareketleriGostermeKutusu.setMaxWidth(500);
         hareketleriGostermeKutusu.setPadding(new Insets(30, 20, 0, 0));
 
-        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Antrenman ID");
+        TableColumn<WorkoutTemplate, Integer> antrenmanIdCol = new TableColumn<>("Workout ID");
         antrenmanIdCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanID"));
         antrenmanIdCol.setId("column1");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("Kullanıcı ID");
+        TableColumn<WorkoutTemplate, Integer> userIdCol = new TableColumn<>("User ID");
         userIdCol.setCellValueFactory(new PropertyValueFactory<>("UserID"));
         userIdCol.setId("column2");
         antrenmanIdCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("İsim");
+        TableColumn<WorkoutTemplate, String> usernameCol = new TableColumn<>("Name");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("Username"));
         usernameCol.setId("column3");
         usernameCol.setPrefWidth(50);
 
-        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Antrenman Tipi");
+        TableColumn<WorkoutTemplate, String> tipCol = new TableColumn<>("Workout Type");
         tipCol.setCellValueFactory(new PropertyValueFactory<>("AntrenmanTipi"));
         tipCol.setId("column4");
         tipCol.setPrefWidth(100);
 
-        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Gün Sayısı");
+        TableColumn<WorkoutTemplate, Integer> gunCol = new TableColumn<>("Number of Days");
         gunCol.setCellValueFactory(new PropertyValueFactory<>("GunSayisi"));
         gunCol.setId("column5");
         gunCol.setPrefWidth(100);
 
         tablo.setItems(veritabaniVerileriCek());
-        Label labelveriyok = new Label("İçeride veri yok :( ");
+        Label labelveriyok = new Label("No Data 🔧:(");
         labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic");
         tablo.setPlaceholder(labelveriyok);
 
@@ -299,9 +300,9 @@ public class CreatingWorkoutsScreen {
         for (int gun : gun_hareket_map.keySet()) {
             List<String> hareketler = gun_hareket_map.get(gun);
             if (hareketler.isEmpty()) {
-                metin = (gun + 1) + ". Güne Hareket Eklenmedi";
+                metin = "No Movement Added to the Day : " + (gun + 1);
             } else {
-                metin = (gun + 1) + ". Gün seçilen hareketler: " + hareketler;
+                metin = " Selected movements for day: " + (gun + 1) + " : " + hareketler;
             }
 
             if (metin.length() >= 100) {
@@ -381,7 +382,7 @@ public class CreatingWorkoutsScreen {
             VBox gunKutusu = new VBox(5);
             gunKutusu.setPadding(new Insets(5));
 
-            Label gunLabel = new Label((i + 1) + ". Gün'e Hareket Ekle");
+            Label gunLabel = new Label("Add Movement to Day : " + (i + 1));
             gunLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;-fx-font-style:italic;-fx-font-size:20px");
             gunKutusu.getChildren().add(gunLabel);
 
@@ -490,7 +491,7 @@ public class CreatingWorkoutsScreen {
 
         Optional<ButtonType> result = AlertFunction.ConfirmAlert();
 
-        if (result.isPresent() && (result.get().getText().equals("Evet"))) {
+        if (result.isPresent() && (result.get().getText().equals("Yes"))) {
             WorkoutTemplate temp = tablo.getSelectionModel().getSelectedItem();
 
             for (Map.Entry<Integer, List<String>> entry : gun_hareket_map.entrySet()) {
@@ -512,9 +513,8 @@ public class CreatingWorkoutsScreen {
             }
 
             Main.setRoot(MainScreen.getRoot());
-            MainScreen.gosterBasariMesaji("Antrenman Oluşturuldu...");
+            MainScreen.gosterBasariMesaji("Workout Was Created...");
         } else {
-            System.out.println("Kullanıcı onaylamadı...");
         }
     }
 

@@ -5,4 +5,5 @@ import javafx.scene.chart.NumberAxis;
 
 public interface IRecordsDal extends IEntityRepository<Records> {
     void CheckIF(String secilen_hareket,NumberAxis yEkseni);
+    boolean IFRecordsExist(String hareket_adi,int antrenman_id);
 }

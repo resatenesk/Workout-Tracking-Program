@@ -450,7 +450,7 @@ public class DailyMacroAndFoodValuesScreen {
         protCol.setStyle("-fx-alignment: CENTER;");
         dateCol.setStyle("-fx-alignment: CENTER;");
 
-        Label labelveriyok = new Label("İçeride veri yok :( ");
+        Label labelveriyok = new Label("No Data 🔧 :( ");
         labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic");
         table.setPlaceholder(labelveriyok);
 

@@ -243,7 +243,7 @@ public class CreateSpecialMealCreateSpecialFood {
         translatedListPanel.setVisible(false);
 
         searchField = new TextField();
-        searchField.setPromptText("Ara...");
+        searchField.setPromptText("Search...");
 
         searchField.textProperty().addListener((obs, oldText, newText) -> {
             ObservableList<Food> filtered = FXCollections.observableArrayList();
@@ -398,7 +398,7 @@ public class CreateSpecialMealCreateSpecialFood {
         carbCol.setStyle("-fx-alignment: CENTER;");
         protCol.setStyle("-fx-alignment: CENTER;");
 
-        Label labelveriyok = new Label("İçeride veri yok :( ");
+        Label labelveriyok = new Label("No Data 🔧:( ");
         labelveriyok.setStyle("-fx-text-fill:black;-fx-font-style:italic");
         table.setPlaceholder(labelveriyok);
 
@@ -440,7 +440,7 @@ public class CreateSpecialMealCreateSpecialFood {
         meal_total_carb_clmn.setStyle("-fx-alignment: CENTER;");
         meal_total_prot_clmn.setStyle("-fx-alignment: CENTER;");
 
-        Label labelveriyok2 = new Label("İçeride veri yok :( ");
+        Label labelveriyok2 = new Label("No Data 🔧:( ");
         labelveriyok2.setStyle("-fx-text-fill:black;-fx-font-style:italic");
         meal_table.setPlaceholder(labelveriyok2);
 

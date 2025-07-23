@@ -28,7 +28,7 @@ public class AddNewUserScreen {
     Label passwordLabel;
     static TextField nameField;
     static PasswordField passwordField;
-    Button GeriDonButton;
+    Button goBackButton;
     Button KullaniciEkle;
     VBox layout;
     static String username;
@@ -38,14 +38,11 @@ public class AddNewUserScreen {
 
     public StackPane getRoot() {
         pane = new StackPane();
-        pane.setId("rootGenel");
+        pane.setId("rootGeneral");
         pane.getStylesheets().add(UserLoginFrame.class.getResource("/static/style.css").toExternalForm());
-        bilesenler();
-
-        root.setId("kullaniciEklemeRoot");
-        bilesenler();
+        components();
         try {
-            ayarlamalar();
+            arrangements();
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -53,7 +50,7 @@ public class AddNewUserScreen {
         return pane;
     }
 
-    public void ayarlamalar() throws Exception {
+    public void arrangements() throws Exception {
         HBox genellayout = new HBox();
         genellayout.setAlignment(Pos.CENTER);
         genellayout.setPadding(new Insets(400, 0, 0, 0));
@@ -80,7 +77,7 @@ public class AddNewUserScreen {
         HBox buttonsRow = new HBox(10);
         buttonsRow.setAlignment(Pos.CENTER);
         buttonsRow.setPadding(new Insets(0, 0, 400, 0));
-        buttonsRow.getChildren().addAll(KullaniciEkle, GeriDonButton);
+        buttonsRow.getChildren().addAll(KullaniciEkle, goBackButton);
 
         layout.getChildren().addAll(Column1);
         layout2.getChildren().addAll(Column2, passwordHBox);
@@ -91,7 +88,7 @@ public class AddNewUserScreen {
         pane.getChildren().add(root);
     }
 
-    public void bilesenler() {
+    public void components() {
         root = new BorderPane();
         nameLabel = new Label("Enter your username: ");
         passwordLabel = new Label("Enter your password: ");
@@ -107,14 +104,14 @@ public class AddNewUserScreen {
         passwordField.setPromptText("Password");
         passwordField.setMinWidth(120);
 
-        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "Parolanız Kuralları Şunlardır:\n" +
-                "- En az 8 karakter\n" +
-                "- En az 1 büyük harf\n" +
-                "- En az 1 rakam\n" +
-                "- En az 1 özel karakter (@, #, !, vs.)");
+        infoIcon = ImageFunction.LoadTooltip("/ICONS/info.png", "The password identify rules:\n" +
+                "- At least 8 characters\n" +
+                "- At least 1 uppercase letter\n" +
+                "- At least 1 number\n" +
+                "- At least 1 special character (@, #, !, etc.)");
 
-        GeriDonButton = CreateButton.createExitButton();
-        GeriDonButton.setOnAction(e -> {
+        goBackButton = CreateButton.createExitButton();
+        goBackButton.setOnAction(e -> {
             try {
                 Main.setRoot(UserLoginFrame.getRoot());
             } catch (Exception e1) {
@@ -123,7 +120,7 @@ public class AddNewUserScreen {
             }
 
         });
-        GeriDonButton.setMinWidth(120);
+        goBackButton.setMinWidth(120);
 
         KullaniciEkle = CreateButton.createSaveButton();
         KullaniciEkle.setOnAction(e -> {

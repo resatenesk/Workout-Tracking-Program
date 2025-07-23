@@ -2,14 +2,14 @@
 .root {
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-size: 14px;
-    -fx-background-color: linear-gradient(to left, #e012ac, #0b8ee6);
+    -fx-background-color: linear-gradient(to top, #4e4d4e, #acb9c2);
     -fx-cursor: hand;
 }
 
 
-#rootGenel {
-    -fx-background-image: url("/ICONS/background.png");
-    -fx-background-size: cover;
+#rootGeneral {
+    -fx-background-image: url("/ICONS/background2.png");
+ 
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
 }
@@ -340,7 +340,7 @@
 }
 
 .chart-plot-background {
-    -fx-background-color: #63b7d1;
+    -fx-background-color: #ffffff;
     /* Grafik arka plan */
 }
 

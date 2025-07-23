@@ -28,9 +28,9 @@ public class AlertFunction implements IFunction {
 
     public static void WrongPasswordAlert() {
         Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Hata");
-        alert.setHeaderText("Parola Hatası");
-        alert.setContentText("Lütfen Parola Kurallarına Uyunuz.");
+        alert.setTitle("Error");
+        alert.setHeaderText("Invalid Password");
+        alert.setContentText("Please comply with the password rules.");
 
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(AlertFunction.class.getResource("/static/alertStyle.css").toExternalForm());
@@ -140,8 +140,8 @@ public class AlertFunction implements IFunction {
         alert.setTitle("CONFIRM");
         alert.setContentText("Are you sure ?");
         alert.setHeaderText(null);
-        ButtonType evet = new ButtonType("Evet");
-        ButtonType hayir = new ButtonType("Hayır");
+        ButtonType evet = new ButtonType("Yes");
+        ButtonType hayir = new ButtonType("No");
         alert.getButtonTypes().setAll(evet, hayir);
         Optional<ButtonType> result = alert.showAndWait();
         return result;
@@ -150,9 +150,9 @@ public class AlertFunction implements IFunction {
 
     public static void DateIsNotSelectedAlert() {
         Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Tarih Seçilmedi!");
+        alert.setTitle("Date is not selected");
         alert.setHeaderText(null);
-        alert.setContentText("Lütfen Tarih Seçiniz.");
+        alert.setContentText("Please select a date");
         alert.showAndWait();
     }
 
@@ -160,7 +160,7 @@ public class AlertFunction implements IFunction {
         Alert alert = new Alert(AlertType.WARNING);
         alert.setTitle("Hareket Yok!");
         alert.setHeaderText(null);
-        alert.setContentText("Bu antrenman şablonunda bu hareket için hiç veri yok. Grafik oluşturulamadı.");
+        alert.setContentText("There is no data for this move in this training template. The chart could not be generated.");
        
         alert.showAndWait();
     }

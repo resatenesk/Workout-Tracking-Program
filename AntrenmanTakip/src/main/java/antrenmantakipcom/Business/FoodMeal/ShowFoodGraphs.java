@@ -142,15 +142,15 @@ public class ShowFoodGraphs {
             yEkseni.setLowerBound(1800);
             yEkseni.setUpperBound(2800);
             yEkseni.setTickUnit(50);
-            yEkseni.setLabel("Kalori");
+            yEkseni.setLabel("Calorie");
             yEkseni.setAutoRanging(false);
 
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
-            lineChart.setTitle("Kalori Alımı ( " + gunSayisi + " Gün)");
+            lineChart.setTitle("Calorie Taking ( " + gunSayisi + " Gün)");
             lineChart.setAnimated(false);
 
             XYChart.Series<String, Number> calSeries = new XYChart.Series<>();
-            calSeries.setName("Kalori");
+            calSeries.setName("Calorie");
 
             while (rs.next()) {
                 Date tarih = rs.getDate("date");
@@ -180,9 +180,9 @@ public class ShowFoodGraphs {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                double ortCarb = rs.getDouble("ort_carb");
-                double ortFat = rs.getDouble("ort_fat");
-                double ortProt = rs.getDouble("ort_prot");
+                double ortCarb = rs.getDouble("avg_carb");
+                double ortFat = rs.getDouble("avg_fat");
+                double ortProt = rs.getDouble("avg_prot");
 
                 ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
                         new PieChart.Data("Carb", ortCarb),
@@ -190,7 +190,7 @@ public class ShowFoodGraphs {
                         new PieChart.Data("Prot", ortProt));
 
                 PieChart pieChart = new PieChart(pieChartData);
-                pieChart.setTitle("Makro Dağılımı (Aylık Ortalama)");
+                pieChart.setTitle("Macro Distribution (Monthly Average)");
                 pieChart.setLegendVisible(true);
                 pieChart.setLabelsVisible(true);
                 pieChart.setClockwise(true);

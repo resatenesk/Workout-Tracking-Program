@@ -4,16 +4,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.AlertFunction;
 import antrenmantakipcom.Business.Utilities.Functions.Concrete.CreateButton;
 import antrenmantakipcom.DataAccess.Abstract.IMovementDal;
 import antrenmantakipcom.DataAccess.Abstract.IRecordsDal;
+import antrenmantakipcom.DataAccess.Abstract.IWorkoutDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.MovementDal;
 import antrenmantakipcom.DataAccess.Concrete.Dal.RecordsDal;
+import antrenmantakipcom.DataAccess.Concrete.Dal.WorkoutTemplateDal;
 import antrenmantakipcom.DataAccess.Concrete.Database;
 import antrenmantakipcom.Entities.Concrete.Movement;
 import antrenmantakipcom.Entities.Concrete.Records;
+import antrenmantakipcom.Entities.Concrete.WorkoutTemplate;
 import antrenmantakipcom.Main;
 import antrenmantakipcom.MainScreen;
 import javafx.animation.FadeTransition;
@@ -53,7 +59,7 @@ public class ShowWorkoutGraphsScreen {
     private ComboBox antrenman_tipi_combobox;
     private ComboBox<String> hareket_combobox;
     private int secilen_id;
-    private String secilen_antrenman_tipi;
+    private List<String> secilen_antrenman_tipi;
     private ObservableList<String> PPLliste = FXCollections.observableArrayList();
     private ObservableList<String> ULliste = FXCollections.observableArrayList();
     private ObservableList<String> FULLBODYliste = FXCollections.observableArrayList();
@@ -66,11 +72,13 @@ public class ShowWorkoutGraphsScreen {
 
     private IRecordsDal _IRecordsDal;
     private IMovementDal _IMovementDal;
+    private IWorkoutDal _WorkoutDal;
 
     public ShowWorkoutGraphsScreen(String username) {
 
         _IRecordsDal = new RecordsDal(Records.class);
         _IMovementDal = new MovementDal(Movement.class);
+        _WorkoutDal = new WorkoutTemplateDal(WorkoutTemplate.class);
 
         this.username = username;
         antrenmanIDsiniAl();
@@ -102,7 +110,7 @@ public class ShowWorkoutGraphsScreen {
 
         });
 
-        Label baslik = new Label("Antrenman Grafikleri Ekranı");
+        Label baslik = new Label("Training Graphs Screen");
         HBox header = new HBox(baslik);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(10));
@@ -111,23 +119,25 @@ public class ShowWorkoutGraphsScreen {
         antrenman_id_combobox.setPrefWidth(120);
         antrenman_id_combobox.setOnAction(e -> {
             secilen_id = (int) antrenman_id_combobox.getValue();
-            secilen_antrenman_tipi = antrenmanTipiniAl();
-            if (secilen_id > 0) {
-                if (secilen_antrenman_tipi.equals("PPL")) {
-                    antrenman_tipi_combobox.setItems(PPLliste);
-                }
-                if (secilen_antrenman_tipi.equals("UL")) {
-                    antrenman_tipi_combobox.setItems(ULliste);
-                }
-                if (secilen_antrenman_tipi.equals("FULLBODY")) {
-                    antrenman_tipi_combobox.setItems(FULLBODYliste);
-                }
-                if (secilen_antrenman_tipi.equals("BROSPLIT")) {
-                    antrenman_tipi_combobox.setItems(BROSPLITliste);
+            secilen_antrenman_tipi = antrenmanTipiniAl(); // artık List<String>
+            for (String string : secilen_antrenman_tipi) {
+                if (secilen_id > 0) {
+                    if (secilen_antrenman_tipi.contains("PPL")) {
+                        antrenman_tipi_combobox.setItems(PPLliste);
+                    } else if (secilen_antrenman_tipi.contains("UL")) {
+                        antrenman_tipi_combobox.setItems(ULliste);
+                    } else if (secilen_antrenman_tipi.contains("FULLBODY")) {
+                        antrenman_tipi_combobox.setItems(FULLBODYliste);
+                    } else if (secilen_antrenman_tipi.contains("BROSPLIT")) {
+                        antrenman_tipi_combobox.setItems(BROSPLITliste);
+                    } else {
+                        antrenman_tipi_combobox.setItems(FXCollections.observableArrayList());
+                    }
                 }
             }
 
         });
+
         uyariHBox = new HBox(10);
         uyariHBox.getChildren().addAll(uyariLabel, uyariLabel2);
         uyariHBox.setAlignment(Pos.BOTTOM_CENTER);
@@ -136,7 +146,7 @@ public class ShowWorkoutGraphsScreen {
         antrenman_tipi_combobox.setPrefWidth(120);
         antrenman_tipi_combobox.setOnShowing(e -> {
             if ((antrenman_tipi_combobox.getValue() == null) && (antrenman_id_combobox.getValue() == null)) {
-                uyariLabel.setText("Önce Antrenman ID Seçiniz!");
+                uyariLabel.setText("Please Before Select a Workout ID");
                 FadeTransition fade = new FadeTransition(Duration.millis(1500), uyariLabel);
                 fade.setFromValue(0);
                 fade.setToValue(1);
@@ -154,7 +164,7 @@ public class ShowWorkoutGraphsScreen {
         hareket_combobox.setOnShowing(e -> {
             if ((hareket_combobox.getValue() == null) && (antrenman_tipi_combobox.getValue() == null)) {
 
-                uyariLabel2.setText("Önce Antrenman Tipini Seçiniz!");
+                uyariLabel2.setText("Choose Your Training Type First!");
                 FadeTransition fade = new FadeTransition(Duration.millis(1500), uyariLabel2);
                 fade.setFromValue(0);
                 fade.setToValue(1);
@@ -195,9 +205,9 @@ public class ShowWorkoutGraphsScreen {
 
         Label label1 = new Label("Antrenman ID");
         label1.setStyle("-fx-font-size:20px");
-        Label label2 = new Label("Antrenman Tipi");
+        Label label2 = new Label("Antrenman Type");
         label2.setStyle("-fx-font-size:20px");
-        Label label3 = new Label("Hareket");
+        Label label3 = new Label("Movement");
         label3.setStyle("-fx-font-size:20px");
         labellerHbox.getChildren().addAll(label1, label2, label3);
 
@@ -231,7 +241,7 @@ public class ShowWorkoutGraphsScreen {
             grafikKutusu.getChildren().clear();
             return;
         }
-        if (!hareketAntrenmandaVarMi(secilen_hareket, secilen_id)) {
+        if (!_IRecordsDal.IFRecordsExist(secilen_hareket, secilen_id)) {
             if (secilen_hareket == null || secilen_hareket.isEmpty()) {
                 grafikKutusu.getChildren().clear();
                 return;
@@ -251,23 +261,23 @@ public class ShowWorkoutGraphsScreen {
             ResultSet rs = ps.executeQuery();
 
             CategoryAxis xEkseni = new CategoryAxis();
-            xEkseni.setLabel("Zaman(Soldan Sağa Artan)");
+            xEkseni.setLabel("Time(Left to Right Increasing)");
             xEkseni.setTickLabelsVisible(false);
 
             NumberAxis yEkseni = new NumberAxis();
-            yEkseni.setLabel("KG/Tekrar");
+            yEkseni.setLabel("QA/Repeat");
             yEkseni.setAutoRanging(false);
 
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
-            lineChart.setTitle(secilen_hareket + " İlerleme Grafiği");
+            lineChart.setTitle(secilen_hareket + " Progress Chart");
             lineChart.setAnimated(true);
 
             _IRecordsDal.CheckIF(secilen_hareket, yEkseni);
 
             XYChart.Series<String, Number> agirliklar = new XYChart.Series<>();
-            agirliklar.setName("Ağırlıklar");
+            agirliklar.setName("Weights");
             XYChart.Series<String, Number> tekrarlar = new XYChart.Series<>();
-            tekrarlar.setName("Tekrarlar");
+            tekrarlar.setName("Reps");
 
             while (rs.next()) {
 
@@ -294,66 +304,33 @@ public class ShowWorkoutGraphsScreen {
         if (secilenAntrenmanTipi == null || secilenAntrenmanTipi.isEmpty()) {
             return;
         }
-        System.out.println("Seçilen antrenman tipi: " + antrenman_tipi_combobox.getValue());
-
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT hareket_adi FROM hareketler WHERE antrenman_tur_kategori = ? ";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, (String) antrenman_tipi_combobox.getValue());
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                hareketlerListesi.add(rs.getString("hareket_adi"));
-
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        ObservableList<Movement> hareketler = _IMovementDal
+                .GetAll("SELECT * FROM hareketler WHERE antrenman_tur_kategori = ? ", secilenAntrenmanTipi);
+        for (Movement movement : hareketler) {
+            hareketlerListesi.add(movement.getHareket_adi());
         }
+
     }
 
-    private boolean hareketAntrenmandaVarMi(String hareketAdi, int antrenmanId) {
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT COUNT(*) FROM kayitlar WHERE hareket_adi = ? AND antrenman_id = ?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, hareketAdi);
-            ps.setInt(2, antrenmanId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int sayi = rs.getInt(1);
-                return sayi > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public List<String> antrenmanTipiniAl() {
+        ObservableList<WorkoutTemplate> list = _WorkoutDal
+                .GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE id = ?", secilen_id);
+        List<String> tipler = new ArrayList<>();
+        for (WorkoutTemplate addedWorkoutProgram : list) {
+            String tip = addedWorkoutProgram.getAntrenmanTipi();
+            tipler.add(tip);
         }
-        return false;
-    }
+        List<String> tip = tipler.stream().distinct().collect(Collectors.toList());
+        return tip;
 
-    public String antrenmanTipiniAl() {
-        try (Connection con = Database.connect()) {
-            String sorgu2 = "SELECT DISTINCT antrenman_tipi FROM eklenen_antrenman_sablonlari WHERE id = ?";
-            PreparedStatement ps2 = con.prepareStatement(sorgu2);
-            ps2.setInt(1, secilen_id);
-            ResultSet rs2 = ps2.executeQuery();
-            while (rs2.next()) {
-                antrenman_tipi = rs2.getString("antrenman_tipi");
-            }
-        } catch (SQLException ex) {
-        }
-        return antrenman_tipi;
     }
 
     public void antrenmanIDsiniAl() {
-        try (Connection con = Database.connect()) {
-            String sorgu = "SELECT * FROM eklenen_antrenman_sablonlari WHERE username = ?";
-            PreparedStatement ps = con.prepareStatement(sorgu);
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                antrenmanIDleri.add(rs.getInt("id"));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        List<WorkoutTemplate> list = _WorkoutDal.GetAll("SELECT * FROM eklenen_antrenman_sablonlari WHERE username = ?",
+                username);
+        for (WorkoutTemplate workoutTemplate : list) {
+            int id = workoutTemplate.getAntrenmanID();
+            antrenmanIDleri.add(id);
         }
     }
 
