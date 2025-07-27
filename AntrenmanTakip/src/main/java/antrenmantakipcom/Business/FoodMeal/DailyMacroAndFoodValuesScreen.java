@@ -86,7 +86,6 @@ public class DailyMacroAndFoodValuesScreen {
         this.username = username;
         root = new BorderPane();
 
-
         _DailyFoodValueDal = new DailyFoodValueDal(DailyFoodValue.class);
         _IUserDal = new UserDal(User.class);
         User user = new User();
@@ -146,6 +145,7 @@ public class DailyMacroAndFoodValuesScreen {
         });
 
         translatedListPanel.getChildren().addAll(table, closeButton, deleteButton);
+        translatedListPanel.setId("translatedListPanel");
         showValueList = CreateButton.createListButton();
         showValueList.setOnAction(e -> {
             daily_food_valuesGetData();
@@ -193,6 +193,7 @@ public class DailyMacroAndFoodValuesScreen {
         });
 
         AddMeal = new Label("Add Meal");
+        AddMeal.setPrefSize(120,50);
         AddMeal.setStyle("-fx-font-size:15px;-fx-font-style:italic");
 
         information = new Label("");
@@ -296,6 +297,7 @@ public class DailyMacroAndFoodValuesScreen {
         });
 
         datePicker = new DatePicker();
+        
         datePicker.setPromptText("Enter a date");
 
         geriDonButton = CreateButton.createExitButton();
@@ -325,6 +327,7 @@ public class DailyMacroAndFoodValuesScreen {
     }
 
     public BorderPane getPane() {
+        root.setId("rootBackgroundGeneral");
         return root;
     }
 
@@ -349,7 +352,7 @@ public class DailyMacroAndFoodValuesScreen {
             float carb = Float.parseFloat(carbText);
             float prot = Float.parseFloat(protText);
 
-            DailyFoodValue entity = new DailyFoodValue(user_id,calorie, fat, carb, prot, date);
+            DailyFoodValue entity = new DailyFoodValue(user_id, calorie, fat, carb, prot, date);
             int sonuc = _DailyFoodValueDal.Add(entity);
             if (sonuc > 0) {
                 daily_food_values_list.add(entity);
@@ -366,10 +369,8 @@ public class DailyMacroAndFoodValuesScreen {
 
     public void getData() {
 
-            meal_list = _IMealDal.GetAll("SELECT * FROM saved_meals WHERE user_id = ?", user_id);
-            selectMeal.getItems().setAll(meal_list);
-            
-        
+        meal_list = _IMealDal.GetAll("SELECT * FROM saved_meals WHERE user_id = ?", user_id);
+        selectMeal.getItems().setAll(meal_list);
 
     }
 
@@ -394,7 +395,7 @@ public class DailyMacroAndFoodValuesScreen {
 
         try {
 
-            DailyFoodValue data = new DailyFoodValue(user_id,totalCal, totalFat, totalCarb, totalProt, date);
+            DailyFoodValue data = new DailyFoodValue(user_id, totalCal, totalFat, totalCarb, totalProt, date);
             int sonuc = _DailyFoodValueDal.Add(data);
             if (sonuc > 0) {
 

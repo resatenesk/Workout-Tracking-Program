@@ -9,7 +9,8 @@
         "ignore": [
           "-fx-cursor",
           "-fx-stroke",
-          "-fx-stroke-width"
+          "-fx-stroke-width",
+          "-fx-fill"
         ]
       }
     ]

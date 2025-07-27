@@ -24,7 +24,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -51,7 +50,7 @@ public class WorkoutStyleAndDaySelectionScreen {
         WorkoutStyleAndDaySelectionScreen.username = username;
     }
 
-    public Pane getRoot() {
+    public BorderPane getRoot() {
         root = new BorderPane();
         bilesenler();
         ayarlamalar();

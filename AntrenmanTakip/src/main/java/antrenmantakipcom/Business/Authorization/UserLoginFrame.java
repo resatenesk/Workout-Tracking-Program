@@ -120,6 +120,7 @@ public class UserLoginFrame {
         imageLogin = ImageFunction.LoadImage("/ICONS/ikon1.png");
 
         LoginButton = new Button("Login", imageLogin);
+        LoginButton.setId("login_button");
         LoginButton.setOnAction(e -> {
             try {
 

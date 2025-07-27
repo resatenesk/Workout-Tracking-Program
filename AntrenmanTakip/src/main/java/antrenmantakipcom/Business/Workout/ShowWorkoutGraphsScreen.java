@@ -116,7 +116,7 @@ public class ShowWorkoutGraphsScreen {
         header.setPadding(new Insets(10));
 
         antrenman_id_combobox = new ComboBox<>();
-        antrenman_id_combobox.setPrefWidth(120);
+        antrenman_id_combobox.setPrefWidth(150);
         antrenman_id_combobox.setOnAction(e -> {
             secilen_id = (int) antrenman_id_combobox.getValue();
             secilen_antrenman_tipi = antrenmanTipiniAl(); // artık List<String>
@@ -143,7 +143,7 @@ public class ShowWorkoutGraphsScreen {
         uyariHBox.setAlignment(Pos.BOTTOM_CENTER);
         uyariHBox.setPadding(new Insets(30, 0, 0, 60));
         antrenman_tipi_combobox = new ComboBox<>();
-        antrenman_tipi_combobox.setPrefWidth(120);
+        antrenman_tipi_combobox.setPrefWidth(150);
         antrenman_tipi_combobox.setOnShowing(e -> {
             if ((antrenman_tipi_combobox.getValue() == null) && (antrenman_id_combobox.getValue() == null)) {
                 uyariLabel.setText("Please Before Select a Workout ID");
@@ -160,7 +160,7 @@ public class ShowWorkoutGraphsScreen {
         });
 
         hareket_combobox = new ComboBox<>();
-        hareket_combobox.setPrefWidth(120);
+        hareket_combobox.setPrefWidth(200);
         hareket_combobox.setOnShowing(e -> {
             if ((hareket_combobox.getValue() == null) && (antrenman_tipi_combobox.getValue() == null)) {
 
@@ -198,17 +198,17 @@ public class ShowWorkoutGraphsScreen {
             hareket_combobox.setItems(hareketlerListesi);
         }
 
-        labellerHbox = new HBox(25);
+        labellerHbox = new HBox(50);
         labellerHbox.setAlignment(Pos.CENTER);
-        combolarHBox = new HBox(50);
+        combolarHBox = new HBox(100);
         combolarHBox.setAlignment(Pos.CENTER);
 
         Label label1 = new Label("Antrenman ID");
-        label1.setStyle("-fx-font-size:20px");
+        label1.setStyle("-fx-font-size:25px");
         Label label2 = new Label("Antrenman Type");
-        label2.setStyle("-fx-font-size:20px");
+        label2.setStyle("-fx-font-size:25px");
         Label label3 = new Label("Movement");
-        label3.setStyle("-fx-font-size:20px");
+        label3.setStyle("-fx-font-size:25px");
         labellerHbox.getChildren().addAll(label1, label2, label3);
 
         combolarHBox.getChildren().addAll(antrenman_id_combobox, antrenman_tipi_combobox, hareket_combobox);
@@ -269,6 +269,8 @@ public class ShowWorkoutGraphsScreen {
             yEkseni.setAutoRanging(false);
 
             LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
+            lineChart.setPrefSize(800, 600);
+            lineChart.setMaxSize(800, 600);
             lineChart.setTitle(secilen_hareket + " Progress Chart");
             lineChart.setAnimated(true);
 
@@ -335,6 +337,7 @@ public class ShowWorkoutGraphsScreen {
     }
 
     public BorderPane getRoot() {
+        root.setId("rootBackgroundGeneral");
         return root;
     }
 }

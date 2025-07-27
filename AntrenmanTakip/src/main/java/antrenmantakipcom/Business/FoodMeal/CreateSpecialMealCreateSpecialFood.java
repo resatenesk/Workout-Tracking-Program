@@ -110,7 +110,7 @@ public class CreateSpecialMealCreateSpecialFood {
         exitButton.setOnAction(e -> {
             Main.setRoot(MainScreen.getRoot());
         });
-        
+
         close_meal_listButton = CreateButton.createCloseButton();
         close_meal_listButton.setOnAction(e -> {
             if (mealPanelAcikMi) {
@@ -121,7 +121,7 @@ public class CreateSpecialMealCreateSpecialFood {
                 mealPanelAcikMi = false;
             }
         });
-        
+
         addPrivateFoodBoxSaveButton = CreateButton.createSaveButton();
         addPrivateFoodBoxSaveButton.setOnAction(e -> {
             saveSpecialFood();
@@ -132,7 +132,7 @@ public class CreateSpecialMealCreateSpecialFood {
             foodProtField.setText("");
             gramsField.setText("");
         });
-        
+
         addPrivateFoodBoxDeleteButton = CreateButton.createDeleteButton();
         addPrivateFoodBoxDeleteButton.setOnAction(e -> {
             Food food = table.getSelectionModel().getSelectedItem();
@@ -152,7 +152,7 @@ public class CreateSpecialMealCreateSpecialFood {
             }
 
         });
-        
+
         addPrivateMealBoxDeleteButton = CreateButton.createDeleteButton();
         addPrivateMealBoxDeleteButton.setOnAction(e -> {
 
@@ -177,12 +177,12 @@ public class CreateSpecialMealCreateSpecialFood {
             }
 
         });
-        
+
         addPrivateMealBoxSaveButton = CreateButton.createSaveButton();
         addPrivateMealBoxSaveButton.setOnAction(e -> {
             saveMeal();
         });
-        
+
         showMealList = CreateButton.createListButton();
         showMealList.setOnAction(e -> {
             showMealList();
@@ -211,8 +211,8 @@ public class CreateSpecialMealCreateSpecialFood {
                 foodPanelAcikMi = false;
             }
         });
-        
-        showFoodList =  CreateButton.createListButton();
+
+        showFoodList = CreateButton.createListButton();
         showFoodList.setOnAction(e -> {
             verileriCek();
 
@@ -232,8 +232,8 @@ public class CreateSpecialMealCreateSpecialFood {
         });
 
         translatedListPanel = new VBox(10);
+        translatedListPanel.setId("translatedListPanel");
         translatedListPanel.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
-        translatedListPanel.setId("translatedList");
         translatedListPanel.setPrefWidth(500);
         translatedListPanel.setPrefHeight(900);
         translatedListPanel.setMaxHeight(900);
@@ -265,8 +265,8 @@ public class CreateSpecialMealCreateSpecialFood {
         });
 
         translatedListPanelMeal = new VBox(10);
+        translatedListPanelMeal.setId("translatedListPanel");
         translatedListPanelMeal.getStylesheets().add(getClass().getResource("/static/style.css").toExternalForm());
-        translatedListPanelMeal.setId("translatedList");
         translatedListPanelMeal.setPrefWidth(500);
         translatedListPanelMeal.setPrefHeight(900);
         translatedListPanelMeal.setMaxHeight(900);
@@ -483,7 +483,9 @@ public class CreateSpecialMealCreateSpecialFood {
     }
 
     public BorderPane getPane() {
+        pane.setId("rootBackgroundGeneral");
         return pane;
+
     }
 
     public void saveSpecialFood() {

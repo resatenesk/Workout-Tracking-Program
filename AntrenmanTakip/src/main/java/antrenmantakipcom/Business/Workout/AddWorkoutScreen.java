@@ -429,6 +429,8 @@ public class AddWorkoutScreen {
     }
 
     public BorderPane getRoot() {
+
+        root.setId("rootBackgroundGeneral");
         return root;
     }
 }

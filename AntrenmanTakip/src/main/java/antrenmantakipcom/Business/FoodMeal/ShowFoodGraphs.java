@@ -47,6 +47,8 @@ public class ShowFoodGraphs {
     private Button geriDon;
     private IUserDal _IUserDal;
     private IDailyFoodValueDal _DailyFoodValueDal;
+    private LineChart<String, Number> lineChart;
+    int gun_sayisi = 10;
 
     public ShowFoodGraphs(String username) {
         _IUserDal = new UserDal(User.class);
@@ -84,12 +86,12 @@ public class ShowFoodGraphs {
         nextButton1.setPrefSize(150, 40);
 
         graphsBox = new StackPane();
-     
+
         graphsBox.setPrefSize(500, 500);
         graphsBox.setMaxSize(500, 500);
 
         PieChartBox = new StackPane();
-     
+
         PieChartBox.setPrefSize(500, 500);
         PieChartBox.setMaxSize(500, 500);
 
@@ -112,6 +114,7 @@ public class ShowFoodGraphs {
     }
 
     public BorderPane getPane() {
+        pane.setId("rootBackgroundGeneral");
         return pane;
     }
 
@@ -123,7 +126,6 @@ public class ShowFoodGraphs {
 
     public void drawGraphs(int gunSayisi) {
         try (Connection con = Database.connect()) {
-
             String sorgu = "SELECT date, calorie FROM daily_food_values " +
                     "WHERE user_id = ? AND date >= (SELECT MAX(date) FROM daily_food_values WHERE user_id = ?) - INTERVAL "
                     + gunSayisi + " DAY " +
@@ -131,23 +133,26 @@ public class ShowFoodGraphs {
             PreparedStatement ps = con.prepareStatement(sorgu);
             ps.setInt(1, user_id);
             ps.setInt(2, user_id);
-
             ResultSet rs = ps.executeQuery();
 
-            CategoryAxis xEkseni = new CategoryAxis();
-            xEkseni.setLabel("Tarih");
-            xEkseni.setTickLabelsVisible(true);
+            if (lineChart == null) {
+                CategoryAxis xEkseni = new CategoryAxis();
+                xEkseni.setTickLabelsVisible(false);
+                xEkseni.setTickMarkVisible(false);
+                xEkseni.setLabel("");
+                NumberAxis yEkseni = new NumberAxis(1700, 3300, 50);
+                yEkseni.setLabel("Calorie");
+                yEkseni.setAutoRanging(false);
 
-            NumberAxis yEkseni = new NumberAxis();
-            yEkseni.setLowerBound(1800);
-            yEkseni.setUpperBound(2800);
-            yEkseni.setTickUnit(50);
-            yEkseni.setLabel("Calorie");
-            yEkseni.setAutoRanging(false);
+                lineChart = new LineChart<>(xEkseni, yEkseni);
+                lineChart.setId("linechart");
+                lineChart.setPrefSize(600, 450);
+                lineChart.setMaxSize(600, 450);
+                lineChart.setAnimated(false);
 
-            LineChart<String, Number> lineChart = new LineChart<>(xEkseni, yEkseni);
-            lineChart.setTitle("Calorie Taking ( " + gunSayisi + " Gün)");
-            lineChart.setAnimated(false);
+                graphsBox.getChildren().clear();
+                graphsBox.getChildren().add(lineChart);
+            }
 
             XYChart.Series<String, Number> calSeries = new XYChart.Series<>();
             calSeries.setName("Calorie");
@@ -158,9 +163,9 @@ public class ShowFoodGraphs {
                 calSeries.getData().add(new XYChart.Data<>(tarih.toString(), cal));
             }
 
-            graphsBox.getChildren().clear();
+            lineChart.getData().clear();
+            lineChart.setTitle("Calorie Taking ( " + gunSayisi + " Gün)");
             lineChart.getData().add(calSeries);
-            graphsBox.getChildren().add(lineChart);
 
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -180,9 +185,9 @@ public class ShowFoodGraphs {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                double ortCarb = rs.getDouble("avg_carb");
-                double ortFat = rs.getDouble("avg_fat");
-                double ortProt = rs.getDouble("avg_prot");
+                double ortCarb = rs.getDouble("ort_carb");
+                double ortFat = rs.getDouble("ort_fat");
+                double ortProt = rs.getDouble("ort_prot");
 
                 ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
                         new PieChart.Data("Carb", ortCarb),
@@ -191,6 +196,8 @@ public class ShowFoodGraphs {
 
                 PieChart pieChart = new PieChart(pieChartData);
                 pieChart.setTitle("Macro Distribution (Monthly Average)");
+                pieChart.setPrefSize(400, 400);
+                pieChart.setMaxSize(400, 400);
                 pieChart.setLegendVisible(true);
                 pieChart.setLabelsVisible(true);
                 pieChart.setClockwise(true);
@@ -198,6 +205,7 @@ public class ShowFoodGraphs {
 
                 PieChartBox.getChildren().clear();
                 PieChartBox.getChildren().add(pieChart);
+
             }
 
         } catch (SQLException e) {

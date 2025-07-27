@@ -31,17 +31,16 @@ public class MainScreen {
     static String username;
     static BorderPane root;
     static Button createMealButton;
-   
 
     public static void setUsername(String username) {
         MainScreen.username = username;
     }
 
-    
     public static BorderPane getRoot() {
-        
+
         root = new BorderPane();
-        root.setFocusTraversable(true); 
+        root.setId("rootBackgroundGeneral");
+        root.setFocusTraversable(true);
         bilesenler();
         ayarlamalar();
         return root;
@@ -130,9 +129,12 @@ public class MainScreen {
             Main.setRoot(meal.getPane());
         });
 
+        Image image6 = new Image(UserLoginFrame.class.getResourceAsStream("/ICONS/calgraph.png"));
+        ImageView imageView6 = new ImageView(image6);
+        imageView6.setFitWidth(30);
+        imageView6.setFitHeight(30);
 
-        besin_grafikleri = CreateButton.createListButton();
-        besin_grafikleri.setText("Show Food Graphs");
+        besin_grafikleri = new Button("Show Food Graphs",imageView6);
         besin_grafikleri.setOnAction(e -> {
             ShowFoodGraphs graphs = new ShowFoodGraphs(username);
             Main.setRoot(graphs.getPane());
@@ -140,7 +142,6 @@ public class MainScreen {
         besin_grafikleri.setMinWidth(150);
         besin_grafikleri.setMinHeight(50);
 
-     
         cikis_yap = CreateButton.createExitButton();
         cikis_yap.setId("cikis_butonlari");
 

@@ -371,7 +371,7 @@ public class CreatingWorkoutsScreen {
         root.setRight(sagIcerik);
         root.setBottom(buttonYerlesimi);
         // genelYerlesim.setCenter(hareketleriGostermeKutusu);
-
+        root.setId("rootBackgroundGeneral");
         return root;
     }
 
